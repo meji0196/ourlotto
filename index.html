@@ -25,7 +25,7 @@ main{max-width:1180px;margin:auto;padding:16px}.page{display:none}.page.active{d
 @media(max-width:600px){.machine{grid-template-columns:1fr;padding:4px}.bet-tabs{grid-template-columns:repeat(5,1fr)}.bet-tab{min-height:34px;font-size:16px}.game-rail{display:grid;grid-template-columns:repeat(4,1fr);order:2}.machine-main{order:1}.machine-side{order:3;grid-template-columns:1fr 1fr}.number-board{grid-template-columns:repeat(7,minmax(36px,1fr));gap:4px}.num-btn{font-size:16px;border-radius:9px}.game-btn{min-height:40px;padding:6px 3px}.side-btn{font-size:14px}.machine-top{flex-wrap:wrap}}
 
 
-.qr-result-shell{max-width:820px;margin:0 auto}.qr-result-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.qr-result-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 5px 22px rgba(20,40,80,.06)}.qr-result-canvas{width:min(460px,92vw);height:auto;display:block;margin:20px auto;background:#fff;image-rendering:pixelated}.qr-result-meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}.qr-result-bets{display:grid;gap:9px;margin-top:18px}.qr-result-bet{display:flex;gap:14px;align-items:center;padding:11px 13px;background:#f7f9fc;border-radius:12px}.qr-result-bet b{min-width:66px}.qr-result-nums{font-size:18px;font-weight:900;letter-spacing:.02em}.qr-result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}.qr-result-actions button{min-width:150px}.qr-back{font-weight:900}.qr-result-note{text-align:center;color:var(--muted);font-size:12px;margin-top:14px}.qr-result-payload{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-all;background:#f7f9fc;border-radius:10px;padding:10px;margin-top:14px;color:#667085}
+.qr-result-shell{max-width:820px;margin:0 auto}.qr-result-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.qr-result-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 5px 22px rgba(20,40,80,.06)}.qr-result-canvas{width:min(460px,92vw);height:auto;display:block;margin:20px auto;background:#fff;image-rendering:pixelated}.qr-result-meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}.qr-result-bets{display:grid;gap:9px;margin-top:18px}.qr-result-bet{display:flex;gap:14px;align-items:center;padding:11px 13px;background:#f7f9fc;border-radius:12px}.qr-result-bet b{min-width:66px}.qr-result-nums{font-size:18px;font-weight:900;letter-spacing:.02em}.qr-result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}.qr-result-actions button{min-width:150px}.qr-back{font-weight:900}.qr-result-note{text-align:center;color:var(--muted);font-size:12px;margin-top:14px}.qr-result-payload{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-all;background:#f7f9fc;border-radius:10px;padding:10px;margin-top:14px;color:#667085}.qr-result-pager{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;margin:8px 0 2px;justify-content:flex-start}.qr-page-btn{flex:0 0 auto;border:1px solid #cfd8ea;background:#fff;color:#31517f;border-radius:10px;padding:9px 13px;font-weight:900;cursor:pointer}.qr-page-btn.active{background:#165dff;border-color:#165dff;color:#fff}.qr-page-summary{text-align:center;font-size:13px;color:var(--muted);font-weight:800;margin-top:4px}
 @page{size:58mm 60mm;margin:0}
 @media print{
   html,body{width:58mm!important;height:60mm!important;min-width:58mm!important;min-height:60mm!important;margin:0!important;padding:0!important;background:#fff!important;overflow:hidden!important}
@@ -137,7 +137,7 @@ main{max-width:1180px;margin:auto;padding:16px}.page{display:none}.page.active{d
       <div class="column-scroll"><div class="column-cards" id="columnCards"></div></div>
     </div>
   </div>
-  <footer class="column-footer"><div class="column-valid" id="columnValid">請點選下方任一柱，再從上方加入號碼。</div><button class="column-apply" id="columnApply" disabled>套用連碰立柱</button></footer>
+  <footer class="column-footer"><div class="column-valid" id="columnValid">請點選下方任一柱，再從上方加入號碼。</div><button class="column-apply" id="columnApply" disabled>製作立柱QR</button></footer>
 </section>
 </div><div class="card col12 hidden" aria-hidden="true">
 <div class="row"><div class="grow"><h2 class="title">製作台彩 V003 QR Code</h2><div class="sub">適用「大樂透／自選／1期／單注」。可直接用目前抽號結果，或從下方歷史紀錄挑選一組；7／8碼可點選其中剛好6個號碼。</div></div></div>
@@ -166,6 +166,8 @@ main{max-width:1180px;margin:auto;padding:16px}.page{display:none}.page.active{d
   <div class="qr-result-card">
     <h1 class="title" style="text-align:center;margin-bottom:4px">大樂透 V003 QR Code</h1>
     <div class="qr-result-meta" id="qrResultMeta"></div>
+    <div class="qr-result-pager" id="qrResultPager"></div>
+    <div class="qr-page-summary" id="qrPageSummary"></div>
     <canvas id="qrResultCanvas" class="qr-result-canvas" width="520" height="520"></canvas>
     <div class="qr-result-bets" id="qrResultBets"></div>
     <div class="qr-result-actions">
@@ -1790,27 +1792,49 @@ function showAppPage(id){
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.pagebtn===id));
   window.scrollTo({top:0,behavior:'instant'});
 }
+function buildQrPage(rows,periodCount,startOffset,preDate,offsetIndex=0){
+  const payload=buildV003PayloadFromBets(rows,periodCount,startOffset);
+  const total=rows.reduce((sum,nums)=>sum+combinationCount(nums.length,6)*50*periodCount,0);
+  const totalUnits=rows.reduce((sum,nums)=>sum+combinationCount(nums.length,6),0);
+  return {rows,periodCount,payload,total,totalUnits,startOffset,preorderDate:preDate,offsetIndex,dataUrl:''};
+}
+function renderQrResultPage(index=0){
+  if(!qrResultState||!qrResultState.pages?.length)return;
+  const pages=qrResultState.pages;
+  index=Math.max(0,Math.min(pages.length-1,index));
+  qrResultState.current=index;
+  const page=pages[index];
+  const {rows,periodCount,payload,total,startOffset,preorderDate:preDate,totalUnits,offsetIndex}=page;
+  const canvas=document.getElementById('qrResultCanvas');canvas.width=520;canvas.height=520;drawQrOffline(canvas,payload);page.dataUrl=canvas.toDataURL('image/png');
+  const hasSystem=rows.some(r=>r.length>6),hasNormal=rows.some(r=>r.length===6),mixed=hasSystem&&hasNormal,multiSystem=rows.filter(r=>r.length>6).length>1;
+  let modeLabel=mixed?'一般＋系統混合':(hasSystem?(rows.length===1?`系統${rows[0].length}`:'多系統投注'):(qrResultState.columnExpanded?'連碰立柱展開':'一般自選'));
+  let verifyLabel='';
+  if(qrResultState.columnExpanded)verifyLabel='立柱展開為一般多注';
+  else if(mixed)verifyLabel='混合投注：已驗證';
+  else if(multiSystem)verifyLabel='多系統投注：已驗證';
+  else if(hasSystem&&rows.length===1)verifyLabel='系統7～16：官方樣本支持';
+  else verifyLabel=preDate?(periodCount===1?'指定日期單期：已驗證':'指定日期＋連續期數：已驗證'):(periodCount>3?'4～10期：實測可用':'1～3期：已驗證');
+  const overall=qrResultState.overall;
+  document.getElementById('qrResultMeta').innerHTML=`<span class="pill">${modeLabel}</span>${preDate?`<span class="pill">預購起始 ${preDate}</span><span class="pill">連續 ${periodCount} 期</span><span class="pill">日期序號 ${String(startOffset).padStart(2,'0')}</span>`:`<span class="pill">${periodCount} 期</span>`}<span class="pill">本筆 ${rows.length} 注</span><span class="pill">本筆 ${total.toLocaleString()} 元</span>${pages.length>1?`<span class="pill">總 ${overall.rows} 注</span><span class="pill">共 ${pages.length} 筆QR</span><span class="pill">總額 ${overall.total.toLocaleString()} 元</span>`:`<span class="pill">共 ${totalUnits.toLocaleString()} 組</span>`}<span class="pill">${verifyLabel}</span>`;
+  document.getElementById('qrResultBets').innerHTML=rows.map((nums,i)=>`<div class="qr-result-bet"><b>${nums.length>6?`系統 ${nums.length}（${combinationCount(nums.length,6).toLocaleString()} 組）`:`第 ${pad(offsetIndex+i+1)} 注`}</b><div class="qr-result-nums">${nums.map(pad).join('、')}</div></div>`).join('');
+  document.getElementById('qrResultPayload').textContent=payload;
+  document.getElementById('qrPageSummary').textContent=pages.length>1?`第 ${index+1} 筆／共 ${pages.length} 筆｜此 QR 含第 ${offsetIndex+1}～${offsetIndex+rows.length} 注`:'';
+  const pager=document.getElementById('qrResultPager');
+  pager.innerHTML=pages.length>1?pages.map((p,i)=>`<button class="qr-page-btn ${i===index?'active':''}" data-qr-page="${i}">第${i+1}筆 · ${p.rows.length}注</button>`).join(''):'';
+}
 function showV003QrResultPage(bets,periodCount=1,opts={}){
-  const rows=(bets||[]).map(nums=>[...nums].map(Number).sort((a,b)=>a-b));
-  if(!rows.length)return alert('請至少完成1注（每注6個號碼）。');
+  const allRows=(bets||[]).map(nums=>[...nums].map(Number).sort((a,b)=>a-b));
+  if(!allRows.length)return alert('請至少完成1注（每注6個號碼）。');
   if(!v003SelfTest())return alert('V003內建驗證失敗，已停止產生QR，避免輸出錯誤編碼。');
   try{
     const startOffset=Number(opts.startOffset||0),preDate=opts.preorderDate||'';
-    const payload=buildV003PayloadFromBets(rows,periodCount,startOffset),total=rows.reduce((sum,nums)=>sum+combinationCount(nums.length,6)*50*periodCount,0);
-    const canvas=document.getElementById('qrResultCanvas');canvas.width=520;canvas.height=520;drawQrOffline(canvas,payload);
-    qrResultState={rows,periodCount,payload,total,startOffset,preorderDate:preDate,dataUrl:canvas.toDataURL('image/png')};
-    const hasSystem=rows.some(r=>r.length>6),hasNormal=rows.some(r=>r.length===6),mixed=hasSystem&&hasNormal,multiSystem=rows.filter(r=>r.length>6).length>1;
-    const totalUnits=rows.reduce((sum,nums)=>sum+combinationCount(nums.length,6),0);
-    let modeLabel=mixed?'一般＋系統混合':(hasSystem?(rows.length===1?`系統${rows[0].length}`:'多系統投注'):'一般自選');
-    let verifyLabel='';
-    if(mixed)verifyLabel='混合投注：已驗證';
-    else if(multiSystem)verifyLabel='多系統投注：已驗證';
-    else if(hasSystem&&rows.length===1)verifyLabel='系統7～16：官方樣本支持';
-    else verifyLabel=preDate?(periodCount===1?'指定日期單期：已驗證':'指定日期＋連續期數：已驗證'):(periodCount>3?'4～10期：實測可用':'1～3期：已驗證');
-    document.getElementById('qrResultMeta').innerHTML=`<span class="pill">${modeLabel}</span>${preDate?`<span class="pill">預購起始 ${preDate}</span><span class="pill">連續 ${periodCount} 期</span><span class="pill">日期序號 ${String(startOffset).padStart(2,'0')}</span>`:`<span class="pill">${periodCount} 期</span>`}<span class="pill">${rows.length} 個投注單位</span><span class="pill">共 ${totalUnits.toLocaleString()} 組</span><span class="pill">${total.toLocaleString()} 元</span><span class="pill">${verifyLabel}</span>`;
-    document.getElementById('qrResultBets').innerHTML=rows.map((nums,i)=>`<div class="qr-result-bet"><b>${nums.length>6?`系統 ${nums.length}（${combinationCount(nums.length,6).toLocaleString()} 組）`:`第 ${pad(i+1)} 注`}</b><div class="qr-result-nums">${nums.map(pad).join('、')}</div></div>`).join('');
-    document.getElementById('qrResultPayload').textContent=payload;
-    showAppPage('qrresult');
+    const groups=[];
+    if(opts.autoSplit10){for(let i=0;i<allRows.length;i+=10)groups.push({rows:allRows.slice(i,i+10),offsetIndex:i});}
+    else groups.push({rows:allRows,offsetIndex:0});
+    const pages=groups.map(g=>buildQrPage(g.rows,periodCount,startOffset,preDate,g.offsetIndex));
+    const overallTotal=allRows.reduce((sum,nums)=>sum+combinationCount(nums.length,6)*50*periodCount,0);
+    qrResultState={pages,current:0,columnExpanded:!!opts.columnExpanded,overall:{rows:allRows.length,total:overallTotal},periodCount,startOffset,preorderDate:preDate};
+    renderQrResultPage(0);showAppPage('qrresult');
   }catch(e){alert('QR 產生失敗：'+String(e.message||e));}
 }
 function backToNumberSelection(){showAppPage('home')}
@@ -1819,12 +1843,13 @@ function printQrResultPage(){
   document.body.classList.add('qr-print');
   const cleanup=()=>{document.body.classList.remove('qr-print');window.removeEventListener('afterprint',cleanup)};
   window.addEventListener('afterprint',cleanup,{once:true});
-  // 必須在使用者點擊事件中直接呼叫，避免瀏覽器把延遲列印視為非使用者操作而阻擋。
   try{window.print()}catch(e){cleanup();alert('無法開啟列印視窗：'+String(e.message||e))}
 }
 function downloadQrResultPage(){
   if(!qrResultState)return alert('尚未產生 QR Code。');
-  const a=document.createElement('a');a.href=qrResultState.dataUrl;a.download=`lotto_v003_${qrResultState.rows.length}注_${qrResultState.periodCount}期.png`;document.body.appendChild(a);a.click();a.remove();
+  const page=qrResultState.pages[qrResultState.current];
+  if(!page.dataUrl){const canvas=document.getElementById('qrResultCanvas');page.dataUrl=canvas.toDataURL('image/png')}
+  const a=document.createElement('a');a.href=page.dataUrl;a.download=`lotto_v003_第${qrResultState.current+1}筆_${page.rows.length}注_${page.periodCount}期.png`;document.body.appendChild(a);a.click();a.remove();
 }
 function initQr(){renderVerifiedSamples();renderQrResearch();const img=document.getElementById('qrImage'),parse=document.getElementById('qrParseBtn'),paste=document.getElementById('qrPasteBtn'),saveBtn=document.getElementById('qrSaveSample'),use=document.getElementById('qrUseCurrent'),lookup=document.getElementById('qrLookupCurrent'),list=document.getElementById('qrResearchList');if(img)img.onchange=()=>scanQrImage(img.files?.[0]);if(parse)parse.onclick=parseQrPayload;if(paste)paste.onclick=async()=>{try{document.getElementById('qrPayload').value=await navigator.clipboard.readText();parseQrPayload()}catch(e){alert('無法讀取剪貼簿，請手動貼上。')}};if(saveBtn)saveBtn.onclick=saveQrResearch;if(use)use.onclick=()=>{if(!lastResult)return alert('目前尚無抽號結果。');document.getElementById('qrSampleNums').value=lastResult.nums.map(pad).join(',')};if(lookup)lookup.onclick=lookupCurrentQr;if(list)list.onclick=e=>{const b=e.target.closest('[data-qr-del]');if(!b)return;qrResearch.splice(Number(b.dataset.qrDel),1);save(QR_SAMPLE_KEY,qrResearch);renderQrResearch()}}
 
@@ -1849,7 +1874,7 @@ function clearMachine(){manualPicked=new Set();betSelections[currentBetIndex]=ne
 function clearAllBets(){for(let i=0;i<10;i++)betSelections[i]=new Set();manualPicked=new Set();currentBetIndex=0;lastResult=null;qrResultState=null;renderBetTabs();renderNumberBoard();renderBalls(document.getElementById('resultBalls'),[],new Set());const total=document.getElementById('machineTotal');if(total)total.textContent='0元';const count=document.getElementById('machineSelectedCount');if(count)count.textContent='第01注｜已選 0 個'}
 function useManualSelection(){if(manualPicked.size<1)return alert('請先選擇號碼。');if(manualPicked.size>16)return alert('大樂透系統組合最多選16個號碼。');syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b);const res={nums,logs:[`手動選號｜第${pad(currentBetIndex+1)}注｜${betLabel(manualPicked)}`],rolls:0,dup:0,sup:0,lastIssue:latest()?.issue||'',lastNums:latest()?.nums||[]};lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set(res.lastNums));addHistory(nums.length===6?`手動6碼・第${pad(currentBetIndex+1)}注`:`系統${nums.length}碼・第${pad(currentBetIndex+1)}注`,res);renderNumberBoard();if(nums.length===6)setQrSelection({id:null,nums})}
 function initMachine(){renderBetTabs();renderNumberBoard();const tabs=document.getElementById('betTabs');if(tabs)tabs.onclick=e=>{const b=e.target.closest('[data-bet-index]');if(!b)return;loadBet(Number(b.dataset.betIndex))};const board=document.getElementById('numberBoard');if(board)board.onclick=e=>{const b=e.target.closest('[data-picknum]');if(!b)return;const n=Number(b.dataset.picknum);if(window.columnModeActive&&window.columnHandleNumberClick){window.columnHandleNumberClick(n);return}if(manualPicked.has(n))manualPicked.delete(n);else{if(manualPicked.size>=16)return alert('大樂透系統組合最多選16個號碼。');manualPicked.add(n)}renderNumberBoard()};const rail=document.getElementById('gameRail');if(rail)rail.onclick=e=>{const b=e.target.closest('[data-game]');if(!b)return;if(b.dataset.game!=='lotto649')alert(`${b.textContent.replace(' 保留','')}按鈕已保留，目前尚未啟用遊戲規則。`)};document.getElementById('machineClear')?.addEventListener('click',clearMachine);const clearAllBtn=document.getElementById('machineClearAll');if(clearAllBtn)clearAllBtn.onclick=()=>{if(window.confirm('確定清除全部10注投注選號？')){clearAllBets();renderMachineTotal()}};document.getElementById('machineUseSelection')?.addEventListener('click',useManualSelection);document.getElementById('machineSelfPick')?.addEventListener('click',useManualSelection);document.getElementById('periodMinus')?.addEventListener('click',()=>{periods=Math.max(1,periods-1);document.getElementById('periodValue').textContent=periods;renderMachineTotal()});document.getElementById('periodPlus')?.addEventListener('click',()=>{periods=Math.min(10,periods+1);document.getElementById('periodValue').textContent=periods;renderMachineTotal()});document.getElementById('preorderDate')?.addEventListener('change',e=>{preorderDate=e.target.value||'';purchaseMode=preorderDate?'preorder':'consecutive';renderMachineTotal()});renderPurchaseMode();document.getElementById('machineQr')?.addEventListener('click',()=>{syncCurrentBet();const all=betSelections.map((s,i)=>({i,nums:[...s].sort((a,b)=>a-b)})).filter(x=>x.nums.length>=6);if(!all.length)return alert('請至少完成1注。');if(all.some(x=>x.nums.length>16))return alert('系統玩法每個投注單位最多16碼。');const rows=all.map(v=>v.nums);if(purchaseMode==='preorder'){try{const off=preorderOffsetForDate(preorderDate);showV003QrResultPage(rows,periods,{startOffset:off,preorderDate,mixedTest:rows.some(r=>r.length===6)&&rows.some(r=>r.length>6)});}catch(e){alert(String(e.message||e))}return}showV003QrResultPage(rows,periods,{mixedTest:rows.some(r=>r.length===6)&&rows.some(r=>r.length>6)})})}
-function init(){renderNav();normalizeDraws();history=history.slice(0,20);save(KEY.history,history);renderHomeStatus();renderData();renderModel();renderHistory();modeBtns.onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;selectedN=Number(b.dataset.n);customN.value=selectedN;modeBtns.querySelectorAll('.modebtn').forEach(x=>x.classList.toggle('active',x===b))};customN.oninput=()=>{selectedN=Math.min(49,Math.max(1,Number(customN.value)||6));modeBtns.querySelectorAll('.modebtn').forEach(x=>x.classList.toggle('active',Number(x.dataset.n)===selectedN))};const quickPickCount=document.getElementById('quickPickCount');if(quickPickCount){quickPickCount.value=String(Math.min(16,Math.max(6,selectedN)));quickPickCount.onchange=()=>{selectedN=Math.min(16,Math.max(6,Number(quickPickCount.value)||6));customN.value=selectedN}}drawBtn.onclick=()=>{if(quickPickCount){selectedN=Math.min(16,Math.max(6,Number(quickPickCount.value)||6));customN.value=selectedN}drawNow()};copyResult.onclick=async()=>{if(!lastResult)return;await navigator.clipboard.writeText(lastResult.nums.map(pad).join(' '))};const useCurrentForQr=document.getElementById('useCurrentForQr'),generateHomeQr=document.getElementById('generateHomeQr'),copyHomePayloadBtn=document.getElementById('copyHomeQrPayload'),downloadHomeQrBtn=document.getElementById('downloadHomeQr'),printHomeQrBtn=document.getElementById('printHomeQr');if(useCurrentForQr)useCurrentForQr.onclick=()=>{if(!lastResult)return alert('目前尚無抽號結果。');setQrSelection({id:null,nums:lastResult.nums})};if(generateHomeQr)generateHomeQr.onclick=renderHomeQr;if(copyHomePayloadBtn)copyHomePayloadBtn.onclick=copyHomeQrPayload;if(downloadHomeQrBtn)downloadHomeQrBtn.onclick=downloadHomeQr;if(printHomeQrBtn)printHomeQrBtn.onclick=printHomeQr;const qrHomeBox=document.getElementById('qrHomeSelected');if(qrHomeBox)qrHomeBox.onclick=e=>{const b=e.target.closest('[data-qrnum]');if(b)toggleQrNumber(Number(b.dataset.qrnum))};manualAdd.onclick=addManual;importCsv.onclick=()=>{const r=parseCsv(csvText.value);csvMsg.textContent=`新增 ${r.added} 期，略過重複 ${r.skipped} 期${r.errors.length?'；錯誤：'+r.errors.join('；'):''}`;renderData();renderHomeStatus()};csvFile.onchange=async()=>{const f=csvFile.files[0];if(f)csvText.value=await f.text()};recalcBtn.onclick=calcModel;resetModelBtn.onclick=()=>{if(confirm('恢復 2026-09-18 v1 預設模型？')){model=makeDefaultModel();save(KEY.model,model);renderModel();renderHomeStatus()}};batchBtn.onclick=batchGenerate;copyBatch.onclick=async()=>{if(lastBatch.length)await navigator.clipboard.writeText(lastBatch.map((r,i)=>`${i+1}. ${r.nums.map(pad).join(' ')}`).join('\n'))};exportBatch.onclick=exportBatchCsv;historyOut.onclick=e=>{const sel=e.target.closest('[data-select]');if(sel){selectedHistoryId=sel.dataset.select;renderHistory();return}const make=e.target.closest('[data-makeqr]');if(make){const h=history.find(x=>String(x.id)===make.dataset.makeqr);if(h)setQrSelection({id:h.id,nums:h.nums});return}const b=e.target.closest('[data-del]');if(!b)return;history=history.filter(h=>String(h.id)!==b.dataset.del);if(String(selectedHistoryId)===b.dataset.del)selectedHistoryId=null;if(String(qrSelectedId)===b.dataset.del)setQrSelection(null);save(KEY.history,history);renderHistory()};clearHistory.onclick=()=>{if(confirm('確定清空所有歷史紀錄？')){history=[];selectedHistoryId=null;save(KEY.history,history);renderHistory()}};simRunBtn.onclick=simulateHistory;document.getElementById('qrBackBtn')?.addEventListener('click',backToNumberSelection);document.getElementById('qrResultBack2')?.addEventListener('click',backToNumberSelection);document.getElementById('qrResultPrint')?.addEventListener('click',printQrResultPage);document.getElementById('qrResultDownload')?.addEventListener('click',downloadQrResultPage);const cb=document.getElementById('checkLatestBtn');if(cb){cb.onclick=()=>checkLatest({silent:false});setTimeout(()=>checkLatest({silent:true}),400)};initQr();renderHomeQrSelection();initMachine()}
+function init(){renderNav();normalizeDraws();history=history.slice(0,20);save(KEY.history,history);renderHomeStatus();renderData();renderModel();renderHistory();modeBtns.onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;selectedN=Number(b.dataset.n);customN.value=selectedN;modeBtns.querySelectorAll('.modebtn').forEach(x=>x.classList.toggle('active',x===b))};customN.oninput=()=>{selectedN=Math.min(49,Math.max(1,Number(customN.value)||6));modeBtns.querySelectorAll('.modebtn').forEach(x=>x.classList.toggle('active',Number(x.dataset.n)===selectedN))};const quickPickCount=document.getElementById('quickPickCount');if(quickPickCount){quickPickCount.value=String(Math.min(16,Math.max(6,selectedN)));quickPickCount.onchange=()=>{selectedN=Math.min(16,Math.max(6,Number(quickPickCount.value)||6));customN.value=selectedN}}drawBtn.onclick=()=>{if(quickPickCount){selectedN=Math.min(16,Math.max(6,Number(quickPickCount.value)||6));customN.value=selectedN}drawNow()};copyResult.onclick=async()=>{if(!lastResult)return;await navigator.clipboard.writeText(lastResult.nums.map(pad).join(' '))};const useCurrentForQr=document.getElementById('useCurrentForQr'),generateHomeQr=document.getElementById('generateHomeQr'),copyHomePayloadBtn=document.getElementById('copyHomeQrPayload'),downloadHomeQrBtn=document.getElementById('downloadHomeQr'),printHomeQrBtn=document.getElementById('printHomeQr');if(useCurrentForQr)useCurrentForQr.onclick=()=>{if(!lastResult)return alert('目前尚無抽號結果。');setQrSelection({id:null,nums:lastResult.nums})};if(generateHomeQr)generateHomeQr.onclick=renderHomeQr;if(copyHomePayloadBtn)copyHomePayloadBtn.onclick=copyHomeQrPayload;if(downloadHomeQrBtn)downloadHomeQrBtn.onclick=downloadHomeQr;if(printHomeQrBtn)printHomeQrBtn.onclick=printHomeQr;const qrHomeBox=document.getElementById('qrHomeSelected');if(qrHomeBox)qrHomeBox.onclick=e=>{const b=e.target.closest('[data-qrnum]');if(b)toggleQrNumber(Number(b.dataset.qrnum))};manualAdd.onclick=addManual;importCsv.onclick=()=>{const r=parseCsv(csvText.value);csvMsg.textContent=`新增 ${r.added} 期，略過重複 ${r.skipped} 期${r.errors.length?'；錯誤：'+r.errors.join('；'):''}`;renderData();renderHomeStatus()};csvFile.onchange=async()=>{const f=csvFile.files[0];if(f)csvText.value=await f.text()};recalcBtn.onclick=calcModel;resetModelBtn.onclick=()=>{if(confirm('恢復 2026-09-18 v1 預設模型？')){model=makeDefaultModel();save(KEY.model,model);renderModel();renderHomeStatus()}};batchBtn.onclick=batchGenerate;copyBatch.onclick=async()=>{if(lastBatch.length)await navigator.clipboard.writeText(lastBatch.map((r,i)=>`${i+1}. ${r.nums.map(pad).join(' ')}`).join('\n'))};exportBatch.onclick=exportBatchCsv;historyOut.onclick=e=>{const sel=e.target.closest('[data-select]');if(sel){selectedHistoryId=sel.dataset.select;renderHistory();return}const make=e.target.closest('[data-makeqr]');if(make){const h=history.find(x=>String(x.id)===make.dataset.makeqr);if(h)setQrSelection({id:h.id,nums:h.nums});return}const b=e.target.closest('[data-del]');if(!b)return;history=history.filter(h=>String(h.id)!==b.dataset.del);if(String(selectedHistoryId)===b.dataset.del)selectedHistoryId=null;if(String(qrSelectedId)===b.dataset.del)setQrSelection(null);save(KEY.history,history);renderHistory()};clearHistory.onclick=()=>{if(confirm('確定清空所有歷史紀錄？')){history=[];selectedHistoryId=null;save(KEY.history,history);renderHistory()}};simRunBtn.onclick=simulateHistory;document.getElementById('qrBackBtn')?.addEventListener('click',backToNumberSelection);document.getElementById('qrResultBack2')?.addEventListener('click',backToNumberSelection);document.getElementById('qrResultPrint')?.addEventListener('click',printQrResultPage);document.getElementById('qrResultDownload')?.addEventListener('click',downloadQrResultPage);document.getElementById('qrResultPager')?.addEventListener('click',e=>{const b=e.target.closest('[data-qr-page]');if(b)renderQrResultPage(Number(b.dataset.qrPage))});const cb=document.getElementById('checkLatestBtn');if(cb){cb.onclick=()=>checkLatest({silent:false});setTimeout(()=>checkLatest({silent:true}),400)};initQr();renderHomeQrSelection();initMachine()}
 init();
 </script>
 
@@ -1867,6 +1892,22 @@ init();
  function applyPattern(p){const u=usedCols();if(!p||p.length!==u.length)return;u.forEach((x,j)=>x.c.take=p[j]);patternKey=p.join('')}
  function valid(){const u=usedCols();return u.length>=6&&u.reduce((a,x)=>a+x.c.take,0)===star&&u.every(x=>x.c.take>=1&&x.c.take<=x.c.nums.size)}
  function bets(){if(!valid())return 0;return usedCols().reduce((a,x)=>a*comb(x.c.nums.size,x.c.take),1)}
+ function choose(arr,k,start=0,p=[],out=[]){
+   if(p.length===k){out.push(p.slice());return out}
+   for(let i=start;i<=arr.length-(k-p.length);i++){p.push(arr[i]);choose(arr,k,i+1,p,out);p.pop()}
+   return out
+ }
+ function expandedRows(){
+   if(!valid())return[];
+   const groups=usedCols().map(x=>choose([...x.c.nums].sort((a,b)=>a-b),x.c.take));
+   let rows=[[]];
+   for(const g of groups){
+     const next=[];
+     for(const base of rows)for(const part of g)next.push(base.concat(part).sort((a,b)=>a-b));
+     rows=next;
+   }
+   return rows;
+ }
  function decorateMainBoard(){const board=document.getElementById('numberBoard');if(!board)return;board.querySelectorAll('[data-picknum]').forEach(btn=>{const n=Number(btn.dataset.picknum),o=owner(n);btn.style.background='';btn.style.borderColor='';btn.style.color='';btn.style.boxShadow='';btn.classList.remove('selected');if(o>=0){const color=COLORS[o];btn.style.background=color;btn.style.borderColor=color;btn.style.color='#fff';btn.style.boxShadow='0 3px 0 rgba(0,0,0,.22)';btn.title='第'+(o+1)+'柱｜點選可刪除/移動'}else{btn.title='加入第'+(active+1)+'柱'}})}
  window.columnDecorateMainBoard=decorateMainBoard;
  window.columnHandleNumberClick=n=>{const o=owner(n);if(o===active){cols[active].nums.delete(n)}else if(o<0){cols[active].nums.add(n)}else{return}patternKey='';render()};
@@ -1887,7 +1928,20 @@ init();
  document.getElementById('columnPatternList').addEventListener('click',e=>{const b=e.target.closest('[data-pattern]');if(!b)return;const p=b.dataset.pattern.split('').map(Number);applyPattern(p);render()});
  document.getElementById('columnReset')?.addEventListener('click',()=>{cols=Array.from({length:8},(_,i)=>({id:i+1,take:1,nums:new Set()}));active=0;patternKey='';render()});
  document.getElementById('columnStarMinus')?.addEventListener('click',()=>{star=Math.max(6,star-1);patternKey='';render()});document.getElementById('columnStarPlus')?.addEventListener('click',()=>{star=Math.min(10,star+1);patternKey='';render()});
- document.getElementById('columnApply')?.addEventListener('click',()=>alert('目前是8柱操作介面預覽版；確認介面後，再接入正式投注與 V003 QR。'));
+ document.getElementById('columnApply')?.addEventListener('click',()=>{
+   if(!valid())return alert('請先完成有效的連碰立柱設定。');
+   const rows=expandedRows();
+   if(!rows.length)return alert('目前沒有可產生的6碼組合。');
+   try{
+     if(!v003SelfTest())throw new Error('V003內建驗證失敗，已停止產生QR。');
+     if(purchaseMode==='preorder'){
+       const off=preorderOffsetForDate(preorderDate);
+       showV003QrResultPage(rows,periods,{startOffset:off,preorderDate,columnExpanded:true,autoSplit10:true});
+     }else{
+       showV003QrResultPage(rows,periods,{columnExpanded:true,autoSplit10:true});
+     }
+   }catch(e){alert('立柱QR產生失敗：'+String(e.message||e))}
+ });
  window.columnModeActive=false;render();
 })();
 </script>
