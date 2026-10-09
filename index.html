@@ -20,7 +20,7 @@ main{max-width:1180px;margin:auto;padding:16px}.page{display:none}.page.active{d
 .bet-tabs{display:grid;grid-template-columns:repeat(10,minmax(38px,1fr));gap:3px;margin:-8px -8px 8px;padding:4px 4px 0;background:#b8ef9b;border-radius:8px 8px 0 0}.bet-tab{border:1px solid #d7d7a7;border-bottom:0;background:#fff;border-radius:9px 9px 0 0;min-height:38px;font-size:18px;font-weight:900;color:#384150;cursor:pointer;position:relative}.bet-tab.active{background:#fff95a;color:#172033;box-shadow:inset 0 -4px 0 #ffcf22}.bet-tab.filled::after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:#2fa84f;right:4px;top:4px}.bet-tab.partial::after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:#ff8a00;right:4px;top:4px}.bet-tab:hover{transform:translateY(-1px)}
 .number-board{display:grid;grid-template-columns:repeat(10,minmax(38px,1fr));gap:5px}.num-btn{aspect-ratio:1/1;border:0;border-radius:12px;background:#fff;color:#2e3947;font-size:20px;font-weight:900;box-shadow:0 3px 0 #cfc990;cursor:pointer;min-width:0}.num-btn:hover{transform:translateY(-1px)}.num-btn.selected{background:#165DFF;color:#fff;box-shadow:0 3px 0 #0b3b9e}.num-btn.drawn{outline:3px solid #ff8a00;outline-offset:-3px}.num-btn:nth-child(49){grid-column:auto}
 .machine-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.machine-action{background:#fff;border:1px solid #d8d49b;border-radius:9px;padding:10px 14px;font-weight:900;cursor:pointer}.machine-action.primary-green{background:#43ae4f;color:#fff;border:0;min-width:120px}
-.machine-side{background:#f6f6e9;border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:8px}.period-box{background:#fff;border-radius:12px;padding:10px}.period-row{display:grid;grid-template-columns:38px 36px 1fr 36px;gap:5px;align-items:center}.period-label{font-size:24px;font-weight:900}.period-btn{border:1px solid #a5a5a5;background:#f5f5f5;border-radius:8px;font-size:22px;font-weight:900;height:38px;cursor:pointer}.period-value{text-align:center;font-size:18px;font-weight:900}.side-btn{background:#fff;border:0;border-radius:8px;padding:10px 8px;text-align:left;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,.08)}.side-btn.placeholder{opacity:.58}.machine-total{margin-top:auto;background:#fff;border-radius:9px;padding:10px;text-align:right;font-size:24px;font-weight:900}.machine-print{background:#49b24f;color:#fff;border:0;border-radius:8px;padding:10px;font-size:18px;font-weight:900;cursor:pointer}.machine-status{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}.machine-status .pill{background:#fff}
+.machine-side{background:#f6f6e9;border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:8px}.period-box{background:#fff;border-radius:12px;padding:10px}.period-row{display:grid;grid-template-columns:38px 36px 1fr 36px;gap:5px;align-items:center}.purchase-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.purchase-mode button{border:1px solid #c9d2e3;background:#fff;border-radius:8px;padding:8px 5px;font-weight:900;cursor:pointer}.purchase-mode button.active{background:#165DFF;color:#fff;border-color:#165DFF}.preorder-box{margin-top:8px}.preorder-box label{font-size:12px;margin-bottom:4px}.period-box.preorder .period-row{opacity:1;pointer-events:auto}.period-label{font-size:24px;font-weight:900}.period-btn{border:1px solid #a5a5a5;background:#f5f5f5;border-radius:8px;font-size:22px;font-weight:900;height:38px;cursor:pointer}.period-value{text-align:center;font-size:18px;font-weight:900}.side-btn{background:#fff;border:0;border-radius:8px;padding:10px 8px;text-align:left;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,.08)}.side-btn.placeholder{opacity:.58}.machine-total{margin-top:auto;background:#fff;border-radius:9px;padding:10px;text-align:right;font-size:24px;font-weight:900}.machine-print{background:#49b24f;color:#fff;border:0;border-radius:8px;padding:10px;font-size:18px;font-weight:900;cursor:pointer}.machine-status{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}.machine-status .pill{background:#fff}
 @media(max-width:900px){.machine{grid-template-columns:92px minmax(0,1fr)}.machine-side{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:start}.machine-total{margin-top:0}.game-btn{font-size:12px;min-height:42px}.number-board{grid-template-columns:repeat(7,minmax(38px,1fr))}.num-btn{font-size:17px}.machine-actions{gap:5px}.machine-action{padding:9px 10px}}
 @media(max-width:600px){.machine{grid-template-columns:1fr;padding:4px}.bet-tabs{grid-template-columns:repeat(5,1fr)}.bet-tab{min-height:34px;font-size:16px}.game-rail{display:grid;grid-template-columns:repeat(4,1fr);order:2}.machine-main{order:1}.machine-side{order:3;grid-template-columns:1fr 1fr}.number-board{grid-template-columns:repeat(7,minmax(36px,1fr));gap:4px}.num-btn{font-size:16px;border-radius:9px}.game-btn{min-height:40px;padding:6px 3px}.side-btn{font-size:14px}.machine-top{flex-wrap:wrap}}
 
@@ -71,19 +71,20 @@ main{max-width:1180px;margin:auto;padding:16px}.page{display:none}.page.active{d
     <div class="bet-tabs" id="betTabs"></div><div class="machine-top"><div class="machine-page" id="currentBetLabel">第 01 注</div><div class="sub">模型：<b id="homeModelVersion">2026-09-18 v1</b></div><button class="machine-clear" id="machineClear">清除此注</button></div>
     <div class="number-board" id="numberBoard"></div>
     <div class="machine-actions">
-      <button class="machine-action" data-n="6">快選6碼</button>
-      <button class="machine-action" data-n="7">快選7碼</button>
-      <button class="machine-action" data-n="8">快選8碼</button>
-      <button class="machine-action primary-green" id="drawBtn">百面骰快選</button>
+      <button class="machine-action primary-green" id="drawBtn">快選</button>
     </div>
-    <div class="machine-status"><span class="pill" id="machineSelectedCount">已選 0 個</span><span class="pill">大樂透 01～49</span><span class="pill">目前只啟用大樂透</span></div>
+    <div class="machine-status"><span class="pill" id="machineSelectedCount">已選 0 個</span><span class="pill">大樂透 01～49｜系統最多16碼</span><span class="pill" id="autoSyncStatus">資料：等待同步</span></div>
     <div id="resultBalls" class="balls" style="margin-bottom:4px"></div>
     <div class="row"><button class="secondary" id="copyResult">複製結果</button><button class="secondary" id="machineUseSelection">使用手動選號</button></div>
     <div class="hidden"><div id="modeBtns"><button data-n="6"></button><button data-n="7"></button><button data-n="8"></button></div><input id="customN" type="number" min="1" max="49" value="6"><input type="checkbox" id="suppressToggle" checked><span id="suppressInfo"></span><span id="rollCount"></span><span id="dupCount"></span><span id="supCount"></span><div id="rollLog"></div><div id="dataStatus"></div><button id="checkLatestBtn"></button></div>
   </section>
   <aside class="machine-side">
-    <div class="period-box"><div class="period-row"><span class="period-label">期</span><button class="period-btn" id="periodMinus">−</button><div class="period-value"><span id="periodValue">1</span>期</div><button class="period-btn" id="periodPlus">＋</button></div></div>
-    <button class="side-btn" id="machineClearAll">全部清除</button>
+    <div class="period-box" id="periodBox">
+      <div class="period-row"><span class="period-label">期</span><button class="period-btn" id="periodMinus">−</button><div class="period-value"><span id="periodValue">1</span>期</div><button class="period-btn" id="periodPlus">＋</button></div>
+      <div class="purchase-mode"><button type="button" class="active" id="normalPurchaseBtn">連續期數</button><button type="button" id="preorderPurchaseBtn">指定日期預購</button></div>
+      <div class="preorder-box hidden" id="preorderBox"><label for="preorderDate">預購開獎日（週二／週五）</label><select id="preorderDate"></select><div class="sub" style="margin-top:5px">先選預購起始開獎日，再用上方期數選擇從該日起連續投注1～10期；實際可售期別仍以投注站終端機為準。</div></div>
+    </div>
+    <button class="side-btn" id="machineClearAll">投注全部清除</button>
     <button class="side-btn placeholder">連碰立柱</button>
     <button class="side-btn placeholder">聰明包牌</button>
     <button class="side-btn" id="machineSelfPick">自選包牌</button>
@@ -1533,8 +1534,60 @@ function toggleQrNumber(n){
   renderHomeQrSelection();
 }
 function renderHistory(){history=history.slice(0,20);save(KEY.history,history);if(selectedHistoryId&&!history.some(h=>String(h.id)===String(selectedHistoryId)))selectedHistoryId=null;if(qrSelectedId&&!history.some(h=>String(h.id)===String(qrSelectedId)))setQrSelection(null);historyOut.innerHTML=history.length?history.map(h=>`<div class="history-item ${String(h.id)===String(selectedHistoryId)?'selected':''}"><div class="row"><label class="history-select"><input type="radio" name="verifyHistory" data-select="${h.id}" ${String(h.id)===String(selectedHistoryId)?'checked':''}>選擇驗證</label><b>${new Date(h.time).toLocaleString('zh-TW')}</b><span class="pill">${h.mode}</span><span class="pill">${h.model}</span><button class="secondary" data-makeqr="${h.id}">做QR</button><button class="secondary" data-del="${h.id}" style="margin-left:auto">刪除</button></div><div style="font-size:18px;font-weight:900;margin:6px 0">${h.nums.map(pad).join('、')}</div></div>`).join(''):'<div class="mutedbox">目前沒有紀錄。</div>';renderSimulationSelection();renderHomeQrSelection()}
-async function checkLatest(){const b=checkLatestBtn,old=b.textContent;b.disabled=true;b.textContent='檢查中…';let ok=false,note='';const urls=['https://lottery.timetable.tw/da-le-tou','https://www.taiwanlottery.com/lotto/result/lotto649/'];for(const url of urls){try{const r=await fetch(url,{cache:'no-store'});if(!r.ok)continue;const t=await r.text();const m=t.match(/115000\d{3}/g);if(m?.length){const newest=m.sort().at(-1),local=latest()?.issue;if(newest>local)note=`偵測到可能有新期別 ${newest}，但瀏覽器端頁面解析無法安全確認完整6碼，請改用 CSV 或手動新增。`;else note='目前未偵測到比本機更新的完整期別。';ok=true;break}}catch(e){}}
-if(!ok)note='目前無法從此瀏覽器直接檢查遠端資料（可能為 CORS／來源限制）。已保留現有資料，可使用 CSV 或手動新增。';alert(note);b.disabled=false;b.textContent=old}
+const LOTTO_API_BASE='https://api.taiwanlottery.com/TLCAPIWeB/Lottery/Lotto649Result';
+function ymLocal(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
+function monthShift(base,delta){const d=new Date(base.getFullYear(),base.getMonth()+delta,1,12,0,0,0);return ymLocal(d)}
+async function fetchOfficialLottoMonth(month,pageSize=50){
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);
+  try{
+    const r=await fetch(`${LOTTO_API_BASE}?month=${encodeURIComponent(month)}&pageSize=${pageSize}`,{cache:'no-store',signal:ctrl.signal});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const j=await r.json(),rows=j?.content?.lotto649Res;
+    if(!Array.isArray(rows))throw new Error('官方API回傳格式異常');
+    return rows.map(item=>{
+      const all=Array.isArray(item.drawNumberAppear)?item.drawNumberAppear.map(Number):[];
+      const nums=all.slice(0,6).sort((a,b)=>a-b);
+      return {date:String(item.lotteryDate||'').slice(0,10),issue:String(item.period||''),nums,source:'台灣彩券網站 API'};
+    }).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d.date)&&/^\d{9}$/.test(d.issue)&&d.nums.length===6&&new Set(d.nums).size===6&&d.nums.every(n=>n>=1&&n<=49));
+  }finally{clearTimeout(timer)}
+}
+function hasFullYearCoverage(){
+  if(!draws.length)return false;normalizeDraws();
+  const newest=new Date(draws[0].date+'T00:00:00'),oldest=new Date(draws[draws.length-1].date+'T00:00:00');
+  const need=new Date(newest);need.setMonth(need.getMonth()-12);
+  return oldest<=need;
+}
+function mergeOfficialDraws(incoming){
+  normalizeDraws();const byIssue=new Map(draws.map(d=>[String(d.issue),d]));let added=0,conflicts=0;
+  for(const d of incoming){const old=byIssue.get(d.issue);if(!old){draws.push(d);byIssue.set(d.issue,d);added++;continue}
+    const sameDate=old.date===d.date,sameNums=old.nums?.join(',')===d.nums.join(',');if(!sameDate||!sameNums)conflicts++;
+  }
+  normalizeDraws();save(KEY.draws,draws);return {added,conflicts};
+}
+async function checkLatest(opts={}){
+  const silent=!!opts.silent,b=document.getElementById('checkLatestBtn'),status=document.getElementById('autoSyncStatus');
+  const old=b?.textContent||'';if(b){b.disabled=true;b.textContent='檢查中…'}if(status){status.textContent='資料：同步中…';status.className='pill'}
+  try{
+    const now=new Date(),months=[monthShift(now,0),monthShift(now,-1)];
+    if(!hasFullYearCoverage())for(let i=2;i<=13;i++)months.push(monthShift(now,-i));
+    const unique=[...new Set(months)];let remote=[];
+    for(const m of unique){try{remote.push(...await fetchOfficialLottoMonth(m,50))}catch(e){if(remote.length===0&&m===unique[0])throw e}}
+    const beforeIssue=latest()?.issue||'',{added,conflicts}=mergeOfficialDraws(remote),after=latest();
+    const shouldRecalc=added>0||!model?.periodYear||!hasFullYearCoverage();
+    if(shouldRecalc&&draws.length){calcModel();renderModel();renderHomeStatus()}
+    renderData();renderHomeStatus();
+    let note='';
+    if(added>0)note=`已新增 ${added} 期，最新 ${after?.issue||'—'}，百面骰模型已更新`;
+    else note=`資料已是最新 ${after?.issue||beforeIssue||'—'}`;
+    if(conflicts)note+=`；另有 ${conflicts} 期與本機資料不同，已保留本機資料`;
+    if(status){status.textContent=`資料：${note}`;status.className='pill ok'}
+    if(!silent)alert(note);
+    return {ok:true,added,conflicts};
+  }catch(e){
+    const note=`自動更新失敗，沿用現有資料（${String(e.message||e)}）`;
+    if(status){status.textContent='資料：更新失敗，沿用本機';status.className='pill warn'}if(!silent)alert(note);return {ok:false,error:e};
+  }finally{if(b){b.disabled=false;b.textContent=old}}
+}
 
 const QR_VERIFIED=[
 {nums:[1,2,3,4,5,6],payload:'#V003#4926301989819984899999999999959969784999999993999999999999999999999'},
@@ -1595,19 +1648,23 @@ function drawQrToCanvas(canvas,text){
 const V003_PERM='3826017495156470328908215643792046839157963075128461492075838471935602437901285638619520471908456723617902835452486917038902364715904635728167049582310524196738104283657946723980157519306824381642079594617805324918265073708215963407816249358621095743963025741863104987521796280345623415870924730619587459821063928470615354092138671048276935693802174540697312858156042739746328095147056892132837054691067329815413527904688567104239075932468168304195272873910564086341275919482365705041873962723560914872961834509648013725456917230828359710469873201456349781056269853174026719234580709423615819873245064130652879316847052925643891704601935278632018957449825361079527164083972613048586572934019650471238679420318549321687052109658437840152679342859167304791836520948361570251927608434718902536382601459767258931042645873910437960218510529487638739654210516248730923814057962586497103764192538027569014385367129084047623518914803567295692073841948137620519270638548274615309241359780646098513276975042831549302716830765289149756420183937145260831069458276581492073287415906327134089656718043592749360812590172348651406579238186452903723789146059201376584253168407975408196236482537910824590163714876309254905678321471659208391537286404762301895328640579196387425013415960782932584760168219450731548602793605249873172481305690879523614749581603252047391861790325864346109782516579834205084692731378409152631264790585914802763215364980794725086314528709613496802517301376295840127498563806751394259806431271432957806915703648217843925065294301786089125346702735198467562134098280914756393041657281095284736084631527924817093651289054673174092356815396482078245096731624870159334269150871073682495514932706842967308518367249150832940671596218045376078935241864210739536920875417360592148481923065775638209146043587129309257618430847952611630254987837562409103249168752189756043524698173068174532093740821965063754298183569074218250614397087295436189460371256208517349089265413713890427657921068354459180723672851604394710862593104759328694360758213097268451620714893510264397588574320196439682150704795623811769820345437580629171289053469340186257748065129320836971540498725163365804927118527490634960321857910265473817809425639874351062037126598432607841957830165492215783409691624385076518327409628530719482315476905921038476096172358440327519683076942518659284701359108724631203846795438295106783156472093097548216190753624838970165420276183945418357690278503216495782431906739621084585604129732891350674879632154018257096341639752408571986240369218053746504783291';
 function v003Row(seed){return V003_PERM.slice((seed-1)*10,seed*10).split('').map(Number)}
 function v003Crc16(s){let c=0xFFFF;for(const ch of new TextEncoder().encode(s)){let v=ch;for(let i=0;i<8;i++){const bit=(c>>>15)^(v>>>7);c=(c<<1)&0xFFFF;if(bit>0)c=(c^0x1021)&0xFFFF;v=(v<<1)&0xFF}}return c}
-function buildV003PayloadFromBets(bets,periodCount=1){
+function buildV003PayloadFromBets(bets,periodCount=1,startOffset=0){
   const clean=(bets||[]).map(nums=>[...nums].map(Number).sort((x,y)=>x-y));
   if(!clean.length)throw new Error('至少需要1注完整的6碼號碼。');
   if(clean.length>10)throw new Error('台彩投注一次最多10注。');
   // 目前已由官方 App 樣本驗證 1～3 期；4～24 期依相同欄位規律推測後開放實測。
-  if(periodCount<1||periodCount>24)throw new Error('目前 V003 已開放 1～24 期；其中 1～3 期已驗證，4～24 期為依欄位規律推測後開放實測。');
-  clean.forEach((a,idx)=>{if(a.length!==6||new Set(a).size!==6||a.some(n=>n<1||n>49))throw new Error(`第 ${idx+1} 注不是有效的6個不重複號碼。`)})
-  // 官方 App 3.4.2 已驗證結構：
-  // 20位表頭：05118 + 01(期數) + 001 + 10個0
-  // 每一注固定33位：12位號碼(6個兩位數) + 21個0
-  // 全部注別串接後，再補0到10位倍數，最後對整包資料做 CRC 與置換。
-  const header='05118'+String(periodCount).padStart(2,'0')+'001'+'0000000000';
-  const units=clean.map(a=>a.map(pad).join('')+'0'.repeat(21)).join('');
+  if(periodCount<1||periodCount>10)throw new Error('大樂透連續投注最多10期。');
+  if(!Number.isInteger(startOffset)||startOffset<0||startOffset>9)throw new Error('預購起始開獎日序號需介於00～09。');
+  clean.forEach((a,idx)=>{if(a.length<6||a.length>16||new Set(a).size!==a.length||a.some(n=>n<1||n>49))throw new Error(`第 ${idx+1} 注不是有效的6～16個不重複號碼。`)})
+  // 通用投注單位模式：一般6碼與系統7～16碼都各自占一個33位投注單位。
+  // 每注先串接所選號碼（每號2位），再以0補滿33位；各注可混合不同選號數。
+  // 目前一般多注、單一系統7～16、系統多期／預購已有樣本支持；「一般6碼＋系統注混合」開放實機驗證。
+  const header='05118'+String(periodCount).padStart(2,'0')+String(startOffset).padStart(2,'0')+'1'+'0000000000';
+  const units=clean.map((a,idx)=>{
+    const digits=a.map(pad).join('');
+    if(digits.length>32)throw new Error(`第 ${idx+1} 注超過系統16碼上限。`);
+    return digits.padEnd(33,'0');
+  }).join('');
   let raw=header+units;
   raw=raw.padEnd(Math.ceil(raw.length/10)*10,'0');
   const crc=v003Crc16(raw),crc5=String(crc).padStart(5,'0'),seed=(crc%256)||256,row=v003Row(seed);
@@ -1624,9 +1681,27 @@ const V003_TESTS=[
 {bets:[[1,2,3,4,5,6]],period:1,payload:'#V003#4926301989819984899999999999959969784999999993999999999999999999999'},
 {bets:[[1,2,3,4,5,6]],period:2,payload:'#V003#7353813917994898899999999999995989647999993999999999999999999999999'},
 {bets:[[1,2,3,4,5,6]],period:3,payload:'#V003#5820050100311508000000000005000021304000000600000000000000000000000'},
-{bets:[[1,2,3,4,5,6],[13,14,15,16,17,18]],period:2,payload:'#V003#4213649998788941999999999999599479896999999939999999999994895889968992998381999999999999999999999'}
+{bets:[[1,2,3,4,5,6],[13,14,15,16,17,18]],period:2,payload:'#V003#4213649998788941999999999999599479896999999939999999999994895889968992998381999999999999999999999'},
+{bets:[[1,2,3,4,5,6]],period:1,offset:3,payload:'#V003#1460285984918898699999999996489997599993999999999999999999999999999'},
+{bets:[[1,2,3,4,5,6]],period:1,offset:4,payload:'#V003#7439836005148110100000000000312005040006000000000000000000000000000'},
+{bets:[[1,2,3,4,5,6]],period:1,offset:5,payload:'#V003#4657564110805110500000000002030000541000000000600000000000000000000'},
+{bets:[[1,13,23,35,36,42,48]],period:1,payload:'#V003#7239434100180101500000000001036233531440000008200000000000000000000'},
+{bets:[[1,8,23,24,35,36,42,47]],period:1,payload:'#V003#0610176010501110800000000003531408202700604203400000000000000000000'},
+{bets:[[5,14,15,16,21,23,35,37,38]],period:1,payload:'#V003#3101678011110008500000000005111402615733052083300000000000000000000'},
+{bets:[[8,11,19,22,30,35,36,37,40,46]],period:1,payload:'#V003#9443378000511011800000000003908202111473546036300000000000000000000'},
+{bets:[[1,4,5,12,15,16,17,21,27,36,41,44,46]],period:1,payload:'#V003#7127825188999489899999999999459878849732862378859559989359999999999'},
+{bets:[[2,5,6,13,20,21,22,24,29,31,34,39,40,41,46,48]],period:1,payload:'#V003#2624069889889419999999999994869937979770785876705863955569999991995'},
+{bets:[[6,9,12,15,20,21,26,32,35,36,38]],period:1,payload:'#V003#9738856010005118100000000002952060110265321633200003800000000000000'},
+{bets:[[5,6,9,13,19,21,24,26,33,36,39,40]],period:1,payload:'#V003#4658004051180011000000000000509031619212623343639400000000000000000'},
+{bets:[[3,13,15,16,21,27,29,32,39,40,43,44,46,47]],period:1,payload:'#V003#1858110011100058100000000002111605313423092273904407463440000000000'},
+{bets:[[6,7,10,11,14,15,16,20,22,25,30,31,33,36,42]],period:1,payload:'#V003#7761197898188999499999999999828859893873774978465866763699999999999'},
+{bets:[[1,5,11,21,25,28,30]],period:2,payload:'#V003#9721223884891979999999999994489888797991699997999999999999999999999'},
+{bets:[[6,7,9,18,31,43,46]],period:3,payload:'#V003#0261851981699984899999999999298106839539999996599999999999999999999'},
+{bets:[[2,5,11,27,29,35,40]],period:10,payload:'#V003#6900891848898919999999999990784792879949995999699999999999999999999'},
+{bets:[[22,27,28,35,38,39,44]],period:1,offset:3,payload:'#V003#1257210011108153000000000005238227238040030490000000000000000000000'},
+{bets:[[16,24,33,40,42,46,47]],period:3,offset:2,payload:'#V003#2226739884189697999999999997536795658523999999599999999999999999999'}
 ];
-function v003SelfTest(){return V003_TESTS.every(t=>buildV003PayloadFromBets(t.bets,t.period)===t.payload)}
+function v003SelfTest(){return V003_TESTS.every(t=>buildV003PayloadFromBets(t.bets,t.period,t.offset||0)===t.payload)}
 function buildRemoteQrUrl(payload,size=420){return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(payload)}`}
 async function renderHomeQr(){
   const msg=document.getElementById('homeQrMsg'),payloadBox=document.getElementById('homeQrPayload'),canvas=document.getElementById('homeQrCanvas'),img=document.getElementById('homeQrImg');
@@ -1670,16 +1745,25 @@ function showAppPage(id){
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.pagebtn===id));
   window.scrollTo({top:0,behavior:'instant'});
 }
-function showV003QrResultPage(bets,periodCount=1){
+function showV003QrResultPage(bets,periodCount=1,opts={}){
   const rows=(bets||[]).map(nums=>[...nums].map(Number).sort((a,b)=>a-b));
   if(!rows.length)return alert('請至少完成1注（每注6個號碼）。');
   if(!v003SelfTest())return alert('V003內建驗證失敗，已停止產生QR，避免輸出錯誤編碼。');
   try{
-    const payload=buildV003PayloadFromBets(rows,periodCount),total=rows.length*50*periodCount;
+    const startOffset=Number(opts.startOffset||0),preDate=opts.preorderDate||'';
+    const payload=buildV003PayloadFromBets(rows,periodCount,startOffset),total=rows.reduce((sum,nums)=>sum+combinationCount(nums.length,6)*50*periodCount,0);
     const canvas=document.getElementById('qrResultCanvas');canvas.width=520;canvas.height=520;drawQrOffline(canvas,payload);
-    qrResultState={rows,periodCount,payload,total,dataUrl:canvas.toDataURL('image/png')};
-    document.getElementById('qrResultMeta').innerHTML=`<span class="pill">自選</span><span class="pill">${periodCount} 期</span><span class="pill">${rows.length} 注</span><span class="pill">${total} 元</span>${periodCount>3?'<span class="pill">4～24期：推測格式實測</span>':'<span class="pill">1～3期：已驗證</span>'}`;
-    document.getElementById('qrResultBets').innerHTML=rows.map((nums,i)=>`<div class="qr-result-bet"><b>第 ${pad(i+1)} 注</b><div class="qr-result-nums">${nums.map(pad).join('、')}</div></div>`).join('');
+    qrResultState={rows,periodCount,payload,total,startOffset,preorderDate:preDate,dataUrl:canvas.toDataURL('image/png')};
+    const hasSystem=rows.some(r=>r.length>6),hasNormal=rows.some(r=>r.length===6),mixed=hasSystem&&hasNormal,multiSystem=rows.filter(r=>r.length>6).length>1;
+    const totalUnits=rows.reduce((sum,nums)=>sum+combinationCount(nums.length,6),0);
+    let modeLabel=mixed?'一般＋系統混合':(hasSystem?(rows.length===1?`系統${rows[0].length}`:'多系統投注'):'一般自選');
+    let verifyLabel='';
+    if(mixed)verifyLabel='混合投注：結構推定實測';
+    else if(multiSystem)verifyLabel='多系統投注：實測模式';
+    else if(hasSystem&&rows.length===1)verifyLabel='系統7～16：官方樣本支持';
+    else verifyLabel=preDate?(periodCount===1?'指定日期單期：已驗證':'指定日期＋連續期數：已有樣本支持'):(periodCount>3?'4～10期：實測可用':'1～3期：已驗證');
+    document.getElementById('qrResultMeta').innerHTML=`<span class="pill">${modeLabel}</span>${preDate?`<span class="pill">預購起始 ${preDate}</span><span class="pill">連續 ${periodCount} 期</span><span class="pill">日期序號 ${String(startOffset).padStart(2,'0')}</span>`:`<span class="pill">${periodCount} 期</span>`}<span class="pill">${rows.length} 個投注單位</span><span class="pill">共 ${totalUnits.toLocaleString()} 組</span><span class="pill">${total.toLocaleString()} 元</span><span class="pill">${verifyLabel}</span>`;
+    document.getElementById('qrResultBets').innerHTML=rows.map((nums,i)=>`<div class="qr-result-bet"><b>${nums.length>6?`系統 ${nums.length}（${combinationCount(nums.length,6).toLocaleString()} 組）`:`第 ${pad(i+1)} 注`}</b><div class="qr-result-nums">${nums.map(pad).join('、')}</div></div>`).join('');
     document.getElementById('qrResultPayload').textContent=payload;
     showAppPage('qrresult');
   }catch(e){alert('QR 產生失敗：'+String(e.message||e));}
@@ -1699,18 +1783,28 @@ function downloadQrResultPage(){
 }
 function initQr(){renderVerifiedSamples();renderQrResearch();const img=document.getElementById('qrImage'),parse=document.getElementById('qrParseBtn'),paste=document.getElementById('qrPasteBtn'),saveBtn=document.getElementById('qrSaveSample'),use=document.getElementById('qrUseCurrent'),lookup=document.getElementById('qrLookupCurrent'),list=document.getElementById('qrResearchList');if(img)img.onchange=()=>scanQrImage(img.files?.[0]);if(parse)parse.onclick=parseQrPayload;if(paste)paste.onclick=async()=>{try{document.getElementById('qrPayload').value=await navigator.clipboard.readText();parseQrPayload()}catch(e){alert('無法讀取剪貼簿，請手動貼上。')}};if(saveBtn)saveBtn.onclick=saveQrResearch;if(use)use.onclick=()=>{if(!lastResult)return alert('目前尚無抽號結果。');document.getElementById('qrSampleNums').value=lastResult.nums.map(pad).join(',')};if(lookup)lookup.onclick=lookupCurrentQr;if(list)list.onclick=e=>{const b=e.target.closest('[data-qr-del]');if(!b)return;qrResearch.splice(Number(b.dataset.qrDel),1);save(QR_SAMPLE_KEY,qrResearch);renderQrResearch()}}
 
+let purchaseMode='consecutive',preorderDate='';
+function fmtDateTW(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'),wd=['日','一','二','三','四','五','六'][d.getDay()];return `${y}/${m}/${day}（週${wd}）`}
+function buildPreorderDates(count=10){const out=[],d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+1);for(let guard=0;guard<60&&out.length<count;guard++){if(d.getDay()===2||d.getDay()===5)out.push(new Date(d));d.setDate(d.getDate()+1)}return out}
+function isoLocalDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function preorderOffsetForDate(v){const dates=buildPreorderDates(10),idx=dates.findIndex(d=>isoLocalDate(d)===v);if(idx<0)throw new Error('指定預購日期不在目前可選的10個開獎日內。');return idx}
+function renderPurchaseMode(){const box=document.getElementById('periodBox'),pre=document.getElementById('preorderBox'),normal=document.getElementById('normalPurchaseBtn'),preBtn=document.getElementById('preorderPurchaseBtn'),sel=document.getElementById('preorderDate');if(!box||!pre||!normal||!preBtn||!sel)return;const isPre=purchaseMode==='preorder';box.classList.toggle('preorder',isPre);pre.classList.toggle('hidden',!isPre);normal.classList.toggle('active',!isPre);preBtn.classList.toggle('active',isPre);if(isPre&&!sel.options.length){const dates=buildPreorderDates(10);sel.innerHTML=dates.map(d=>{const v=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;return `<option value="${v}">${fmtDateTW(d)}</option>`}).join('');preorderDate=sel.value}else if(isPre){preorderDate=sel.value}renderMachineTotal()}
 let manualPicked=new Set(),periods=1,currentBetIndex=0;
+function combinationCount(n,k=6){n=Number(n);k=Number(k);if(!Number.isInteger(n)||!Number.isInteger(k)||n<k||k<0)return 0;let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return Math.round(r)}
+function betUnitCount(set){return set.size>=6&&set.size<=16?combinationCount(set.size,6):0}
+function betLabel(set){if(set.size<6)return set.size?`未完成 ${set.size}/6`:'未選號';if(set.size===6)return '一般單注';return `系統${set.size}碼｜${betUnitCount(set).toLocaleString('zh-TW')}組`}
+
 const betSelections=Array.from({length:10},()=>new Set());
 function syncCurrentBet(){betSelections[currentBetIndex]=new Set(manualPicked)}
 function loadBet(index){syncCurrentBet();currentBetIndex=Math.max(0,Math.min(9,index));manualPicked=new Set(betSelections[currentBetIndex]);lastResult=null;renderBetTabs();renderNumberBoard()}
-function renderBetTabs(){const el=document.getElementById('betTabs');if(!el)return;el.innerHTML=betSelections.map((set,i)=>`<button class="bet-tab ${i===currentBetIndex?'active':''} ${set.size===6?'filled':set.size?'partial':''}" data-bet-index="${i}" title="第 ${pad(i+1)} 注${set.size?`：已選 ${set.size} 個`:''}">${pad(i+1)}</button>`).join('');const lab=document.getElementById('currentBetLabel');if(lab)lab.textContent=`第 ${pad(currentBetIndex+1)} 注`}
-function renderNumberBoard(){const board=document.getElementById('numberBoard');if(!board)return;const drawn=new Set(lastResult?.nums||[]);board.innerHTML=Array.from({length:49},(_,i)=>{const n=i+1;return `<button class="num-btn ${manualPicked.has(n)?'selected':''} ${drawn.has(n)?'drawn':''}" data-picknum="${n}">${pad(n)}</button>`}).join('');const c=document.getElementById('machineSelectedCount');if(c)c.textContent=`第${pad(currentBetIndex+1)}注｜已選 ${manualPicked.size} 個`;syncCurrentBet();renderBetTabs();renderMachineTotal()}
-function renderMachineTotal(){const el=document.getElementById('machineTotal');if(!el)return;syncCurrentBet();const bets=betSelections.filter(s=>s.size===6).length;el.textContent=`${bets*50*periods}元`;el.title=`有效注數 ${bets} 注 × 50元 × ${periods}期`}
-function clearMachine(){manualPicked.clear();betSelections[currentBetIndex]=new Set();lastResult=null;renderNumberBoard()}
-function clearAllBets(){for(let i=0;i<10;i++)betSelections[i]=new Set();manualPicked=new Set();currentBetIndex=0;lastResult=null;renderBetTabs();renderNumberBoard()}
-function useManualSelection(){if(manualPicked.size<1)return alert('請先選擇號碼。');syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b);const res={nums,logs:[`手動選號｜第${pad(currentBetIndex+1)}注`],rolls:0,dup:0,sup:0,lastIssue:latest()?.issue||'',lastNums:latest()?.nums||[]};lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set(res.lastNums));addHistory(nums.length===6?`手動6碼・第${pad(currentBetIndex+1)}注`:`手動${nums.length}碼・第${pad(currentBetIndex+1)}注`,res);renderNumberBoard();if(nums.length===6)setQrSelection({id:null,nums})}
-function initMachine(){renderBetTabs();renderNumberBoard();const tabs=document.getElementById('betTabs');if(tabs)tabs.onclick=e=>{const b=e.target.closest('[data-bet-index]');if(!b)return;loadBet(Number(b.dataset.betIndex))};const board=document.getElementById('numberBoard');if(board)board.onclick=e=>{const b=e.target.closest('[data-picknum]');if(!b)return;const n=Number(b.dataset.picknum);if(manualPicked.has(n))manualPicked.delete(n);else manualPicked.add(n);renderNumberBoard()};const rail=document.getElementById('gameRail');if(rail)rail.onclick=e=>{const b=e.target.closest('[data-game]');if(!b)return;if(b.dataset.game!=='lotto649')alert(`${b.textContent.replace(' 保留','')}按鈕已保留，目前尚未啟用遊戲規則。`)};document.getElementById('machineClear')?.addEventListener('click',clearMachine);document.getElementById('machineClearAll')?.addEventListener('click',()=>{if(confirm('確定清除全部10注選號？'))clearAllBets()});document.getElementById('machineUseSelection')?.addEventListener('click',useManualSelection);document.getElementById('machineSelfPick')?.addEventListener('click',useManualSelection);document.querySelectorAll('.machine-action[data-n]').forEach(b=>b.addEventListener('click',()=>{selectedN=Number(b.dataset.n);customN.value=selectedN;drawNow();syncCurrentBet();renderNumberBoard()}));document.getElementById('periodMinus')?.addEventListener('click',()=>{periods=Math.max(1,periods-1);document.getElementById('periodValue').textContent=periods;renderMachineTotal()});document.getElementById('periodPlus')?.addEventListener('click',()=>{periods=Math.min(24,periods+1);document.getElementById('periodValue').textContent=periods;renderMachineTotal()});document.getElementById('machineQr')?.addEventListener('click',()=>{syncCurrentBet();const valid=betSelections.map((s,i)=>({i,nums:[...s].sort((a,b)=>a-b)})).filter(x=>x.nums.length===6);if(!valid.length)return alert('請至少完成1注（每注6個號碼）。');showV003QrResultPage(valid.map(v=>v.nums),periods)})}
-function init(){renderNav();normalizeDraws();history=history.slice(0,20);save(KEY.history,history);renderHomeStatus();renderData();renderModel();renderHistory();modeBtns.onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;selectedN=Number(b.dataset.n);customN.value=selectedN;modeBtns.querySelectorAll('.modebtn').forEach(x=>x.classList.toggle('active',x===b))};customN.oninput=()=>{selectedN=Math.min(49,Math.max(1,Number(customN.value)||6));modeBtns.querySelectorAll('.modebtn').forEach(x=>x.classList.toggle('active',Number(x.dataset.n)===selectedN))};drawBtn.onclick=drawNow;copyResult.onclick=async()=>{if(!lastResult)return;await navigator.clipboard.writeText(lastResult.nums.map(pad).join(' '))};const useCurrentForQr=document.getElementById('useCurrentForQr'),generateHomeQr=document.getElementById('generateHomeQr'),copyHomePayloadBtn=document.getElementById('copyHomeQrPayload'),downloadHomeQrBtn=document.getElementById('downloadHomeQr'),printHomeQrBtn=document.getElementById('printHomeQr');if(useCurrentForQr)useCurrentForQr.onclick=()=>{if(!lastResult)return alert('目前尚無抽號結果。');setQrSelection({id:null,nums:lastResult.nums})};if(generateHomeQr)generateHomeQr.onclick=renderHomeQr;if(copyHomePayloadBtn)copyHomePayloadBtn.onclick=copyHomeQrPayload;if(downloadHomeQrBtn)downloadHomeQrBtn.onclick=downloadHomeQr;if(printHomeQrBtn)printHomeQrBtn.onclick=printHomeQr;const qrHomeBox=document.getElementById('qrHomeSelected');if(qrHomeBox)qrHomeBox.onclick=e=>{const b=e.target.closest('[data-qrnum]');if(b)toggleQrNumber(Number(b.dataset.qrnum))};manualAdd.onclick=addManual;importCsv.onclick=()=>{const r=parseCsv(csvText.value);csvMsg.textContent=`新增 ${r.added} 期，略過重複 ${r.skipped} 期${r.errors.length?'；錯誤：'+r.errors.join('；'):''}`;renderData();renderHomeStatus()};csvFile.onchange=async()=>{const f=csvFile.files[0];if(f)csvText.value=await f.text()};recalcBtn.onclick=calcModel;resetModelBtn.onclick=()=>{if(confirm('恢復 2026-09-18 v1 預設模型？')){model=makeDefaultModel();save(KEY.model,model);renderModel();renderHomeStatus()}};batchBtn.onclick=batchGenerate;copyBatch.onclick=async()=>{if(lastBatch.length)await navigator.clipboard.writeText(lastBatch.map((r,i)=>`${i+1}. ${r.nums.map(pad).join(' ')}`).join('\n'))};exportBatch.onclick=exportBatchCsv;historyOut.onclick=e=>{const sel=e.target.closest('[data-select]');if(sel){selectedHistoryId=sel.dataset.select;renderHistory();return}const make=e.target.closest('[data-makeqr]');if(make){const h=history.find(x=>String(x.id)===make.dataset.makeqr);if(h)setQrSelection({id:h.id,nums:h.nums});return}const b=e.target.closest('[data-del]');if(!b)return;history=history.filter(h=>String(h.id)!==b.dataset.del);if(String(selectedHistoryId)===b.dataset.del)selectedHistoryId=null;if(String(qrSelectedId)===b.dataset.del)setQrSelection(null);save(KEY.history,history);renderHistory()};clearHistory.onclick=()=>{if(confirm('確定清空所有歷史紀錄？')){history=[];selectedHistoryId=null;save(KEY.history,history);renderHistory()}};simRunBtn.onclick=simulateHistory;document.getElementById('qrBackBtn')?.addEventListener('click',backToNumberSelection);document.getElementById('qrResultBack2')?.addEventListener('click',backToNumberSelection);document.getElementById('qrResultPrint')?.addEventListener('click',printQrResultPage);document.getElementById('qrResultDownload')?.addEventListener('click',downloadQrResultPage);const cb=document.getElementById('checkLatestBtn');if(cb){cb.onclick=checkLatest;setTimeout(checkLatest,400)};initQr();renderHomeQrSelection();initMachine()}
+function renderBetTabs(){const el=document.getElementById('betTabs');if(!el)return;el.innerHTML=betSelections.map((set,i)=>`<button class="bet-tab ${i===currentBetIndex?'active':''} ${set.size>=6?'filled':set.size?'partial':''}" data-bet-index="${i}" title="第 ${pad(i+1)} 注｜${betLabel(set)}">${pad(i+1)}</button>`).join('');const lab=document.getElementById('currentBetLabel');if(lab)lab.textContent=`第 ${pad(currentBetIndex+1)} 注`}
+function renderNumberBoard(){const board=document.getElementById('numberBoard');if(!board)return;const drawn=new Set(lastResult?.nums||[]);board.innerHTML=Array.from({length:49},(_,i)=>{const n=i+1;return `<button class="num-btn ${manualPicked.has(n)?'selected':''} ${drawn.has(n)?'drawn':''}" data-picknum="${n}">${pad(n)}</button>`}).join('');const c=document.getElementById('machineSelectedCount');if(c){const units=betUnitCount(manualPicked);c.textContent=`第${pad(currentBetIndex+1)}注｜已選 ${manualPicked.size} 個${manualPicked.size>6?`｜系統${manualPicked.size}碼 ${units.toLocaleString('zh-TW')}組`:''}`;}syncCurrentBet();renderBetTabs();renderMachineTotal()}
+function renderMachineTotal(){const el=document.getElementById('machineTotal');if(!el)return;syncCurrentBet();const totalUnits=betSelections.reduce((sum,set)=>sum+betUnitCount(set),0);const total=totalUnits*50*periods;el.textContent=`${total.toLocaleString('zh-TW')}元`;el.title=purchaseMode==='preorder'?`共 ${totalUnits.toLocaleString('zh-TW')} 組 × 50元 × 從指定日期起連續 ${periods} 期`:`共 ${totalUnits.toLocaleString('zh-TW')} 組 × 50元 × ${periods}期`}
+function clearMachine(){manualPicked=new Set();betSelections[currentBetIndex]=new Set();lastResult=null;renderNumberBoard();renderBalls(document.getElementById('resultBalls'),[],new Set())}
+function clearAllBets(){for(let i=0;i<10;i++)betSelections[i]=new Set();manualPicked=new Set();currentBetIndex=0;lastResult=null;qrResultState=null;renderBetTabs();renderNumberBoard();renderBalls(document.getElementById('resultBalls'),[],new Set());const total=document.getElementById('machineTotal');if(total)total.textContent='0元';const count=document.getElementById('machineSelectedCount');if(count)count.textContent='第01注｜已選 0 個'}
+function useManualSelection(){if(manualPicked.size<1)return alert('請先選擇號碼。');if(manualPicked.size>16)return alert('大樂透系統組合最多選16個號碼。');syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b);const res={nums,logs:[`手動選號｜第${pad(currentBetIndex+1)}注｜${betLabel(manualPicked)}`],rolls:0,dup:0,sup:0,lastIssue:latest()?.issue||'',lastNums:latest()?.nums||[]};lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set(res.lastNums));addHistory(nums.length===6?`手動6碼・第${pad(currentBetIndex+1)}注`:`系統${nums.length}碼・第${pad(currentBetIndex+1)}注`,res);renderNumberBoard();if(nums.length===6)setQrSelection({id:null,nums})}
+function initMachine(){renderBetTabs();renderNumberBoard();const tabs=document.getElementById('betTabs');if(tabs)tabs.onclick=e=>{const b=e.target.closest('[data-bet-index]');if(!b)return;loadBet(Number(b.dataset.betIndex))};const board=document.getElementById('numberBoard');if(board)board.onclick=e=>{const b=e.target.closest('[data-picknum]');if(!b)return;const n=Number(b.dataset.picknum);if(manualPicked.has(n))manualPicked.delete(n);else{if(manualPicked.size>=16)return alert('大樂透系統組合最多選16個號碼。');manualPicked.add(n)}renderNumberBoard()};const rail=document.getElementById('gameRail');if(rail)rail.onclick=e=>{const b=e.target.closest('[data-game]');if(!b)return;if(b.dataset.game!=='lotto649')alert(`${b.textContent.replace(' 保留','')}按鈕已保留，目前尚未啟用遊戲規則。`)};document.getElementById('machineClear')?.addEventListener('click',clearMachine);const clearAllBtn=document.getElementById('machineClearAll');if(clearAllBtn)clearAllBtn.onclick=()=>{if(window.confirm('確定清除全部10注投注選號？')){clearAllBets();renderMachineTotal()}};document.getElementById('machineUseSelection')?.addEventListener('click',useManualSelection);document.getElementById('machineSelfPick')?.addEventListener('click',useManualSelection);document.getElementById('periodMinus')?.addEventListener('click',()=>{periods=Math.max(1,periods-1);document.getElementById('periodValue').textContent=periods;renderMachineTotal()});document.getElementById('periodPlus')?.addEventListener('click',()=>{periods=Math.min(10,periods+1);document.getElementById('periodValue').textContent=periods;renderMachineTotal()});document.getElementById('normalPurchaseBtn')?.addEventListener('click',()=>{purchaseMode='consecutive';renderPurchaseMode()});document.getElementById('preorderPurchaseBtn')?.addEventListener('click',()=>{purchaseMode='preorder';renderPurchaseMode()});document.getElementById('preorderDate')?.addEventListener('change',e=>{preorderDate=e.target.value;renderMachineTotal()});renderPurchaseMode();document.getElementById('machineQr')?.addEventListener('click',()=>{syncCurrentBet();const all=betSelections.map((s,i)=>({i,nums:[...s].sort((a,b)=>a-b)})).filter(x=>x.nums.length>=6);if(!all.length)return alert('請至少完成1注。');if(all.some(x=>x.nums.length>16))return alert('系統玩法每個投注單位最多16碼。');const rows=all.map(v=>v.nums);if(purchaseMode==='preorder'){try{const off=preorderOffsetForDate(preorderDate);showV003QrResultPage(rows,periods,{startOffset:off,preorderDate,mixedTest:rows.some(r=>r.length===6)&&rows.some(r=>r.length>6)});}catch(e){alert(String(e.message||e))}return}showV003QrResultPage(rows,periods,{mixedTest:rows.some(r=>r.length===6)&&rows.some(r=>r.length>6)})})}
+function init(){renderNav();normalizeDraws();history=history.slice(0,20);save(KEY.history,history);renderHomeStatus();renderData();renderModel();renderHistory();modeBtns.onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;selectedN=Number(b.dataset.n);customN.value=selectedN;modeBtns.querySelectorAll('.modebtn').forEach(x=>x.classList.toggle('active',x===b))};customN.oninput=()=>{selectedN=Math.min(49,Math.max(1,Number(customN.value)||6));modeBtns.querySelectorAll('.modebtn').forEach(x=>x.classList.toggle('active',Number(x.dataset.n)===selectedN))};drawBtn.onclick=drawNow;copyResult.onclick=async()=>{if(!lastResult)return;await navigator.clipboard.writeText(lastResult.nums.map(pad).join(' '))};const useCurrentForQr=document.getElementById('useCurrentForQr'),generateHomeQr=document.getElementById('generateHomeQr'),copyHomePayloadBtn=document.getElementById('copyHomeQrPayload'),downloadHomeQrBtn=document.getElementById('downloadHomeQr'),printHomeQrBtn=document.getElementById('printHomeQr');if(useCurrentForQr)useCurrentForQr.onclick=()=>{if(!lastResult)return alert('目前尚無抽號結果。');setQrSelection({id:null,nums:lastResult.nums})};if(generateHomeQr)generateHomeQr.onclick=renderHomeQr;if(copyHomePayloadBtn)copyHomePayloadBtn.onclick=copyHomeQrPayload;if(downloadHomeQrBtn)downloadHomeQrBtn.onclick=downloadHomeQr;if(printHomeQrBtn)printHomeQrBtn.onclick=printHomeQr;const qrHomeBox=document.getElementById('qrHomeSelected');if(qrHomeBox)qrHomeBox.onclick=e=>{const b=e.target.closest('[data-qrnum]');if(b)toggleQrNumber(Number(b.dataset.qrnum))};manualAdd.onclick=addManual;importCsv.onclick=()=>{const r=parseCsv(csvText.value);csvMsg.textContent=`新增 ${r.added} 期，略過重複 ${r.skipped} 期${r.errors.length?'；錯誤：'+r.errors.join('；'):''}`;renderData();renderHomeStatus()};csvFile.onchange=async()=>{const f=csvFile.files[0];if(f)csvText.value=await f.text()};recalcBtn.onclick=calcModel;resetModelBtn.onclick=()=>{if(confirm('恢復 2026-09-18 v1 預設模型？')){model=makeDefaultModel();save(KEY.model,model);renderModel();renderHomeStatus()}};batchBtn.onclick=batchGenerate;copyBatch.onclick=async()=>{if(lastBatch.length)await navigator.clipboard.writeText(lastBatch.map((r,i)=>`${i+1}. ${r.nums.map(pad).join(' ')}`).join('\n'))};exportBatch.onclick=exportBatchCsv;historyOut.onclick=e=>{const sel=e.target.closest('[data-select]');if(sel){selectedHistoryId=sel.dataset.select;renderHistory();return}const make=e.target.closest('[data-makeqr]');if(make){const h=history.find(x=>String(x.id)===make.dataset.makeqr);if(h)setQrSelection({id:h.id,nums:h.nums});return}const b=e.target.closest('[data-del]');if(!b)return;history=history.filter(h=>String(h.id)!==b.dataset.del);if(String(selectedHistoryId)===b.dataset.del)selectedHistoryId=null;if(String(qrSelectedId)===b.dataset.del)setQrSelection(null);save(KEY.history,history);renderHistory()};clearHistory.onclick=()=>{if(confirm('確定清空所有歷史紀錄？')){history=[];selectedHistoryId=null;save(KEY.history,history);renderHistory()}};simRunBtn.onclick=simulateHistory;document.getElementById('qrBackBtn')?.addEventListener('click',backToNumberSelection);document.getElementById('qrResultBack2')?.addEventListener('click',backToNumberSelection);document.getElementById('qrResultPrint')?.addEventListener('click',printQrResultPage);document.getElementById('qrResultDownload')?.addEventListener('click',downloadQrResultPage);const cb=document.getElementById('checkLatestBtn');if(cb){cb.onclick=()=>checkLatest({silent:false});setTimeout(()=>checkLatest({silent:true}),400)};initQr();renderHomeQrSelection();initMachine()}
 init();
 </script>
 </body>
