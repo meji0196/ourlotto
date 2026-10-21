@@ -311,9 +311,93 @@ button:disabled{background:#d9d9d9!important;color:#8b8b8b!important;border-colo
 /* Preserve the independently verified 50x50mm QR-only thermal print rule. */
 @media print{body.qr-print .qr-result-card>*:not(.qr-result-canvas){display:none!important}}
 </style>
+
+<style id="v14m-skin-and-position">
+/* Header: show latest confirmed draw DATE from the app's own dataset, not the current clock date. */
+header{justify-content:flex-start;flex-wrap:wrap;column-gap:12px;row-gap:3px}
+header .draw-date-badge{font-size:12px;font-weight:800;color:#47613a;padding:4px 9px;border:1px solid #dce6cc;background:#f3f9ed;border-radius:999px;white-space:normal}
+header #headerStatus{margin-left:auto}
+/* Digit lottery: 3 or 4 places across, with vertically ordered digits 0...9 in each place. */
+#star3Controls .star3-digits,#star4Controls .star3-digits{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;align-items:start;max-width:640px}
+#star4Controls .star3-digits{grid-template-columns:repeat(4,minmax(0,1fr))!important;max-width:750px}
+#star3Controls .star3-place,#star4Controls .star3-place{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:6px!important;min-width:0!important;overflow:visible!important;padding:8px!important;background:rgba(255,255,255,.8)}
+#star3Controls .star3-place-title,#star4Controls .star3-place-title{display:block!important;position:static!important;flex:none!important;padding:5px 0!important;text-align:center!important;font-weight:900!important;background:transparent!important}
+#star3Controls .star3-grid,#star4Controls .star3-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;min-width:0!important;width:100%!important;gap:6px!important;flex:auto!important}
+#star3Controls .star3-digit,#star4Controls .star3-digit{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;height:43px;font-size:17px}
+/* Toolbars are moved, not copied: original event listeners/IDs continue to work. */
+#quickModeExtras.quick-mode-extras{display:none;align-items:center;gap:8px;min-width:0;flex:1 1 auto}
+#quickModeExtras[data-mode="smart"],#quickModeExtras[data-mode="self"]{display:flex!important}
+#quickModeExtras .smart-toolbar{display:flex;align-items:center;gap:7px;white-space:nowrap;max-width:100%;overflow-x:auto;padding:2px 0 4px;scrollbar-width:thin}
+#quickModeExtras .smart-stepper{flex:0 0 auto;grid-template-columns:26px minmax(43px,auto) 26px;padding:2px;border-width:1px}
+#quickModeExtras .smart-stepper button{height:33px;font-size:19px}
+#quickModeExtras .smart-stepper-value{height:33px;min-width:40px}
+#quickModeExtras .smart-arrow{order:5;width:25px;height:37px;font-size:21px}
+#quickModeExtras .self-mode-toggle{flex:0 0 auto;display:flex;gap:3px;padding:3px}
+#quickModeExtras .self-mode-btn{font-size:13px;padding:9px 9px}
+#quickModeExtras .self-bet-count{flex:0 0 auto;padding:0 4px;gap:3px}
+#quickModeExtras .self-bet-count-label{font-size:13px}
+#quickModeExtras .self-countbox{grid-template-columns:29px 45px 29px}
+#quickModeExtras .self-countbox button,#quickModeExtras .self-countbox input{height:36px}
+/* Force extra dock after quick pick count in the same flex order (may wrap on narrow phones). */
+#lottoMachine .machine-actions #drawBtn{order:1}
+#lottoMachine .machine-actions #quickPickCount{order:2}
+#lottoMachine .machine-actions #quickModeExtras{order:3}
+@media(max-width:700px){
+ #star3Controls .star3-digits,#star4Controls .star3-digits{max-width:100%;gap:5px!important}
+ #star3Controls .star3-place,#star4Controls .star3-place{padding:4px!important;gap:4px!important}
+ #star3Controls .star3-digit,#star4Controls .star3-digit{height:40px;font-size:16px}
+ #quickModeExtras.quick-mode-extras{flex:1 0 100%;width:100%;overflow:hidden}
+ #quickModeExtras .smart-toolbar{width:100%}
+ #quickModeExtras .self-mode-toggle{flex:0 0 auto}
+ #quickModeExtras .self-bet-count{flex:0 0 auto}
+}
+@media(max-width:600px){
+ /* First page is neutral: game selection feedback is momentary only. */
+ body[data-mobile-stage="games"] #lottoMachine .game-rail .game-btn,
+ body[data-mobile-stage="games"] #lottoMachine .game-rail .game-btn.active,
+ body[data-mobile-stage="games"] #lottoMachine .game-rail .game-btn:hover,
+ body[data-mobile-stage="games"] #lottoMachine .game-rail .game-btn:focus{
+   color:#4B3C1A!important;
+   background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(239,244,252,.82))!important;
+   border:1px solid rgba(255,255,255,.86)!important;
+   box-shadow:0 5px 14px rgba(36,58,95,.09),inset 0 1px 0 rgba(255,255,255,.92)!important;
+   outline:0!important;transform:none!important;
+ }
+ body[data-mobile-stage="games"] #lottoMachine .game-rail .game-btn.mobile-game-flash,
+ body[data-mobile-stage="games"] #lottoMachine .game-rail .game-btn:active{
+   background:linear-gradient(145deg,#e3f3ff,#a8d3ff)!important;
+   border-color:#448cee!important;
+   box-shadow:0 0 0 3px rgba(47,125,246,.22),inset 0 1px 0 white!important;
+ }
+ header{justify-content:flex-start;gap:5px 8px}
+ header .brand{font-size:19px}
+ header .draw-date-badge{font-size:11px;padding:4px 6px}
+ header #headerStatus{display:none}
+ /* Make all 3 smart-pack steppers visible in phone width; never crop the +/- buttons. */
+ #quickModeExtras[data-mode="smart"] .smart-toolbar{
+   display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr)) 23px!important;
+   gap:3px!important;width:100%;min-width:0;max-width:100%;overflow:visible!important;
+   align-items:center;padding:2px 0!important;
+ }
+ #quickModeExtras[data-mode="smart"] .smart-stepper{
+   grid-template-columns:20px minmax(0,1fr) 20px!important;
+   min-width:0!important;padding:2px!important;gap:0!important;
+ }
+ #quickModeExtras[data-mode="smart"] .smart-stepper button{min-width:0;height:32px;font-size:16px;padding:0}
+ #quickModeExtras[data-mode="smart"] .smart-stepper-value{min-width:0!important;height:32px;font-size:12px;white-space:nowrap;gap:2px}
+ #quickModeExtras[data-mode="smart"] .smart-arrow{grid-column:4;grid-row:1;order:5;width:21px;min-width:0;font-size:21px;padding:0}
+ #quickModeExtras[data-mode="self"]{flex-wrap:wrap!important;align-items:center;gap:5px;width:100%;overflow:visible!important}
+ #quickModeExtras[data-mode="self"] .self-mode-toggle{flex:0 1 auto;min-width:0}
+ #quickModeExtras[data-mode="self"] .self-bet-count{flex:0 1 auto;min-width:0}
+ /* Keep control row usable at narrow widths, not horizontally clipped. */
+ #lottoMachine .machine-actions{gap:6px}
+ #lottoMachine .machine-actions #drawBtn{min-width:70px!important;padding:10px 12px!important}
+ #lottoMachine .machine-actions #quickPickCount{min-width:77px!important;padding:9px 22px 9px 8px!important}
+}
+</style>
 </head>
 <body>
-<header><div class="brand">大家的樂透彩</div><div class="status-mini" id="headerStatus">模型：2026-09-18 v1</div></header>
+<header><div class="brand">大家的樂透彩</div><span id="latestDrawDateBadge" class="draw-date-badge" aria-live="polite">獎號更新：讀取中</span><div class="status-mini" id="headerStatus">模型：2026-09-18 v1</div></header>
 <nav id="nav"></nav>
 <main>
 <section class="page active" data-page="home">
@@ -445,6 +529,7 @@ button:disabled{background:#d9d9d9!important;color:#8b8b8b!important;border-colo
         <option value="15">15碼</option>
         <option value="16">16碼</option>
       </select>
+      <div id="quickModeExtras" class="quick-mode-extras" hidden></div>
     </div>
     <div class="machine-status"><span class="pill" id="machineSelectedCount">已選 0 個</span><span class="pill" id="gameRuleStatus">大樂透 01～49｜每注6碼｜系統最多16碼</span><span class="pill" id="autoSyncStatus">資料：等待同步</span></div>
     <div id="resultBalls" class="balls" style="margin-bottom:4px"></div>
@@ -1980,7 +2065,7 @@ function oneSelection(n){
 function renderBalls(el,nums,latestSet=new Set()){el.innerHTML='';nums.forEach(n=>{const d=document.createElement('div');d.className='ball'+(latestSet.has(n)?' latest':'');d.textContent=pad(n);el.appendChild(d)})}
 function addHistory(mode,res){const item={id:Date.now()+Math.random(),time:new Date().toISOString(),model:model.version,mode,nums:res.nums,suppress:document.getElementById('suppressToggle').checked,lastIssue:res.lastIssue,lastNums:res.lastNums,rolls:res.rolls,dup:res.dup,sup:res.sup};history.unshift(item);history=history.slice(0,20);if(!save(KEY.history,history))alert('歷史紀錄儲存失敗。');if(selectedHistoryId&&!history.some(h=>String(h.id)===String(selectedHistoryId)))selectedHistoryId=null;renderHistory()}
 function renderNav(){const nav=document.getElementById('nav');nav.innerHTML=TABS.map(([id,t],i)=>`<button class="tab ${i===0?'active':''}" data-pagebtn="${id}">${t}</button>`).join('');nav.onclick=e=>{const b=e.target.closest('[data-pagebtn]');if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.dataset.page===b.dataset.pagebtn));if(b.dataset.pagebtn==='data')renderData();if(b.dataset.pagebtn==='sim')renderSimulationSelection()}}
-function renderHomeStatus(){const l=latest();document.getElementById('headerStatus').textContent=`模型：${model.version}`;const hv=document.getElementById('homeModelVersion');if(hv)hv.textContent=model.version;const si=document.getElementById('suppressInfo');if(si)si.textContent=l?`目前參考：${l.issue}｜${l.nums.map(pad).join('、')}`:'尚無可確認的最新一期資料';const st=document.getElementById('suppressToggle');if(st)st.disabled=!l}
+function renderHomeStatus(){setTimeout(()=>window.updateLatestDrawBadge?.(),0);const l=latest();document.getElementById('headerStatus').textContent=`模型：${model.version}`;const hv=document.getElementById('homeModelVersion');if(hv)hv.textContent=model.version;const si=document.getElementById('suppressInfo');if(si)si.textContent=l?`目前參考：${l.issue}｜${l.nums.map(pad).join('、')}`:'尚無可確認的最新一期資料';const st=document.getElementById('suppressToggle');if(st)st.disabled=!l}
 function drawNow(){const n=Math.min(49,Math.max(1,Number(document.getElementById('customN').value)||selectedN));const res=oneSelection(n);lastResult=res;renderBalls(document.getElementById('resultBalls'),res.nums,new Set(res.lastNums));document.getElementById('rollCount').textContent=`總擲骰 ${res.rolls}`;document.getElementById('dupCount').textContent=`重複重擲 ${res.dup}`;document.getElementById('supCount').textContent=`連莊加成 ${res.bonusApplied||0}`;document.getElementById('rollLog').textContent=res.logs.join('\n')+`\n\n模型：${model.version}`;addHistory(n===6?'6碼':n===7?'7碼':n===8?'8碼':`自訂${n}碼`,res);manualPicked=new Set(res.nums);renderNumberBoard()}
 function renderData(){normalizeDraws();const shown=draws.slice(0,50);const tbody=document.getElementById('drawTable');tbody.innerHTML=shown.map(d=>`<tr><td>${d.date}</td><td>${d.issue}</td><td><div class="numchips">${d.nums.slice().sort((a,b)=>a-b).map(n=>`<span class="numchip">${pad(n)}</span>`).join('')}</div></td><td>${d.source||'手動輸入'}</td></tr>`).join('');const l=latest(),old=shown[shown.length-1];document.getElementById('dataMeta').innerHTML=`<span class="pill">顯示最近 ${shown.length} 期</span><span class="pill">起訖 ${old?.date||'-'} ～ ${l?.date||'-'}</span><span class="pill">最新 ${l?.issue||'-'}</span><span class="pill">目前載入 ${draws.length} 期</span><span class="pill">核對日 2026-10-05</span>`}
 function validDraw(date,issue,nums){if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||isNaN(Date.parse(date)))return '日期格式錯誤';if(!/^\d{9}$/.test(issue))return '期別必須為9碼';if(nums.length!==6||new Set(nums).size!==6||nums.some(n=>n<1||n>49||!Number.isInteger(n)))return '一般獎號需為6個01～49且不可重複';return ''}
@@ -3515,6 +3600,7 @@ function renderPeriodOptions(){
   sel.value=String(periods);
 }
 function updateGameUI(){
+  setTimeout(()=>window.updateLatestDrawBadge?.(),0);
   const cfg=gameCfg(),isPower=currentGame==='power',isBingo=currentGame==='bingo',isCombo=isLottoComboGame(),is39=currentGame==='39combo',is49=currentGame==='49combo',is3=currentGame==='3star',is4=currentGame==='4star',isDigit=is3||is4;
   document.querySelectorAll('#gameRail [data-game]').forEach(b=>b.classList.toggle('active',b.dataset.game===currentGame));
   const pf=document.getElementById('powerFirstZone');if(pf){pf.style.display=isDigit?'none':'';pf.classList.toggle('open',isPower||isBingo);pf.setAttribute('aria-hidden',(isPower||isBingo)?'false':'true');const ph=pf.querySelector('.power-first-head');if(ph){ph.innerHTML=isBingo?'號碼區 01～80 <span class="sub">依目前星數選號</span>':'第一區 01～38 <span class="sub">請選6～16碼</span>'}}
@@ -4585,8 +4671,10 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   function selectGame(button){
     const key=button.dataset.game;
     if(!key)return;
-    // Leave app selection & game data to existing event handlers.
+    // 短暫按壓回饋，第一頁不保留選取高亮；原遊戲事件照常執行。
+    button.classList.add('mobile-game-flash');
     setTimeout(()=>{
+      button.classList.remove('mobile-game-flash');
       const activated=key==='combo'?app.classList.contains('combo-page-active'):
         !app.classList.contains('combo-page-active')&&rail.querySelector('.game-btn.active')?.dataset.game===key;
       if(!activated)return;
@@ -4594,7 +4682,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
       chosenPlay='';
       comboError.textContent='';
       setStage('plays');
-    },0);
+    },155);
   }
   // Ancestor capture: also catches the package tab, which the original program stops on the rail.
   app.addEventListener('click',event=>{
@@ -4681,6 +4769,73 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   const original=document.getElementById('machineClearAll');
   if(!mobile||!original) return;
   mobile.addEventListener('click',()=>original.click());
+})();
+</script>
+
+<script id="v14m-layout-script">
+(function(){
+  const dock=document.getElementById('quickModeExtras');
+  const smartPanel=document.getElementById('smartInline');
+  const selfPanel=document.getElementById('selfInline');
+  const smartToolbar=smartPanel?.querySelector('.smart-toolbar');
+  const selfToolbar=selfPanel?.querySelector('.self-toolbar');
+  if(dock&&smartToolbar&&selfToolbar){
+    const smartHome=smartToolbar.parentNode;
+    const selfMode=selfToolbar.querySelector('.self-mode-toggle');
+    const selfBet=selfToolbar.querySelector('.self-bet-count');
+    function syncDock(){
+      const isSmart=!!window.smartModeActive&&smartPanel.classList.contains('open');
+      const isSelf=!!window.selfPackModeActive&&selfPanel.classList.contains('open');
+      if(isSmart){
+        if(smartToolbar.parentNode!==dock)dock.appendChild(smartToolbar);
+        if(selfMode?.parentNode===dock)selfToolbar.insertBefore(selfMode,selfToolbar.firstChild);
+        if(selfBet?.parentNode===dock)selfToolbar.insertBefore(selfBet,selfToolbar.querySelector('.self-summary'));
+        dock.dataset.mode='smart';dock.hidden=false;
+      }else if(isSelf){
+        if(smartToolbar.parentNode===dock)smartHome.insertBefore(smartToolbar,smartHome.firstChild);
+        if(selfMode?.parentNode!==dock)dock.appendChild(selfMode);
+        if(selfBet?.parentNode!==dock)dock.appendChild(selfBet);
+        dock.dataset.mode='self';dock.hidden=false;
+      }else{
+        if(smartToolbar.parentNode===dock)smartHome.insertBefore(smartToolbar,smartHome.firstChild);
+        if(selfMode?.parentNode===dock)selfToolbar.insertBefore(selfMode,selfToolbar.firstChild);
+        if(selfBet?.parentNode===dock)selfToolbar.insertBefore(selfBet,selfToolbar.querySelector('.self-summary'));
+        dock.dataset.mode='';dock.hidden=true;
+      }
+    }
+    new MutationObserver(syncDock).observe(smartPanel,{attributes:true,attributeFilter:['class']});
+    new MutationObserver(syncDock).observe(selfPanel,{attributes:true,attributeFilter:['class']});
+    // A mutation event triggers on mode switch, including game reset.
+    syncDock();
+  }
+  const badge=document.getElementById('latestDrawDateBadge');
+  if(badge){
+    function getLatest(){
+      try{
+        let draw=null;
+        let game=currentGame;
+        if(document.getElementById('lottoMachine')?.classList.contains('combo-page-active'))game='combo';
+        if(game==='lotto649'||game==='49combo')draw=latest();
+        else if(game==='539'||game==='39combo')draw=latest539();
+        else if(game==='power')draw=latestPower();
+        else if(game==='combo'){
+          const all=[latest(),latest539(),latestPower()].filter(x=>x?.date);
+          draw=all.sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0];
+        }
+        const d=String(draw?.date||'');
+        return /^\d{4}-\d{2}-\d{2}$/.test(d)?d.replace(/-/g,'/'):null;
+      }catch(e){return null}
+    }
+    function updateBadge(){
+      const dt=getLatest();
+      badge.textContent=dt?'獎號截至 '+dt:'獎號日期：無資料';
+      badge.title=dt?'目前載入資料中最新一期開獎日期，非即時同步完成時間':'此彩種沒有可供確認的歷史開獎日期';
+    }
+    window.updateLatestDrawBadge=updateBadge;
+    updateBadge();
+    document.getElementById('gameRail')?.addEventListener('click',()=>setTimeout(updateBadge,20));
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateBadge()});
+  }
 })();
 </script>
 </body>
