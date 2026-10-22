@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>大家的樂透彩 V14-N｜手機操作與QR修正版</title>
+<title>大家的樂透彩 V14-P｜購物車與自選包牌流程修正版</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -642,6 +642,7 @@ header #headerStatus{margin-left:auto}
 </select>
 <div class="quick-mode-extras" hidden="" id="quickModeExtras"></div>
 </div>
+<div id="selfPackReadyStatus" role="status" aria-live="polite" hidden></div>
 <div class="machine-status"><span class="pill" id="machineSelectedCount">已選 0 個</span><span class="pill" id="gameRuleStatus">大樂透 01～49｜每注6碼｜系統最多16碼</span><span class="pill" id="autoSyncStatus">資料：等待同步</span></div>
 <div class="balls" id="resultBalls" style="margin-bottom:4px"></div>
 <div class="row"><button class="secondary" id="copyResult">複製結果</button><button class="secondary" id="machineUseSelection">使用手動選號</button></div>
@@ -665,7 +666,7 @@ header #headerStatus{margin-left:auto}
 <button class="side-btn placeholder" type="button">加至清單</button>
 </div>
 <div class="machine-total" id="machineTotal">0元</div>
-<button class="machine-print" id="machineQr">製作QR</button><button aria-label="開啟購物車" hidden="" id="mobileCartBubble" type="button">🛒</button>
+<button class="machine-print" id="machineQr">製作QR</button>
 </aside>
 </div>
 <section aria-hidden="true" class="smart-inline" id="smartInline">
@@ -788,6 +789,7 @@ header #headerStatus{margin-left:auto}
 <div class="qr-result-shell">
 <div class="qr-result-head"><button class="secondary qr-back" id="qrBackBtn">← 回到選號區</button><div class="sub" id="qrResultHeadTitle">大樂透 V003 QR Code</div></div>
 <div class="qr-result-card">
+<button aria-label="加入我的最愛" aria-pressed="false" id="archiveToggleFav" type="button">♡</button>
 <div class="qr-game-logo" hidden="" id="qrGameLogo"></div><h1 class="title" id="qrResultTitle" style="text-align:center;margin-bottom:4px">大樂透 V003 QR Code</h1>
 <div class="qr-result-meta" id="qrResultMeta"></div>
 <div class="qr-result-pager" id="qrResultPager"></div>
@@ -795,7 +797,7 @@ header #headerStatus{margin-left:auto}
 <canvas class="qr-result-canvas" height="520" id="qrResultCanvas" width="520"></canvas>
 <div aria-live="polite" class="qr-simple-total" id="qrResultTotal"></div>
 <div class="qr-result-bets" id="qrResultBets"></div>
-<div class="qr-result-actions"><div class="mobile-archive-actions" id="mobileArchiveActions"><button id="archiveAddCart" type="button">放入購物車</button><button aria-label="加入我的最愛" aria-pressed="false" id="archiveToggleFav" type="button">♡</button></div>
+<div class="qr-result-actions"><div class="mobile-archive-actions" id="mobileArchiveActions"><button id="archiveAddCart" type="button">放入購物車</button></div>
 <button class="primary" id="qrResultPrint">列印目前 QR</button>
 <button class="primary hidden" id="qrResultPrintAll">一次列印全部 QR</button>
 <button class="secondary" id="qrResultBack2">回到選號區</button>
@@ -4177,7 +4179,7 @@ init();
 <script>
 (()=>{
  const panel=document.getElementById('selfInline'); if(!panel)return;
- let selected=new Set(),strategy='balanced',groupCount=10,lastRows=[];
+ let selected=new Set(),strategy='balanced',groupCount=10,lastRows=[],countChosen=false,paired=false,pairing=false;
  const pad=n=>String(n).padStart(2,'0');
  function combCount(n,k){if(k<0||k>n)return 0;let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return Math.round(r)}
  function key(row){return row.slice().sort((a,b)=>a-b).join('-')}
@@ -4222,8 +4224,8 @@ init();
  }
  function decorate(){if(!window.selfPackModeActive)return;const board=document.getElementById('numberBoard');if(!board)return;board.querySelectorAll('[data-picknum]').forEach(btn=>{const n=Number(btn.dataset.picknum);btn.style.background='';btn.style.borderColor='';btn.style.color='';btn.style.boxShadow='';btn.classList.toggle('selected',selected.has(n));btn.title=selected.has(n)?'點一下取消 '+pad(n):'加入自選包牌母號'})}
  window.selfPackDecorateMainBoard=decorate;window.selfPackRefresh=render;
- window.selfPackHandleNumberClick=n=>{if(selected.has(n))selected.delete(n);else selected.add(n);lastRows=[];render()};
- window.selfPackQuickSet=nums=>{const cfg=gameCfg();selected=new Set((nums||[]).map(Number).filter(n=>n>=1&&n<=cfg.maxNumber).slice(0,cfg.maxNumber));lastRows=[];render()};
+ window.selfPackHandleNumberClick=n=>{if(selected.has(n))selected.delete(n);else selected.add(n);lastRows=[];paired=false;countChosen=false;render()};
+ window.selfPackQuickSet=nums=>{const cfg=gameCfg();selected=new Set((nums||[]).map(Number).filter(n=>n>=1&&n<=cfg.maxNumber).slice(0,cfg.maxNumber));lastRows=[];paired=false;countChosen=false;render()};
  function render(){
    const k=ticketSizeSelf(),minMother=minMotherSelf();
    const comboMax=selected.size>=k?combCount(selected.size,k):0;
@@ -4231,12 +4233,32 @@ init();
    const countInput=document.getElementById('selfCountInput');
    groupCount=Math.max(1,Math.min(smartCap,Number(countInput?.value)||Math.min(10,smartCap)));
    if(countInput){countInput.max=String(smartCap);countInput.value=groupCount;}
+   const motherOk=selected.size>=minMother, max=comboMax;
    const minusBtn=document.getElementById('selfCountMinus'),plusBtn=document.getElementById('selfCountPlus');
-   if(minusBtn)minusBtn.disabled=groupCount<=1;
-   if(plusBtn)plusBtn.disabled=selected.size>=minMother&&groupCount>=smartCap;
-   document.getElementById('selfSelectedCount').textContent=selected.size;document.getElementById('selfGroupCount').textContent=groupCount;const selfSecondMult=currentGame==='power'?powerSecondPicked.size:1,self39Mult=isLottoComboGame()?combo39CurrentMultiplier():1;document.getElementById('selfPrice').textContent=(groupCount*selfSecondMult*self39Mult*gameCfg().price).toLocaleString('zh-TW')+'元';
-   document.getElementById('selfBalancedBtn').classList.toggle('active',strategy==='balanced');document.getElementById('selfD100Btn').classList.toggle('active',strategy==='d100');
-   const max=comboMax,powerSecondOk=currentGame!=='power'||powerSecondPicked.size>=1,ok=selected.size>=minMother&&groupCount<=max&&powerSecondOk;document.getElementById('selfApply').disabled=!ok;
+   if(countInput) countInput.disabled=!motherOk||pairing;
+   if(minusBtn)minusBtn.disabled=!motherOk||pairing||groupCount<=1;
+   if(plusBtn)plusBtn.disabled=!motherOk||pairing||groupCount>=smartCap;
+   document.getElementById('selfSelectedCount').textContent=selected.size;
+   document.getElementById('selfGroupCount').textContent=groupCount;
+   const selfSecondMult=currentGame==='power'?powerSecondPicked.size:1,self39Mult=isLottoComboGame()?combo39CurrentMultiplier():1;
+   document.getElementById('selfPrice').textContent=(groupCount*selfSecondMult*self39Mult*gameCfg().price).toLocaleString('zh-TW')+'元';
+   document.getElementById('selfBalancedBtn').classList.toggle('active',paired&&strategy==='balanced');
+   document.getElementById('selfD100Btn').classList.toggle('active',paired&&strategy==='d100');
+   const powerSecondOk=currentGame!=='power'||powerSecondPicked.size>=1;
+   const valid=motherOk&&groupCount<=comboMax&&powerSecondOk;
+   ['selfBalancedBtn','selfD100Btn'].forEach(id=>{const btn=document.getElementById(id);if(btn)btn.disabled=!valid||!countChosen||pairing});
+   const qrReady=valid&&countChosen&&paired&&!pairing&&lastRows.length===groupCount;
+   document.getElementById('selfApply').disabled=!qrReady;
+   const status=document.getElementById('selfPackReadyStatus');
+   if(status){
+     status.hidden=!window.selfPackModeActive;
+     status.dataset.phase=qrReady?'ready':pairing?'busy':'pending';
+     status.textContent=pairing?'配牌中…':qrReady?`✓ 配牌完成，共 ${lastRows.length} 注，可按「製作QR」`:
+       !motherOk?`步驟 1｜請選擇至少 ${minMother} 個母號`:
+       !countChosen?'步驟 2｜母號已達標，請選擇投注注數':
+       !powerSecondOk?'請先選擇威力彩第二區至少1個號碼':
+       '步驟 3｜選擇「均衡配牌」或「百面骰配牌」以產生投注';
+   }
    let note='';
    if(selected.size<minMother)note=`請先從上方選擇至少${minMother}個母號。`+(isLottoComboGame()?` ${combo39PlayName()}每注${k}碼，母號至少多1碼才有自選包牌空間。`:'');
    else if(groupCount>max)note=`目前母號最多只有 ${max.toLocaleString('zh-TW')} 組不重複${k}碼組合。`;
@@ -4248,23 +4270,44 @@ init();
    else note=(selected.size>=minMother?`目前最多 ${smartCap.toLocaleString('zh-TW')} 注。 `:'')+'百面骰配牌：只在母號池中依目前d100骰面權重抽取；大樂透同步套用連莊+50%/+25%與最多2個加成名額。';
    document.getElementById('selfNote').textContent=note;
    document.getElementById('selfPreview').innerHTML=lastRows.slice(0,20).map((r,i)=>'<div class="self-preview-row">#'+(i+1)+'　'+r.map(pad).join('、')+'</div>').join('')+(lastRows.length>20?'<div class="self-preview-row">…共 '+lastRows.length+' 組</div>':'');decorate();
+   if(window.selfPackModeActive){renderMachineTotal();refreshMachineQrEnabled();}
  }
- function reset(){selected.clear();lastRows=[];groupCount=10;strategy='balanced';const inp=document.getElementById('selfCountInput');if(inp)inp.value='10';render()}
+ function reset(){selected.clear();lastRows=[];groupCount=10;strategy='balanced';countChosen=false;paired=false;pairing=false;const inp=document.getElementById('selfCountInput');if(inp)inp.value='10';render()}
  function paint(mode){document.getElementById('generalModeBtn')?.classList.toggle('active',mode==='general');document.getElementById('columnPlayBtn')?.classList.toggle('active',mode==='column');document.getElementById('smartPlayBtn')?.classList.toggle('active',mode==='smart');document.getElementById('machineSelfPick')?.classList.toggle('active',mode==='self');document.getElementById('mainMealBtn')?.classList.toggle('active',mode==='mainmeal');renderBetTabs()}
  function open(){if(window.closeMainMealMode)window.closeMainMealMode(false);if(window.smartModeActive&&window.closeSmartMode)window.closeSmartMode(false);if(window.columnModeActive&&window.setNumberMode)window.setNumberMode('general');panel.classList.add('open');panel.setAttribute('aria-hidden','false');window.selfPackModeActive=true;paint('self');render();window.updateQuickPickUI?.();setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),20)}
- function close(repaint=true){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');window.selfPackModeActive=false;if(repaint)paint('general');renderNumberBoard();window.updateQuickPickUI?.()}
+ function close(repaint=true){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');window.selfPackModeActive=false;const st=document.getElementById('selfPackReadyStatus');if(st)st.hidden=true;if(repaint)paint('general');renderNumberBoard();window.updateQuickPickUI?.()}
  function setSelf(){const current=window.selfPackModeActive?'self':(window.mainMealModeActive?'mainmeal':(window.smartModeActive?'smart':(window.columnModeActive?'column':'general')));if(current==='self')return;clearAllBets();if(window.closeMainMealMode)window.closeMainMealMode(false);if(window.smartModeActive&&window.closeSmartMode)window.closeSmartMode(false);if(window.columnModeActive&&window.setNumberMode)window.setNumberMode('general');reset();open()}
  window.selfPackModeActive=false;window.closeSelfPackMode=close;window.clearSelfPackMode=reset;
- window.selfPackGetUnitCount=()=>{const k=ticketSizeSelf(),minMother=minMotherSelf(),max=selected.size>=k?combCount(selected.size,k):0;if(!(selected.size>=minMother&&groupCount<=max))return 0;if(currentGame==='power')return powerSecondPicked.size>=1?groupCount*powerSecondPicked.size:0;if(isLottoComboGame())return groupCount*combo39CurrentMultiplier();return groupCount};
+ window.selfPackGetUnitCount=()=>{const k=ticketSizeSelf(),minMother=minMotherSelf(),max=selected.size>=k?combCount(selected.size,k):0;if(!(selected.size>=minMother&&groupCount<=max&&paired&&!pairing&&lastRows.length===groupCount))return 0;if(currentGame==='power')return powerSecondPicked.size>=1?groupCount*powerSecondPicked.size:0;if(isLottoComboGame())return groupCount*combo39CurrentMultiplier();return groupCount};
  document.getElementById('machineSelfPick')?.addEventListener('click',setSelf);
- document.getElementById('selfBalancedBtn')?.addEventListener('click',()=>{strategy='balanced';lastRows=[];render()});document.getElementById('selfD100Btn')?.addEventListener('click',()=>{strategy='d100';lastRows=[];render()});
- document.getElementById('selfCountMinus')?.addEventListener('click',()=>{groupCount=Math.max(1,groupCount-1);document.getElementById('selfCountInput').value=groupCount;lastRows=[];render()});document.getElementById('selfCountPlus')?.addEventListener('click',()=>{const k=ticketSizeSelf(),minMother=minMotherSelf(),cap=selected.size>=minMother?Math.min(200,combCount(selected.size,k)):200;groupCount=Math.min(cap,groupCount+1);document.getElementById('selfCountInput').value=groupCount;lastRows=[];render()});document.getElementById('selfCountInput')?.addEventListener('change',()=>{lastRows=[];render()});document.getElementById('selfReset')?.addEventListener('click',reset);
+ function countSelected(){
+   if(selected.size<minMotherSelf()||pairing)return;
+   countChosen=true;paired=false;lastRows=[];render();
+ }
+ document.getElementById('selfCountMinus')?.addEventListener('click',()=>{if(selected.size<minMotherSelf())return;groupCount=Math.max(1,groupCount-1);document.getElementById('selfCountInput').value=groupCount;countSelected()});
+ document.getElementById('selfCountPlus')?.addEventListener('click',()=>{if(selected.size<minMotherSelf())return;const k=ticketSizeSelf(),cap=Math.min(200,combCount(selected.size,k));groupCount=Math.min(cap,groupCount+1);document.getElementById('selfCountInput').value=groupCount;countSelected()});
+ document.getElementById('selfCountInput')?.addEventListener('change',countSelected);
+ document.getElementById('selfCountInput')?.addEventListener('focus',countSelected);
+ document.getElementById('selfReset')?.addEventListener('click',reset);
+ function pairWith(nextStrategy){
+   const nums=[...selected].sort((a,b)=>a-b),k=ticketSizeSelf(),max=combCount(nums.length,k);
+   if(pairing||!countChosen||nums.length<minMotherSelf()||groupCount>max)return;
+   if(currentGame==='power'&&!powerSecondPicked.size){alert('威力彩第二區至少需選1碼。');return;}
+   strategy=nextStrategy;lastRows=[];paired=false;pairing=true;render();
+   setTimeout(()=>{
+     try{
+       lastRows=strategy==='balanced'?generateBalanced(nums,groupCount):generateD100(nums,groupCount);
+       paired=lastRows.length===groupCount;
+     }catch(e){lastRows=[];paired=false;alert('配牌失敗：'+String(e.message||e))}
+     finally{pairing=false;render()}
+   },20);
+ }
+ document.getElementById('selfBalancedBtn')?.addEventListener('click',()=>pairWith('balanced'));
+ document.getElementById('selfD100Btn')?.addEventListener('click',()=>pairWith('d100'));
  document.getElementById('selfApply')?.addEventListener('click',()=>{
-   const nums=[...selected].sort((a,b)=>a-b),k=ticketSizeSelf(),minMother=minMotherSelf();if(nums.length<minMother)return alert(`請至少選${minMother}個母號。`);const smartCap=Math.min(200,combCount(nums.length,k));groupCount=Math.max(1,Math.min(smartCap,Number(document.getElementById('selfCountInput').value)||Math.min(10,smartCap)));
-   const btn=document.getElementById('selfApply'),old=btn.textContent;btn.disabled=true;btn.textContent='配牌中…';
-   setTimeout(()=>{try{
-     if(currentGame==='power'&&powerSecondPicked.size<1)throw new Error('威力彩自選包牌的第二區至少必須選1碼，可複選至8碼。');
-     lastRows=strategy==='balanced'?generateBalanced(nums,groupCount):generateD100(nums,groupCount);render();
+   if(!paired||!lastRows.length||pairing)return alert('請先選擇投注注數，並完成均衡或百面骰配牌。');
+   const k=ticketSizeSelf();
+   try{
      if(currentGame==='power'){
        if(!powerV003SelfTest())throw new Error('威力彩 V003 內建樣本驗證失敗，已停止產生QR。');
        const second=[...powerSecondPicked].sort((a,b)=>a-b),powerRows=lastRows.map(r=>({first:r.slice(),second:[...second]}));
@@ -4281,7 +4324,7 @@ init();
        if(!v003SelfTest())throw new Error('V003內建驗證失敗，已停止產生QR。');
        const opts={autoSplit10:true,selfPack:true,selfPackStrategy:strategy==='balanced'?'均衡配牌':'百面骰配牌',gameId:currentGame==='539'?'539':'lotto649'};if(purchaseMode==='preorder'){opts.startOffset=preorderOffsetForDate(preorderDate);opts.preorderDate=preorderDate}showV003QrResultPage(lastRows,periods,opts);
      }
-   }catch(e){alert('自選包牌QR產生失敗：'+String(e.message||e))}finally{btn.textContent=old;render()}},20);
+   }catch(e){alert('自選包牌QR產生失敗：'+String(e.message||e))}
  });
  render();
 })();
@@ -5019,6 +5062,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   schedule();
 })();
 </script>
+<button aria-label="開啟購物車" hidden id="mobileCartBubble" type="button">🛒</button>
 <section aria-label="投注收藏清單" aria-modal="true" hidden="" id="archiveSheet" role="dialog"><div class="archive-sheet-card"><div class="archive-sheet-top"><h2 id="archiveSheetTitle">購物車</h2><div class="archive-sheet-tools"><button id="archiveDeleteAll" type="button">全部刪除</button><button aria-label="關閉" id="archiveClose" type="button">✕</button></div></div><p id="archiveSheetHint"></p><div id="archiveEntries"></div></div></section><script id="v14o-archive-script">
 (function(){
  'use strict';
@@ -5144,5 +5188,37 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
  window.addEventListener('pageshow',updateUI);
  updateUI();
 })();
-</script></body>
+</script><style id="v14p-cart-heart-self-flow">
+#archiveToggleFav{display:none}
+/* Make the cart reachable in all non-QR mobile pages; it lives directly under body, not in a hidden stage. */
+@media (max-width:600px){
+ body:not(:has(.page[data-page="qrresult"].active)):not(:has(.page[data-page="qr"].active)) #mobileCartBubble:not([hidden]){
+   display:grid!important;place-items:center;position:fixed!important;right:14px;bottom:26px;
+   z-index:150;width:48px;height:48px;min-width:48px;border-radius:50%;font-size:21px;
+   color:#1856a9;background:linear-gradient(145deg,#fff,#e4efff);border:2px solid #91bbea;
+   box-shadow:0 6px 18px rgba(34,62,93,.24);cursor:pointer;
+ }
+ body[data-mobile-stage="numbers"]:has(.page[data-page="home"].active) #mobileCartBubble:not([hidden]){right:10px;bottom:112px}
+ .page[data-page="qrresult"] .qr-result-card{position:relative;padding-top:54px!important}
+ .page[data-page="qrresult"].active #archiveToggleFav{
+    display:grid!important;place-items:center;position:absolute;right:12px;top:10px;
+    z-index:5;width:46px;min-width:46px;height:43px;border-radius:12px;font-size:29px;
+    color:#d54b69;background:rgba(255,255,255,.94);border:2px solid #e66375;
+ }
+ .page[data-page="qrresult"].active #archiveToggleFav[aria-pressed="true"]{
+   color:#F596AA;background:#fff4f7;border-color:#F596AA;
+ }
+ .page[data-page="qrresult"] #mobileArchiveActions{margin:10px 0 13px}
+}
+#selfPackReadyStatus[hidden]{display:none!important}
+#selfPackReadyStatus{margin:8px 0 4px;padding:10px 13px;border:1px solid #d8ca91;
+ background:#fffaf0;border-radius:12px;font-size:14px;color:#73531a;font-weight:750}
+#selfPackReadyStatus[data-phase="ready"]{border-color:#81c49b;background:#e5f8ec;color:#206640}
+#selfPackReadyStatus[data-phase="busy"]{border-color:#a8c5f4;background:#edf5ff;color:#2156a8}
+#quickModeExtras .self-mode-btn:disabled, #quickModeExtras .self-countbox button:disabled,
+#quickModeExtras .self-countbox input:disabled {opacity:.38!important;filter:grayscale(.35);cursor:not-allowed!important}
+#quickModeExtras .self-mode-btn:not(:disabled){border-color:#9cc7df}
+/* There is no permanent selected pairing strategy before the user produces the actual rows. */
+</style>
+</body>
 </html>
