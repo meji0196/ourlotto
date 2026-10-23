@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號 V14-S.1｜便利快選高亮修正版</title>
+<title>奧爾樂透選號 V14-V｜操作介面優化版</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -610,6 +610,302 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 #qrResultCanvas{touch-action:pan-y}
 @media(max-width:600px){body:not(:has(.page[data-page="qrresult"].active)) #mobileCartBubble:not([hidden]){z-index:1200!important;bottom:calc(119px + env(safe-area-inset-bottom,0px))!important}}
 </style>
+
+<style id="v14t-mobile-scroll-and-convenience">
+#conveniencePanel .convenience-input-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:660px}
+#conveniencePanel .convenience-input-grid label{display:flex;flex-direction:column;gap:5px;font-weight:850;color:#3e4b5e;font-size:14px;min-width:0}
+#conveniencePanel .convenience-input-grid input,#conveniencePanel .convenience-input-grid select{box-sizing:border-box;width:100%;height:48px;min-width:0;padding:8px 10px;background:#fff;border:1.5px solid #cbd7e4;border-radius:12px;color:#183d6a;font-size:19px;font-weight:800}
+#conveniencePanel .convenience-input-grid select:disabled{background:#edf0f4;color:#667085}
+#conveniencePanel .convenience-unit-hint{font-size:13px;font-weight:850;color:#2b6b4b;margin:10px 0 5px}
+#conveniencePanel .convenience-help{font-size:12px;line-height:1.55;margin:0;color:#6c6144}
+@media(max-width:600px){
+  html,body{overscroll-behavior-y:none}
+  body[data-mobile-stage="numbers"] #mobileFlowHeader{padding:8px 9px!important;gap:6px!important;flex-wrap:wrap;align-items:center;min-height:0!important;}
+  body[data-mobile-stage="numbers"] #mobileFlowHeader .mobile-flow-kicker,
+  body[data-mobile-stage="numbers"] #mobileFlowHeader .mobile-flow-progress{display:none!important}
+  body[data-mobile-stage="numbers"] #mobileFlowHeader .mobile-flow-heading{order:2;flex-basis:100%!important;}
+  body[data-mobile-stage="numbers"] #mobileFlowHeader #mobileFlowTitle{font-size:16px!important;}
+  body[data-mobile-stage="numbers"] #mobileFlowHeader #mobileFlowHint{margin-top:0!important;font-size:12px!important;}
+  body[data-mobile-stage="numbers"] #lottoMachine{
+    height:var(--v14t-machine-height,510px)!important;min-height:0!important;
+    overflow:hidden!important;display:flex!important;flex-direction:column!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine .machine-main{
+    display:flex!important;flex-direction:column!important;height:100%!important;
+    min-height:0!important;min-width:0!important;overflow:hidden!important;
+  }
+  #v14tMobileShell{display:none}
+  body[data-mobile-stage="numbers"] #v14tMobileShell{
+    flex:1;min-height:0;display:flex!important;flex-direction:column;
+    overflow:hidden!important;gap:0;width:100%;
+  }
+  #v14tMobileTop{flex:none;display:flex;flex-direction:column;gap:3px;
+    max-height:min(50dvh,400px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+    background:linear-gradient(180deg,#fff5cc,#fff2be);
+    border:1px solid #e7cf7b;border-radius:13px 13px 0 0;padding:5px;
+  }
+  #v14tMobileScroll{flex:1;min-height:80px;overflow-y:auto;overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;
+    touch-action:pan-y;padding:6px 4px 11px;background:#ffeaa5;border:1px solid #e5cc7b;border-top:0;
+    border-radius:0 0 12px 12px;
+  }
+  body[data-mobile-stage="numbers"] #v14tMobileTop #betTabs{display:flex!important;margin:0!important;padding:1px!important;min-height:34px}
+  body[data-mobile-stage="numbers"] #v14tMobileTop .machine-top{margin:0!important;padding:1px!important;min-height:35px}
+  body[data-mobile-stage="numbers"] #v14tMobileTop .machine-actions{display:flex!important;flex-wrap:wrap;gap:5px!important;margin:0!important;padding:2px 0!important}
+  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox{
+    display:flex!important;flex-direction:row!important;gap:6px!important;
+    margin:1px 0 0!important;padding:5px!important;min-width:0;width:100%!important;
+    background:rgba(255,255,255,.55);border-radius:9px;
+  }
+  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox > *{flex:1 1 0;min-width:0!important;width:auto!important;}
+  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox .period-single-row,
+  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox #preorderBox{display:flex!important;flex-direction:column;gap:3px!important;align-items:stretch!important;}
+  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox .period-title,
+  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox #preorderBox label{font-size:11px!important;}
+  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox select{min-height:36px!important;padding:5px 14px 5px 6px!important}
+  body[data-mobile-stage="numbers"] #v14tMobileTop #powerSecondZone{margin:0!important;padding:4px!important;border-radius:9px;}
+  body[data-mobile-stage="numbers"] #v14tMobileTop #powerSecondBoard{gap:4px!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;}
+  body[data-mobile-stage="numbers"] #v14tMobileTop #powerSecondBoard button{min-height:36px!important;font-size:13px!important;}
+  body[data-mobile-stage="numbers"] #v14tMobileTop #bingoTopRow{height:auto!important;min-height:48px!important;max-height:105px!important;overflow:visible!important;flex:0 0 auto;align-items:center;margin:0!important;padding:5px!important}
+  #v14tBingoFold{display:none;padding:3px 6px 5px;border:1px solid #accdea;border-radius:10px;background:#f5fbff;}
+  body[data-mobile-stage="numbers"] #lottoMachine:has(#gameRail [data-game="bingo"].active) #v14tBingoFold{display:block!important;}
+  #v14tBingoFold summary{font-size:13px;font-weight:850;color:#256aa4;padding:6px 5px;cursor:pointer;list-style:revert;}
+  #v14tBingoFold #bingoControls{margin:0!important;padding:2px 0 5px!important;}
+  body[data-mobile-stage="numbers"] #v14tBingoFold[open]{max-height:200px;overflow-y:auto;}
+  body[data-mobile-stage="numbers"] #v14tMobileScroll #powerFirstZone,
+  body[data-mobile-stage="numbers"] #v14tMobileScroll #star3Controls,
+  body[data-mobile-stage="numbers"] #v14tMobileScroll #star4Controls{width:100%!important;max-width:100%!important;min-width:0!important;}
+  body[data-mobile-stage="numbers"] #v14tMobileScroll .power-first-head{padding:0 4px 5px!important}
+  body[data-mobile-stage="numbers"] #v14tMobileScroll #conveniencePanel{margin:0!important;max-width:100%!important;}
+  body[data-mobile-stage="numbers"] #v14tMobileTop #mobileColumnAnchor{display:none!important;}
+  body[data-mobile-stage="numbers"].mobile-column-mode #v14tMobileTop #mobileColumnAnchor:not([hidden]){display:block!important;margin:1px 0 5px!important;min-height:0!important;}
+  body[data-mobile-stage="numbers"] #v14tMobileTop #mobileColumnPicker.mobile-column-stuck{
+    position:static!important;top:auto!important;left:auto!important;width:100%!important;box-shadow:none!important;
+  }
+  body[data-mobile-stage="numbers"] #v14tMobileScroll .number-board,
+  body[data-mobile-stage="numbers"] #v14tMobileScroll #numberBoard{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;}
+  body[data-mobile-stage="numbers"] #v14tMobileScroll .num-btn{min-height:53px!important;font-size:18px!important;}
+  body.convenience-mode[data-mobile-stage="numbers"] #lottoMachine .machine-main > #v14tMobileShell{display:flex!important;}
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop{display:none!important;}
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileScroll > :not(#conveniencePanel){display:none!important;}
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileScroll{padding:7px!important;}
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop #betTabs,
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop .machine-top,
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop .machine-actions{display:none!important}
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileScroll #conveniencePanel{display:block!important}
+  body[data-mobile-stage="numbers"] #lottoMachine .machine-main > :not(#v14tMobileShell){display:none!important}
+  body[data-mobile-stage="numbers"] #lottoMachine .machine-side{display:contents!important}
+  body[data-mobile-stage="numbers"] #lottoMachine #machineQr{z-index:940!important}
+  @media (max-height:700px){
+    #v14tMobileTop{max-height:45dvh!important}
+  }
+}
+@media(min-width:601px){#v14tMobileShell{display:contents!important}#v14tMobileTop,#v14tMobileScroll{display:contents!important}}
+@media print{#v14tMobileShell,#v14tMobileTop,#v14tMobileScroll{display:contents!important}}
+</style>
+
+<script id="aoer-remote-settings-core">
+/* 奧爾樂透選號：V14-U 雲端設定架構預留
+   目前預設關閉遠端設定。未來後台建立並驗證後，才能設定 HTTPS URL 並啟用。
+   不會修改 V003 QR 編碼、彩券價格、投注演算法或日期投注流程。
+*/
+(function () {
+  'use strict';
+  const APP_BUILD = 'V14-U';
+  const SCHEMA_VERSION = 1;
+  const REMOTE_SETTINGS_ENABLED = false; // 後台上線且經驗證後，才可由發行者修改為 true
+  const REMOTE_SETTINGS_URL = '';          // 未來填入自己的 HTTPS 公開唯讀設定端點
+  const CACHE_KEY = 'aoer-remote-settings-v1';
+  const MAX_PAYLOAD_BYTES = 128 * 1024;
+  const VALID_GAMES = Object.freeze([
+    'lotto649', '539', 'power', 'bingo', '39combo', '49combo', '3star', '4star'
+  ]);
+  // JavaScript Date.getUTCDay() 對應：0=週日、1=週一...6=週六。
+  const BUILTIN_DRAW_WEEKDAYS = Object.freeze({
+    lotto649:[2,5], '539':[1,2,3,4,5,6], power:[1,4], bingo:[0,1,2,3,4,5,6],
+    '39combo':[1,2,3,4,5,6], '49combo':[2,5], '3star':[1,2,3,4,5,6], '4star':[1,2,3,4,5,6]
+  });
+  let active = null;
+  let loading = null;
+  const state = {
+    appBuild:APP_BUILD, schemaVersion:SCHEMA_VERSION,
+    mode:'builtin', remoteEnabled:REMOTE_SETTINGS_ENABLED, remoteConfigured:false,
+    configVersion:null, publishedAt:null, lastSuccessfulSync:null,
+    lastAttempt:null, lastError:null
+  };
+  const own = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
+  const isObject = x => !!x && typeof x === 'object' && !Array.isArray(x);
+  const safeStorage = {
+    read(){try{return window.localStorage.getItem(CACHE_KEY)}catch(_){return null}},
+    write(value){try{window.localStorage.setItem(CACHE_KEY,value);return true}catch(_){return false}},
+    remove(){try{window.localStorage.removeItem(CACHE_KEY)}catch(_){}}
+  };
+  const safeClone = obj => obj == null ? null : JSON.parse(JSON.stringify(obj));
+  const assert = (condition, message) => {if(!condition) throw new Error(message)};
+  const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+  const isIsoDate = value => {
+    if(typeof value !== 'string'||!isoDatePattern.test(value))return false;
+    const year=Number(value.slice(0,4)),month=Number(value.slice(5,7)),day=Number(value.slice(8,10));
+    if(year<2000||year>2100)return false;
+    const date=new Date(Date.UTC(year,month-1,day));
+    return date.getUTCFullYear()===year && date.getUTCMonth()===month-1 && date.getUTCDate()===day;
+  };
+  const weekdaysValid = xs => Array.isArray(xs)&&xs.length>=1&&xs.length<=7&&
+    xs.every(x=>Number.isInteger(x)&&x>=0&&x<=6)&&new Set(xs).size===xs.length;
+  const datesValid = xs => Array.isArray(xs)&&xs.length<=366&&xs.every(isIsoDate)&&new Set(xs).size===xs.length;
+  function validate(payload){
+    assert(isObject(payload),'設定內容必須是 JSON 物件');
+    assert(payload.schemaVersion===SCHEMA_VERSION,'不支援的 schemaVersion');
+    assert(typeof payload.configVersion==='string'&&/^[A-Za-z0-9._-]{1,80}$/.test(payload.configVersion),'configVersion 格式錯誤');
+    assert(typeof payload.publishedAt==='string'&&Number.isFinite(Date.parse(payload.publishedAt)),'publishedAt 格式錯誤');
+    assert(isObject(payload.games),'缺少 games');
+    assert(Object.keys(payload.games).length<=VALID_GAMES.length,'games 數量錯誤');
+    for(const [id,cfg] of Object.entries(payload.games)){
+      assert(VALID_GAMES.includes(id),'未知彩種 '+id);
+      assert(isObject(cfg),'彩種資料必須是物件 '+id);
+      for(const name of Object.keys(cfg))assert(['periodMax','schedule'].includes(name),'不允許的彩種設定欄位 '+name);
+      if(own(cfg,'periodMax'))assert(Number.isInteger(cfg.periodMax)&&cfg.periodMax>=1&&cfg.periodMax<=24,'期數設定錯誤 '+id);
+      if(own(cfg,'schedule')){
+        const schedule=cfg.schedule;
+        assert(isObject(schedule),'schedule 格式錯誤 '+id);
+        for(const name of Object.keys(schedule))assert(['weekdays','specialPeriods','addedDates','cancelledDates'].includes(name),'不允許的行事曆設定 '+name);
+        if(own(schedule,'weekdays'))assert(weekdaysValid(schedule.weekdays),'一般開獎星期格式錯誤 '+id);
+        for(const key of ['addedDates','cancelledDates'])if(own(schedule,key))assert(datesValid(schedule[key]),key+' 格式錯誤 '+id);
+        if(own(schedule,'specialPeriods')){
+          assert(Array.isArray(schedule.specialPeriods)&&schedule.specialPeriods.length<=50,'特殊活動數量超限 '+id);
+          for(const span of schedule.specialPeriods){
+            assert(isObject(span)&&isIsoDate(span.start)&&isIsoDate(span.end)&&span.start<=span.end,'特殊活動日期錯誤 '+id);
+            assert(weekdaysValid(span.weekdays),'特殊活動星期格式錯誤 '+id);
+            assert(own(span,'priority')===false||(Number.isInteger(span.priority)&&span.priority>=0&&span.priority<=1000),'特殊活動優先序錯誤 '+id);
+          }
+        }
+      }
+    }
+    if(own(payload,'notice')){
+      assert(isObject(payload.notice),'公告格式錯誤');
+      assert(typeof payload.notice.text==='string'&&payload.notice.text.length<=300,'公告文字過長');
+    }
+    // 只保留允許的設定欄位，拒絕夾帶腳本或未知管理命令。
+    const cleaned={
+      schemaVersion:SCHEMA_VERSION,
+      configVersion:payload.configVersion,
+      publishedAt:new Date(payload.publishedAt).toISOString(),
+      games:safeClone(payload.games)
+    };
+    if(payload.notice)cleaned.notice={text:payload.notice.text};
+    return cleaned;
+  }
+  function setActive(cfg,mode){
+    active=cfg;
+    state.mode=mode;
+    state.configVersion=cfg.configVersion;
+    state.publishedAt=cfg.publishedAt;
+    state.lastError=null;
+    try{window.dispatchEvent(new CustomEvent('aoer:remote-config-updated',{
+      detail:{configVersion:cfg.configVersion,source:mode}
+    }))}catch(_){}
+  }
+  function readCache(){
+    if(!REMOTE_SETTINGS_ENABLED)return;
+    const raw=safeStorage.read();if(!raw)return;
+    try{
+      const item=JSON.parse(raw);
+      if(!isObject(item)||!isObject(item.config))return;
+      const cfg=validate(item.config);
+      setActive(cfg,'cache');
+      if(typeof item.savedAt==='string')state.lastSuccessfulSync=item.savedAt;
+    }catch(_){safeStorage.remove()}
+  }
+  async function refresh(){
+    if(!REMOTE_SETTINGS_ENABLED||!REMOTE_SETTINGS_URL){
+      return {ok:false,reason:'遠端設定尚未啟用；目前使用內建設定'};
+    }
+    if(loading)return loading;
+    loading=(async()=>{
+      state.lastAttempt=new Date().toISOString();
+      let timeoutId;
+      try{
+        const url=new URL(REMOTE_SETTINGS_URL);
+        assert(url.protocol==='https:','遠端設定僅允許 HTTPS');
+        const controller=new AbortController();
+        timeoutId=setTimeout(()=>controller.abort(),10000);
+        const response=await fetch(url.href,{
+          method:'GET',cache:'no-store',credentials:'omit',redirect:'error',signal:controller.signal,
+          headers:{Accept:'application/json'}
+        });
+        assert(response.ok,'HTTP '+response.status);
+        const text=await response.text();
+        assert(new TextEncoder().encode(text).length<=MAX_PAYLOAD_BYTES,'設定檔過大');
+        const cfg=validate(JSON.parse(text));
+        // 避免網路延遲使較舊設定覆蓋快取中的新設定。
+        assert(!active||Date.parse(cfg.publishedAt)>=Date.parse(active.publishedAt),'取得的設定早於本機已驗證版本');
+        const savedAt=new Date().toISOString();
+        safeStorage.write(JSON.stringify({config:cfg,savedAt}));
+        setActive(cfg,'remote');
+        state.lastSuccessfulSync=savedAt;
+        return {ok:true,configVersion:cfg.configVersion};
+      }catch(err){
+        state.lastError=String(err&&err.message||err);
+        return {ok:false,reason:state.lastError,usingFallback:!!active};
+      }finally{clearTimeout(timeoutId)}
+    })();
+    try{return await loading}finally{loading=null}
+  }
+  function getGameConfig(id,baseConfig){
+    // 安全過渡：遠端只允許「縮減」已驗證的多期期數上限，不能提高 QR 支援的上限。
+    // 開獎日例外規則由 getNextDrawDates 另行查詢；本版不直接改既有投注處理。
+    const cfg=active?.games?.[id];
+    if(!cfg||!baseConfig||!Number.isInteger(cfg.periodMax))return baseConfig;
+    const max=Math.min(baseConfig.periodMax||cfg.periodMax,cfg.periodMax);
+    const preorder=Math.min(baseConfig.preorderCount||0,max);
+    return {...baseConfig,periodMax:max,preorderCount:preorder};
+  }
+  function isDrawDate(gameId,dateText){
+    if(!VALID_GAMES.includes(gameId))throw new Error('不支援的彩種');
+    if(!isIsoDate(dateText))throw new Error('無效的開獎日期，請使用 YYYY-MM-DD');
+    const schedule=active?.games?.[gameId]?.schedule||{};
+    // 優先序：取消日期 > 額外加開 > 高優先度活動 > 一般週期。
+    if(schedule.cancelledDates?.includes(dateText))return false;
+    if(schedule.addedDates?.includes(dateText))return true;
+    const spans=(schedule.specialPeriods||[]).filter(x=>x.start<=dateText&&dateText<=x.end);
+    const weekday=new Date(dateText+'T00:00:00Z').getUTCDay();
+    if(spans.length){
+      spans.sort((a,b)=>(b.priority||0)-(a.priority||0));
+      return spans[0].weekdays.includes(weekday);
+    }
+    const days=schedule.weekdays||BUILTIN_DRAW_WEEKDAYS[gameId];
+    return days.includes(weekday);
+  }
+  function getNextDrawDates(gameId,startDate,count){
+    if(!isIsoDate(startDate))throw new Error('開始日期必須是 YYYY-MM-DD');
+    if(!Number.isInteger(count)||count<1||count>100)throw new Error('日期預覽期數需為 1～100');
+    const dates=[];let t=Date.parse(startDate+'T00:00:00Z');
+    for(let i=0;i<366&&dates.length<count;i++,t+=86400000){
+      const day=new Date(t).toISOString().slice(0,10);
+      if(isDrawDate(gameId,day))dates.push(day);
+    }
+    return dates;
+  }
+  // 本版設計為零侵入：後台、API 和帳號均尚未建立。沒有啟用時完全維持原有規則。
+  window.AoerControlPlane=Object.freeze({
+    schemaVersion:SCHEMA_VERSION, appBuild:APP_BUILD,
+    getStatus:()=>({...state}),
+    getEffectiveConfig:()=>safeClone(active),
+    getGameConfig,
+    isDrawDate,
+    getNextDrawDates,
+    refresh,
+    validateConfig:payload=>safeClone(validate(payload))
+  });
+  if(REMOTE_SETTINGS_ENABLED&&REMOTE_SETTINGS_URL){
+    state.remoteConfigured=true;
+    readCache();
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{void refresh()},{once:true});
+    else void refresh();
+  }
+})();
+
+</script>
 </head>
 <body>
 <header><div class="brand">奧爾樂透選號</div><span aria-live="polite" class="draw-date-badge" id="latestDrawDateBadge">獎號更新：讀取中</span><div class="status-mini" id="headerStatus">模型：2026-09-18 v1</div></header>
@@ -663,8 +959,8 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 <div class="combo-total" id="comboTotal"></div>
 <button class="combo-generate-qr hidden" id="comboMakeQr" type="button">製作 QR Code</button>
 </section>
-<div class="bet-tabs" id="betTabs"></div><section id="conveniencePanel" hidden aria-label="便利快選"><h2>便利快選</h2><p>選擇一種快選柱數，製作 QR 後依百面骰產生對應的隨機投注。</p><div id="convenienceGroups"></div><div class="convenience-selected" id="convenienceSelectedHint" aria-live="polite">請選擇柱數</div></section>
-<div class="machine-top"><div class="machine-page" id="currentBetLabel">第 01 注</div><div class="sub" id="modelInfoWrap">模型：<b id="homeModelVersion">2026-09-18 v1</b></div><button class="machine-clear" id="machineClear">清除此注</button><button class="mobile-clear-all" id="mobileClearAll" title="清除目前彩種與玩法的全部投注注數" type="button">全部清除</button></div>
+<div class="bet-tabs" id="betTabs"></div><section id="conveniencePanel" hidden aria-label="便利快選"><h2>便利快選</h2><p>選取注數或投注金額，兩者自動連動；製作 QR 時才使用百面骰抽號。</p><div id="convenienceGroups"></div><div class="convenience-selected" id="convenienceSelectedHint" aria-live="polite">請選擇柱數</div></section>
+<div class="machine-top"><div class="machine-page" id="currentBetLabel" hidden aria-hidden="true">第 01 注</div><div class="sub" id="modelInfoWrap">模型：<b id="homeModelVersion">2026-09-18 v1</b></div><button class="machine-clear" id="machineClear">清除此注</button><button class="mobile-clear-all" id="mobileClearAll" title="清除目前彩種與玩法的全部投注注數" type="button">全部清除</button></div>
 <div class="mobile-column-anchor" id="mobileColumnAnchor" hidden>
   <div class="mobile-column-picker" id="mobileColumnPicker" role="group" aria-label="選擇立柱編輯">
     <div class="mobile-column-picker-head"><span>選擇編輯的柱</span><span id="mobileColumnCurrent">目前：第1柱</span></div>
@@ -673,7 +969,7 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 </div>
 <div aria-hidden="true" class="power-first-zone" id="powerFirstZone">
 <div class="power-first-head">第一區 01～38 <span class="sub">請選6～16碼</span></div>
-<div class="bingo-top-row hidden" id="bingoTopRow"><span class="bingo-top-bet" id="bingoCurrentBetLabel">第 01 注</span><div aria-label="BINGO 星數" class="bingo-star-group bingo-star-at-board" id="bingoStarGroup" role="group"></div><button class="bingo-super-page-toggle" id="bingoSuperPageToggle" type="button">超級獎號</button></div><div class="number-board" id="numberBoard"></div>
+<div class="bingo-top-row hidden" id="bingoTopRow"><span class="bingo-top-bet" id="bingoCurrentBetLabel" hidden aria-hidden="true">第 01 注</span><div aria-label="BINGO 星數" class="bingo-star-group bingo-star-at-board" id="bingoStarGroup" role="group"></div><button class="bingo-super-page-toggle" id="bingoSuperPageToggle" type="button">超級獎號</button></div><div class="number-board" id="numberBoard"></div>
 </div>
 <div aria-hidden="true" class="power-second-zone" id="powerSecondZone">
 <div class="power-second-head">第二區 01～08 <span class="sub">請選1～8碼</span></div>
@@ -715,7 +1011,7 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 </div>
 <div aria-hidden="true" class="star3-controls" id="star3Controls">
 <div class="star3-toolbar">
-<span class="star3-title">3星彩</span>
+
 <label class="star3-group-toggle"><input id="star3GroupToggle" type="checkbox"/> 組彩</label>
 <label class="star3-mult-wrap">投注倍數 <select aria-label="3星彩投注倍數" class="star3-mult" id="star3Multiplier"></select></label>
 </div>
@@ -725,7 +1021,7 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 </div>
 <div aria-hidden="true" class="star3-controls" id="star4Controls">
 <div class="star3-toolbar">
-<span class="star3-title">4星彩</span>
+
 <label class="star3-group-toggle"><input id="star4GroupToggle" type="checkbox"/> 組彩</label>
 <label class="star3-mult-wrap">投注倍數 <select aria-label="4星彩投注倍數" class="star3-mult" id="star4Multiplier"></select></label>
 </div>
@@ -785,7 +1081,7 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 <section aria-hidden="true" class="smart-inline" id="smartInline">
 <div class="smart-body">
 <div class="smart-toolbar">
-<button aria-label="展開聰明包牌資訊" class="smart-arrow" id="smartArrow" type="button">›</button>
+<button aria-hidden="true" class="smart-arrow" id="smartArrow" type="button" tabindex="-1" hidden>›</button>
 <div aria-label="星數" class="smart-stepper">
 <button id="smartStarMinus" type="button">−</button>
 <div class="smart-stepper-value"><b id="smartStarValue">6</b><span>星</span></div>
@@ -3866,7 +4162,10 @@ const GAME_MODULES={
   }
 };
 function gameModule(id=currentGame){return GAME_MODULES[id]||GAME_MODULES.lotto649}
-function gameCfg(){return gameModule().config}
+function gameCfg(){
+  const base=gameModule().config;
+  return window.AoerControlPlane?.getGameConfig(currentGame,base)||base;
+}
 function verifyGameModules(){
   const required=['config','d100','ensureModel','quickPick','status','backgroundSync'];
   for(const [id,m] of Object.entries(GAME_MODULES)){
@@ -4015,11 +4314,26 @@ function updateConvenienceView(){
  }
  document.body.classList.toggle('convenience-mode',convenienceActive);
  if(panel)panel.hidden=!convenienceActive;
- document.getElementById('convenienceSelectedHint').textContent=convenienceCount?`已選快選 ${convenienceCount} 柱｜每期 ${convenienceCount*gameCfg().price} 元｜${periods}期共 ${convenienceTotal().toLocaleString('zh-TW')} 元`:'請選擇一種快選柱數';
- document.querySelectorAll('#convenienceGroups [data-convenience-count]').forEach(b=>{
-  const yes=b.dataset.convenienceChoice===convenienceChoiceId;
-  b.classList.toggle('active',yes);b.setAttribute('aria-pressed',String(yes));
- });
+ const selected=document.getElementById('convenienceSelectedHint');
+ if(selected)selected.textContent=convenienceCount?`已設定 ${convenienceCount} 注｜${periods} 期｜總金額 ${convenienceTotal().toLocaleString('zh-TW')} 元`:'請設定注數或投注金額。';
+ const c=document.getElementById('convenienceCountInput');
+ const a=document.getElementById('convenienceAmountInput');
+
+ const unit=gameCfg().price;
+ const perBet=unit*periods;
+ if(c){
+   if(c.options.length!==101){c.innerHTML='<option value="0">請選注數</option>'+Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}注</option>`).join('');}
+   c.value=String(convenienceCount);
+ }
+ if(a){
+   if(a.dataset.perBet!==String(perBet)){
+     a.innerHTML='<option value="0">請選金額</option>'+Array.from({length:100},(_,i)=>`<option value="${(i+1)*perBet}">${((i+1)*perBet).toLocaleString('zh-TW')}元</option>`).join('');
+     a.dataset.perBet=String(perBet);
+   }
+   a.value=String(convenienceCount*perBet);
+ }
+ const simple=document.getElementById('convenienceUnitHint');
+ if(simple)simple.textContent=`每注 ${unit} 元 × 1倍 × ${periods}期 = 每注 ${unit*periods} 元`;
 }
 function activateConvenience(){
  if(!convenienceEligible())return;
@@ -4029,10 +4343,12 @@ function activateConvenience(){
  convenienceActive=true;convenienceCount=0;convenienceChoiceId="";
  const groups=document.getElementById('convenienceGroups');
  if(groups){
-  const ranges=[{label:'每次增加 1 柱',values:Array.from({length:10},(_,i)=>i+1)},
-    {label:'每次增加 5 柱',values:Array.from({length:10},(_,i)=>(i+1)*5)},
-    {label:'每次增加 10 柱',values:Array.from({length:10},(_,i)=>(i+1)*10)}];
-  groups.innerHTML=ranges.map(({label,values},groupIndex)=>`<div class="convenience-group"><h3>${label}</h3><div class="convenience-grid">${values.map(n=>`<button type="button" data-convenience-count="${n}" data-convenience-choice="${groupIndex}-${n}" aria-pressed="false"><b>快選${n}柱</b><span>${(n*gameCfg().price).toLocaleString('zh-TW')}元</span></button>`).join('')}</div></div>`).join('');
+   groups.innerHTML=`<div class="convenience-input-grid">
+      <label>注數<select id="convenienceCountInput" aria-label="便利快選注數"></select></label>
+      <label>金額<select id="convenienceAmountInput" aria-label="便利快選投注金額"></select></label>
+      <label>倍率<select id="convenienceMultiplierInput" aria-label="便利快選投注倍數"><option value="1">1倍</option></select></label>
+   </div><div id="convenienceUnitHint" class="convenience-unit-hint"></div>
+   <p class="convenience-help">選擇注數或金額會自動連動，最多100注；期數沿用原本「多期投注」選單，倍率目前只支援1倍。</p>`;
  }
  updateConvenienceView();renderMachineTotal();
 }
@@ -4197,10 +4513,32 @@ document.getElementById('generalModeBtn')?.addEventListener('click',()=>{
 (function installConvenienceControls(){
  const toggle=document.getElementById('conveniencePlayBtn');
  toggle?.addEventListener('click',activateConvenience);
- document.getElementById('convenienceGroups')?.addEventListener('click',event=>{
-   const b=event.target.closest('[data-convenience-count]');if(!b||!convenienceActive)return;
-   convenienceCount=Number(b.dataset.convenienceCount);convenienceChoiceId=b.dataset.convenienceChoice||"";
-   updateConvenienceView();renderMachineTotal();
+ const panel=document.getElementById('convenienceGroups');
+ function setCount(n){
+   const target=Number.isFinite(n)?n:0;
+   convenienceCount=Math.max(0,Math.min(100,Math.round(target)));
+   convenienceChoiceId=convenienceCount?String(convenienceCount):'';
+   updateConvenienceView();renderMachineTotal();refreshMachineQrEnabled();
+ }
+ panel?.addEventListener('input',event=>{
+   if(!convenienceActive)return;
+   if(event.target.id==='convenienceCountInput')setCount(Number(event.target.value)||0);
+   if(event.target.id==='convenienceAmountInput'){
+     const n=Number(event.target.value)||0;
+     const cost=gameCfg().price*periods;
+     // Only whole bets are valid; floor to avoid exceeding entered budget.
+     setCount(Math.floor(Math.max(0,n)/cost));
+   }
+ });
+ panel?.addEventListener('change',event=>{
+   if(!convenienceActive)return;
+   if(event.target.id==='convenienceCountInput'||event.target.id==='convenienceAmountInput'||event.target.id==='convenienceMultiplierInput'){
+     updateConvenienceView();renderMachineTotal();
+   }
+ });
+ // Mirror changes made from the shared multi-period selector.
+ document.getElementById('periodSelect')?.addEventListener('change',()=>{
+   if(convenienceActive){updateConvenienceView();renderMachineTotal();}
  });
  document.addEventListener('click',e=>{
   if(!convenienceActive)return;
@@ -5632,12 +5970,158 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   if(!begin || !result()){begin=null;return}
   const dx=e.changedTouches[0].clientX-begin.x,dy=e.changedTouches[0].clientY-begin.y;
   begin=null;
-  if(Math.abs(dx)>=55&&Math.abs(dx)>Math.abs(dy)*1.35){window.__lottoQrSwipeAdvance?.(dx<0?1:-1)}
+  if(Math.abs(dx)>=55&&Math.abs(dx)>Math.abs(dy)*1.35){window.__lottoAnimatedQrSwipe?.(dx<0?1:-1)}
  },{passive:true});
  // Trackpad / mouse drag also work in desktop preview; don't interfere with buttons.
  let pointer=null;
  document.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||!result()||!e.target.closest('#qrResultCanvas'))return;pointer={x:e.clientX,y:e.clientY};});
- document.addEventListener('pointerup',e=>{if(!pointer)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;pointer=null;if(Math.abs(dx)>=65&&Math.abs(dx)>Math.abs(dy)*1.4)window.__lottoQrSwipeAdvance?.(dx<0?1:-1)});
+ document.addEventListener('pointerup',e=>{if(!pointer)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;pointer=null;if(Math.abs(dx)>=65&&Math.abs(dx)>Math.abs(dy)*1.4)window.__lottoAnimatedQrSwipe?.(dx<0?1:-1)});
 })();</script>
+
+<script id="v14t-mobile-scroll-controller">
+(function(){
+  const root=document.getElementById('lottoMachine');
+  const main=root?.querySelector('.machine-main');
+  const side=root?.querySelector('.machine-side');
+  if(!root||!main||!side)return;
+  const shell=document.createElement('div');shell.id='v14tMobileShell';
+  const top=document.createElement('div');top.id='v14tMobileTop';
+  const scroll=document.createElement('div');scroll.id='v14tMobileScroll';
+  shell.append(top,scroll);main.appendChild(shell);
+  const bingoFold=document.createElement('details');bingoFold.id='v14tBingoFold';
+  const bingoSummary=document.createElement('summary');bingoSummary.textContent='猜大小／單雙（點此展開）';bingoFold.appendChild(bingoSummary);
+  const definitions=[
+    ['#betTabs',top],['.machine-top',top],['#mobileColumnAnchor',top],
+    ['#bingoTopRow',top],['#powerSecondZone',top],['.machine-actions',top],
+    ['#periodBox',top],
+    ['#conveniencePanel',scroll],['#powerFirstZone',scroll],
+    ['#combo39Controls',top],['#bingoControls',bingoFold],
+    ['#star3Controls',scroll],['#star4Controls',scroll]
+  ];
+  const slots=[];
+  for(const [sel,dest] of definitions){
+    const el=document.querySelector(sel);if(!el)continue;
+    const placeholder=document.createComment('v14t '+sel);
+    el.parentNode.insertBefore(placeholder,el);
+    slots.push({el,placeholder,dest});
+  }
+  let moved=false;
+  const mobile=()=>window.matchMedia('(max-width:600px)').matches;
+  function updateHeight(){
+    if(!moved||document.body.dataset.mobileStage!=='numbers')return;
+    // Available area between this machine's top and the fixed QR bar.
+    const bounds=root.getBoundingClientRect();
+    const h=Math.max(255,Math.round(window.innerHeight-bounds.top-84));
+    root.style.setProperty('--v14t-machine-height',h+'px');
+  }
+  function reconcile(){
+    const shouldMove=mobile();
+    if(shouldMove&&!moved){
+      for(const {el,dest} of slots)dest.appendChild(el);
+      top.appendChild(bingoFold);
+      moved=true;
+    }else if(!shouldMove&&moved){
+      for(const {el,placeholder} of slots)placeholder.parentNode.insertBefore(el,placeholder);
+      moved=false;
+    }
+    updateHeight();
+  }
+  const stageObs=new MutationObserver(()=>{if(mobile())updateHeight();});
+  stageObs.observe(document.body,{attributes:true,attributeFilter:['data-mobile-stage','class']});
+  window.addEventListener('resize',reconcile,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(reconcile,100),{passive:true});
+  // User interactions never re-render the numeric grid's enclosing scroll viewport.
+  document.getElementById('v14tMobileScroll').addEventListener('click',()=>{}, {passive:true});
+  reconcile();
+  document.addEventListener('DOMContentLoaded',reconcile,{once:true});
+  setTimeout(reconcile,100);
+})();
+</script>
+
+<style id="v14v-ui-updates">
+/* Only 539/Lotto ordinary picking supports add-on combo bets. */
+#lottoMachine:not(:has(#gameRail [data-game="539"].active)):not(:has(#gameRail [data-game="lotto649"].active)) #comboAddonSwitches{display:none!important}
+/* Hide duplicated active-bet label; numbered tabs remain available. */
+#currentBetLabel,#bingoCurrentBetLabel{display:none!important}
+/* Preserve the JS listener for the obsolete smart-arrow, but remove it from the UI. */
+#smartArrow,.smart-arrow{display:none!important}
+/* Lightweight coral QR button, retain gray unavailable state. */
+#lottoMachine #machineQr:not(:disabled):not(.disabled){
+ background:linear-gradient(145deg,#FF8A69 0%,#F75C2F 48%,#DC431B 100%)!important;
+ color:#fff!important;border:1px solid rgba(255,255,255,.58)!important;
+ box-shadow:0 7px 19px rgba(247,92,47,.28),inset 0 1px 0 rgba(255,255,255,.38)!important;
+ text-shadow:0 1px 1px rgba(100,32,15,.18);
+}
+#lottoMachine #machineQr:is(:disabled,.disabled){
+ background:linear-gradient(145deg,#e3e5e8,#bbc1c9)!important;
+ color:#7c8490!important;border:1px solid #e2e5e9!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.75)!important;
+ cursor:not-allowed!important;
+}
+/* 3/4 Star: prominent standalone group-bet button with selected state. */
+#star3Controls .star3-group-toggle,#star4Controls .star3-group-toggle{
+ position:relative;display:inline-flex!important;justify-content:center;align-items:center;
+ background:#8F77B5!important;color:#fff!important;
+ border-radius:11px;border:1px solid rgba(255,255,255,.72)!important;
+ padding:10px 24px;min-width:102px;min-height:44px;
+ box-shadow:0 4px 10px rgba(78,51,112,.19),inset 0 1px rgba(255,255,255,.3);
+ font-size:17px;font-weight:900;cursor:pointer;transition:background .18s,transform .14s;
+}
+#star3Controls .star3-group-toggle:has(input:checked),#star4Controls .star3-group-toggle:has(input:checked){
+ background:#B481BB!important;box-shadow:0 4px 13px rgba(147,69,153,.28),inset 0 1px rgba(255,255,255,.35)!important;
+}
+#star3Controls .star3-group-toggle input,#star4Controls .star3-group-toggle input{
+ position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;
+ pointer-events:none!important;margin:0!important;
+}
+#star3Controls .star3-group-toggle:focus-within,#star4Controls .star3-group-toggle:focus-within{outline:3px solid #e7b6ef;outline-offset:3px}
+#star3Controls .star3-group-toggle:active,#star4Controls .star3-group-toggle:active{transform:scale(.98)}
+/* An animation that does not blur or resize the QR image. */
+.page[data-page="qrresult"] .qr-result-card{will-change:transform,opacity}
+#conveniencePanel .convenience-input-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;max-width:740px}
+#conveniencePanel .convenience-input-grid label{font-size:15px}
+#conveniencePanel .convenience-input-grid select{font-size:17px;min-height:48px;max-width:100%;}
+@media(max-width:600px){
+  #conveniencePanel .convenience-input-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  #conveniencePanel .convenience-input-grid label{font-size:14px}
+  #conveniencePanel .convenience-input-grid select{font-size:15px;min-width:0;padding:5px 2px;}
+  /* The shared period selector is visible in convenience mode; no second period setting. */
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop{display:flex!important;max-height:none!important;}
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop > :not(#periodBox){display:none!important}
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop #periodBox{display:flex!important;margin:0!important;padding:5px 7px!important;gap:3px!important;}
+  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop #periodBox .period-single-row{margin:0!important;}
+}
+@media(prefers-reduced-motion:reduce){.page[data-page="qrresult"] .qr-result-card{transition:none!important;animation:none!important}}
+</style>
+<script id="v14v-animated-qr-gesture">
+(function(){
+ let busy=false;
+ window.__lottoAnimatedQrSwipe=function(dir){
+  if(busy||!document.querySelector('.page[data-page="qrresult"].active'))return false;
+  if(!window.__lottoQrSwipeAdvance)return false;
+  const card=document.querySelector('.page[data-page="qrresult"] .qr-result-card');
+  if(!card||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return window.__lottoQrSwipeAdvance(dir);
+  busy=true;
+  const dist=dir>0?-34:34;
+  card.style.transition='transform 145ms ease-in, opacity 145ms ease-in';
+  card.style.transform='translateX('+dist+'px)';
+  card.style.opacity='0.15';
+  setTimeout(()=>{
+    const changed=window.__lottoQrSwipeAdvance(dir);
+    if(!changed){card.style.transition='transform 165ms ease-out, opacity 165ms ease-out';card.style.transform='translateX(0)';card.style.opacity='1';setTimeout(()=>{busy=false;},175);return;}
+    card.style.transition='none';
+    card.style.transform='translateX('+(-dist)+'px)';
+    card.style.opacity='0.15';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      card.style.transition='transform 200ms cubic-bezier(.2,.65,.35,1),opacity 200ms ease-out';
+      card.style.transform='translateX(0)';card.style.opacity='1';
+      setTimeout(()=>{card.style.transition='';card.style.transform='';card.style.opacity='';busy=false;},240);
+    }));
+  },145);
+  return true;
+ };
+})();
+</script>
+
 </body>
 </html>
