@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>大家的樂透彩 V14-Q｜立柱與樂合彩加購版</title>
+<title>奧爾樂透選號 V14-S.1｜便利快選高亮修正版</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -509,9 +509,110 @@ header #headerStatus{margin-left:auto}
   .archive-entry-body strong{font-size:15px}.archive-entry-body span{font-size:13px;margin-top:4px}
   .archive-empty{text-align:center;color:#75818c;padding:40px 12px;font-size:15px}
 }
-</style></head>
+</style><style id="v14r-mobile-column-design">
+/* Mobile column mode only. Desktop layout and QR output stay untouched. */
+.mobile-column-anchor,.mobile-column-float,.mobile-column-bottom{display:none}
+@media(max-width:600px){
+  body[data-mobile-stage="numbers"].mobile-column-mode #mobileColumnAnchor:not([hidden]){
+    display:block!important;position:relative;width:100%;margin:8px 0 11px;min-height:118px;
+  }
+  #mobileColumnPicker{
+    background:linear-gradient(150deg,#fffdf7,#f6f9ff);border:1px solid #e0d4ad;border-radius:14px;
+    padding:8px;box-shadow:0 5px 16px rgba(37,61,95,.13);width:100%;
+  }
+  #mobileColumnPicker.mobile-column-stuck{
+    position:fixed!important;top:var(--column-picker-top,57px);left:var(--column-picker-left,8px);width:var(--column-picker-width,calc(100% - 16px));
+    z-index:85;margin:0;box-shadow:0 8px 22px rgba(23,39,60,.18);
+  }
+  #mobileColumnPicker .mobile-column-picker-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px;font-weight:850;color:#5c4927;font-size:12px}
+  #mobileColumnCurrent{font-size:12px;color:#205ca2}
+  #mobileColumnChoices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  #mobileColumnChoices button,.mobile-column-float-menu-grid button{
+    display:flex;align-items:center;flex-direction:column;justify-content:center;gap:1px;min-height:44px;
+    padding:5px 2px;border-radius:10px;border:2px solid var(--column-color,#d9e0e7);
+    background:#fff;color:#243043;font-weight:900;font-size:13px;touch-action:manipulation;
+    box-shadow:0 2px 5px rgba(23,47,77,.08);cursor:pointer;
+  }
+  #mobileColumnChoices button.selected,.mobile-column-float-menu-grid button.selected{
+    background:var(--column-color,#2f8df5);color:#fff;border-color:var(--column-color,#2f8df5);
+    box-shadow:0 0 0 2px #fff,0 0 0 4px var(--column-color,#2f8df5),0 3px 8px rgba(40,70,100,.16);
+  }
+  #mobileColumnChoices button small,.mobile-column-float-menu-grid button small{font-size:11px;font-weight:800;opacity:.86}
+  #mobileColumnChoices button:focus-visible,.mobile-column-float-menu-grid button:focus-visible{outline:3px solid #ffe062;outline-offset:2px}
+  body[data-mobile-stage="numbers"].mobile-column-mode #mobileColumnFloat:not([hidden]){
+    display:flex;position:fixed;right:11px;bottom:calc(105px + env(safe-area-inset-bottom,0px));
+    z-index:910;align-items:stretch;border-radius:18px;box-shadow:0 6px 22px rgba(33,55,90,.28);
+  }
+  body[data-mobile-stage="numbers"].mobile-column-mode:has(#mobileCartBubble:not([hidden])) #mobileColumnFloat:not([hidden]){bottom:calc(173px + env(safe-area-inset-bottom,0px))}
+  #mobileColumnFloatNext,#mobileColumnFloatMenuToggle{
+    border:1px solid #d3e3f7;background:linear-gradient(145deg,#fff,#e9f2ff);color:#194e94;
+    min-height:52px;padding:8px 11px;font-weight:900;touch-action:manipulation;
+  }
+  #mobileColumnFloatNext{display:flex;align-items:center;gap:8px;border-radius:18px 0 0 18px;font-size:15px}
+  #mobileColumnFloatNext span:last-child{font-size:21px}
+  #mobileColumnFloatMenuToggle{border-radius:0 18px 18px 0;border-left:1px solid #c5d8f0;font-size:20px;padding:4px 10px}
+  #mobileColumnFloatMenu[hidden]{display:none!important}
+  #mobileColumnFloatMenu{position:absolute;right:0;bottom:calc(100% + 10px);width:min(275px,85vw);border:1px solid #d7dfe9;background:#fffef9;
+    padding:11px;border-radius:14px;box-shadow:0 8px 27px rgba(19,34,54,.2)}
+  .mobile-column-float-menu-title{font-weight:900;font-size:13px;color:#4a5a71;margin-bottom:7px}
+  .mobile-column-float-menu-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+  body[data-mobile-stage="numbers"].mobile-column-mode #columnInline .mobile-column-bottom{display:block;padding:12px;background:linear-gradient(165deg,#fffbee,#fff5cd)}
+  #columnInline .mobile-column-bottom details{padding:10px;border:1px solid #e6d394;border-radius:12px;background:#fff}
+  #columnInline .mobile-column-bottom summary{font-size:15px;font-weight:900;color:#274366;cursor:pointer;display:flex;justify-content:space-between}
+  #columnInline .mobile-column-bottom summary span{font-size:12px;color:#667085}
+  .mobile-column-detail-rows{display:grid;gap:7px;margin:12px 0 3px}
+  .mobile-column-detail-row{display:flex;align-items:center;gap:7px;font-size:13px;min-height:26px}
+  .mobile-column-detail-row b{width:58px;flex:none}
+  .mobile-column-detail-row span:last-child{flex:1;overflow-wrap:anywhere}
+  .mobile-column-detail-dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--column-color)}
+  .mobile-column-bottom-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+  #mobileColumnClear,#mobileColumnNextBottom{border-radius:12px;padding:12px 7px;font-size:14px;font-weight:900;background:#fff;border:1px solid #d9d9d9;color:#24436f;cursor:pointer}
+  #mobileColumnClear{border-color:#e7b5b5;color:#a43838}
+  .mobile-column-help{margin:8px 3px 0;font-size:12px;line-height:1.5;color:#695e44}
+  /* Retire the huge, difficult-to-reach desktop 8-column editor on phones only. */
+  body[data-mobile-stage="numbers"].mobile-column-mode #columnInline .column-body,
+  body[data-mobile-stage="numbers"].mobile-column-mode #columnInline .column-inline-head{display:none!important}
+  body[data-mobile-stage="numbers"].mobile-column-mode #columnInline .column-footer{background:#fff8de;border-top:1px solid #e9dca5;padding:9px 12px}
+  body[data-mobile-stage="numbers"].mobile-column-mode #columnInline{border:1px solid #e3ce7d!important;background:#fff8dc!important;border-radius:12px!important;overflow:visible!important;margin-top:6px!important}
+  body[data-mobile-stage="numbers"].mobile-column-mode #numberBoard .num-btn[data-column-owner]{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 4px var(--column-ink,#2f8df5),0 4px 8px rgba(32,54,90,.14)!important}
+  @media(prefers-reduced-motion:reduce){#mobileColumnFloat *,#mobileColumnPicker *{transition:none!important;animation:none!important}}
+}
+@media(max-width:600px){body:has(.page[data-page="qrresult"].active) #mobileColumnFloat{display:none!important}}
+@media print{#mobileColumnAnchor,#mobileColumnFloat,.mobile-column-bottom{display:none!important}}
+</style>
+<style id="v14s-new-styles">
+/* QR card / brand remains responsive; keep existing glass style. */
+#conveniencePanel[hidden]{display:none!important}
+#conveniencePanel{max-width:1050px;padding:18px 12px 26px;margin:8px auto;background:linear-gradient(140deg,#fff9df,#ffefaf);border:1px solid #e9cb6e;border-radius:16px;color:#49381c}
+#conveniencePanel h2{margin:0 0 6px;font-size:22px}
+#conveniencePanel p{font-size:13px;margin:0 0 12px;color:#735a2f}
+.convenience-group{margin-bottom:16px}
+.convenience-group h3{font-size:15px;margin:0 0 7px}
+.convenience-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.convenience-grid button{min-width:0;min-height:70px;border:1px solid #ecdaad;border-radius:12px;background:linear-gradient(140deg,rgba(255,255,255,.96),rgba(245,249,255,.81));box-shadow:0 3px 9px rgba(39,54,73,.09),inset 0 1px rgba(255,255,255,.9);color:#28354a;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px}
+.convenience-grid button b{font-size:15px}
+.convenience-grid button span{font-size:13px;color:#6a6f81}
+.convenience-grid button.active{background:linear-gradient(140deg,#80b8ff,#1a61db)!important;color:#fff!important;border-color:#1a61db!important}
+.convenience-grid button.active span{color:#fff}
+.convenience-selected{padding:10px 12px;border-radius:10px;background:#fff;color:#245b3c;font-weight:850}
+body.convenience-mode #lottoMachine .machine-main > :not(#conveniencePanel){display:none!important}
+body.convenience-mode #lottoMachine .machine-main #conveniencePanel{display:block!important}
+body.convenience-mode #lottoMachine #comboAddonSwitches{display:none!important}
+#lottoMachine:has(#generalModeBtn:not(.active)) #comboAddonSwitches{display:none!important}
+body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a9ff,#165dff)!important;color:#fff!important}
+@media(max-width:600px){
+  .convenience-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  #conveniencePanel{margin:8px 2px 20px;padding:12px 10px 24px}
+  .convenience-grid button{min-height:70px}
+  #mobileBingoStarControl{font-size:20px!important;font-weight:900!important;gap:8px!important}
+  #mobileBingoStarSelect{font-size:20px!important;font-weight:900!important;min-width:96px!important;min-height:48px!important;padding:6px 14px!important}
+}
+#qrResultCanvas{touch-action:pan-y}
+@media(max-width:600px){body:not(:has(.page[data-page="qrresult"].active)) #mobileCartBubble:not([hidden]){z-index:1200!important;bottom:calc(119px + env(safe-area-inset-bottom,0px))!important}}
+</style>
+</head>
 <body>
-<header><div class="brand">大家的樂透彩</div><span aria-live="polite" class="draw-date-badge" id="latestDrawDateBadge">獎號更新：讀取中</span><div class="status-mini" id="headerStatus">模型：2026-09-18 v1</div></header>
+<header><div class="brand">奧爾樂透選號</div><span aria-live="polite" class="draw-date-badge" id="latestDrawDateBadge">獎號更新：讀取中</span><div class="status-mini" id="headerStatus">模型：2026-09-18 v1</div></header>
 <nav id="nav"></nav>
 <main>
 <section class="page active" data-page="home">
@@ -562,7 +663,14 @@ header #headerStatus{margin-left:auto}
 <div class="combo-total" id="comboTotal"></div>
 <button class="combo-generate-qr hidden" id="comboMakeQr" type="button">製作 QR Code</button>
 </section>
-<div class="bet-tabs" id="betTabs"></div><div class="machine-top"><div class="machine-page" id="currentBetLabel">第 01 注</div><div class="sub" id="modelInfoWrap">模型：<b id="homeModelVersion">2026-09-18 v1</b></div><button class="machine-clear" id="machineClear">清除此注</button><button class="mobile-clear-all" id="mobileClearAll" title="清除目前彩種與玩法的全部投注注數" type="button">全部清除</button></div>
+<div class="bet-tabs" id="betTabs"></div><section id="conveniencePanel" hidden aria-label="便利快選"><h2>便利快選</h2><p>選擇一種快選柱數，製作 QR 後依百面骰產生對應的隨機投注。</p><div id="convenienceGroups"></div><div class="convenience-selected" id="convenienceSelectedHint" aria-live="polite">請選擇柱數</div></section>
+<div class="machine-top"><div class="machine-page" id="currentBetLabel">第 01 注</div><div class="sub" id="modelInfoWrap">模型：<b id="homeModelVersion">2026-09-18 v1</b></div><button class="machine-clear" id="machineClear">清除此注</button><button class="mobile-clear-all" id="mobileClearAll" title="清除目前彩種與玩法的全部投注注數" type="button">全部清除</button></div>
+<div class="mobile-column-anchor" id="mobileColumnAnchor" hidden>
+  <div class="mobile-column-picker" id="mobileColumnPicker" role="group" aria-label="選擇立柱編輯">
+    <div class="mobile-column-picker-head"><span>選擇編輯的柱</span><span id="mobileColumnCurrent">目前：第1柱</span></div>
+    <div id="mobileColumnChoices" class="mobile-column-choices"></div>
+  </div>
+</div>
 <div aria-hidden="true" class="power-first-zone" id="powerFirstZone">
 <div class="power-first-head">第一區 01～38 <span class="sub">請選6～16碼</span></div>
 <div class="bingo-top-row hidden" id="bingoTopRow"><span class="bingo-top-bet" id="bingoCurrentBetLabel">第 01 注</span><div aria-label="BINGO 星數" class="bingo-star-group bingo-star-at-board" id="bingoStarGroup" role="group"></div><button class="bingo-super-page-toggle" id="bingoSuperPageToggle" type="button">超級獎號</button></div><div class="number-board" id="numberBoard"></div>
@@ -663,6 +771,7 @@ header #headerStatus{margin-left:auto}
 <div aria-label="投注模式與功能" class="side-actions-grid">
 <button class="side-btn" id="machineClearAll" type="button">全部清除</button>
 <button class="side-btn mode-btn active" id="generalModeBtn" type="button">一般選號</button>
+<button class="side-btn mode-btn" id="conveniencePlayBtn" type="button">便利快選</button>
 <button class="side-btn mode-btn" id="columnPlayBtn" type="button">立柱包牌</button>
 <button class="side-btn mode-btn" id="smartPlayBtn" type="button">聰明包牌</button>
 <button class="side-btn mode-btn" id="machineSelfPick" type="button">自選包牌</button>
@@ -749,6 +858,11 @@ header #headerStatus{margin-left:auto}
 </section>
 <section aria-hidden="true" class="column-inline" id="columnInline">
 <div class="column-inline-head"><h2>連碰立柱</h2><div class="sub">8柱操作介面預覽｜直接在首頁下方操作</div><button class="column-inline-close" id="columnClose">回一般選號</button></div>
+<div class="mobile-column-bottom">
+  <details id="mobileColumnDetails"><summary>查看全部柱數 <span id="mobileColumnTotal">0 / 8柱</span></summary><div class="mobile-column-detail-rows" id="mobileColumnDetailRows"></div></details>
+  <div class="mobile-column-bottom-actions"><button type="button" id="mobileColumnClear">清除此柱</button><button type="button" id="mobileColumnNextBottom">下一柱 →</button></div>
+  <p class="mobile-column-help" id="mobileColumnHelp">請先選柱，再從上方點選號碼。</p>
+</div>
 <div class="column-body">
 <div class="column-inline-toolbar">
 <span class="column-page-tag" id="columnActiveLabel">目前：第1柱</span>
@@ -3477,6 +3591,12 @@ function showV003QrResultPage(bets,periodCount=1,opts={}){
     renderQrResultPage(0);showAppPage('qrresult');
   }catch(e){alert('QR 產生失敗：'+String(e.message||e));}
 }
+window.__lottoQrSwipeAdvance=function(delta){
+  if(!qrResultState?.pages?.length)return false;
+  const next=qrResultState.current+delta;
+  if(next>=0&&next<qrResultState.pages.length){renderQrResultPage(next);return true;}
+  return window.__lottoArchiveAdvance?.(delta)===true;
+};
 function backToNumberSelection(){showAppPage('home')}
 function printQrResultPage(){
   if(!qrResultState)return alert('尚未產生 QR Code。');
@@ -3764,6 +3884,8 @@ function renderPeriodOptions(){
   sel.value=String(periods);
 }
 function updateGameUI(){
+  if(convenienceActive&&!convenienceEligible()){convenienceActive=false;convenienceCount=0;}
+
   setTimeout(()=>window.updateLatestDrawBadge?.(),0);
   const cfg=gameCfg(),isPower=currentGame==='power',isBingo=currentGame==='bingo',isCombo=isLottoComboGame(),is39=currentGame==='39combo',is49=currentGame==='49combo',is3=currentGame==='3star',is4=currentGame==='4star',isDigit=is3||is4;
   document.querySelectorAll('#gameRail [data-game]').forEach(b=>b.classList.toggle('active',b.dataset.game===currentGame));
@@ -3786,6 +3908,7 @@ function updateGameUI(){
   if(prebox)prebox.classList.toggle('hidden',isBingo);
   if(bnote)bnote.classList.toggle('hidden',!isBingo);
   render39ComboControls();renderPeriodOptions();updateQuickPickUI();renderBetTabs();renderNumberBoard();
+  updateConvenienceView();
   const sync=document.getElementById('autoSyncStatus');if(sync){
     try{const st=gameModule().status();sync.textContent=st.text;sync.className=st.className||'pill'}
     catch(e){console.error(`${currentGame} 狀態列更新失敗`,e);sync.textContent=`${cfg.name}：模型初始化失敗`;sync.className='pill warn'}
@@ -3793,6 +3916,8 @@ function updateGameUI(){
 }
 
 function switchGame(id){
+  convenienceActive=false;convenienceCount=0;
+
   if(!GAME_CONFIGS[id])return false;
   if(id===currentGame){updateGameUI();return true}
   if(window.setNumberMode)window.setNumberMode('general');
@@ -3850,7 +3975,7 @@ function refreshMachineQrEnabled(){
   document.addEventListener('click',()=>setTimeout(refreshMachineQrEnabled,0),true);
   document.addEventListener('change',()=>setTimeout(refreshMachineQrEnabled,0),true);
 })();
-function renderMachineTotal(){const el=document.getElementById('machineTotal');if(!el)return;const price=gameCfg().price;if(currentGame==='3star'){const units=star3Selections.reduce((a,_,i)=>a+star3UnitCount(i),0),total=units*price*periods;el.textContent=`${total.toLocaleString('zh-TW')}元`;el.title=`3星彩 ${units.toLocaleString('zh-TW')}注 × ${price}元 × ${periods}期`;return}
+function renderMachineTotal(){const el=document.getElementById('machineTotal');if(!el)return;if(convenienceActive){el.textContent=`${convenienceTotal().toLocaleString('zh-TW')}元`;updateConvenienceView();return;}const price=gameCfg().price;if(currentGame==='3star'){const units=star3Selections.reduce((a,_,i)=>a+star3UnitCount(i),0),total=units*price*periods;el.textContent=`${total.toLocaleString('zh-TW')}元`;el.title=`3星彩 ${units.toLocaleString('zh-TW')}注 × ${price}元 × ${periods}期`;return}
   if(currentGame==='4star'){const units=star4Selections.reduce((a,_,i)=>a+star4UnitCount(i),0),total=units*price*periods;el.textContent=`${total.toLocaleString('zh-TW')}元`;el.title=`4星彩 ${units.toLocaleString('zh-TW')}注 × ${price}元 × ${periods}期`;return}
   if(currentGame==='bingo'){syncCurrentBet();const pageUnits=betSelections.reduce((sum,set,idx)=>sum+betUnitCount(set,idx),0),extra=bingoExtraUnits(),units=pageUnits+extra,total=units*price*periods;el.textContent=`${total.toLocaleString('zh-TW')}元`;const ext=[];if(bingoSizeChoices.size)ext.push(`猜${[...bingoSizeChoices].map(v=>v==='big'?'大':'小').join('＋')} ×${bingoSizeMultiplier}`);if(bingoParityChoices.size)ext.push(`猜${[...bingoParityChoices].map(v=>v==='odd'?'單':'雙').join('＋')} ×${bingoParityMultiplier}`);el.title=`BINGO 分頁投注 ${pageUnits}注${ext.length?'＋'+ext.join('＋'):''}｜共${units}注 × ${price}元 × ${periods}期`;return}
   if(window.smartModeActive&&currentGame==='power'&&powerSecondPicked.size<1){el.textContent='請選第二區至少1碼';el.title='威力彩聰明包牌只計算第一區；第二區可複選1～8碼，至少選1碼後投注才成立。';return}
@@ -3862,9 +3987,71 @@ if(window.mainMealModeActive&&window.mainMealGetUnitCount){const u=Number(window
   if(window.columnModeActive&&window.columnGetUnitCount){const u=Number(window.columnGetUnitCount())||0;const total=u*price*periods;el.textContent=`${total.toLocaleString('zh-TW')}元`;el.title=`立柱包牌 ${u.toLocaleString('zh-TW')} 注 × ${price}元 × ${periods}期`;return}
   syncCurrentBet();const totalUnits=betSelections.reduce((sum,set,idx)=>sum+betUnitCount(set,idx),0);const total=totalUnits*price*periods+comboAddonTotal();el.textContent=`${total.toLocaleString('zh-TW')}元`;el.title=purchaseMode==='preorder'?`共 ${totalUnits.toLocaleString('zh-TW')} 注 × ${price}元 × 從指定日期起連續 ${periods} 期`:`共 ${totalUnits.toLocaleString('zh-TW')} 注 × ${price}元 × ${periods}期`}
 function clearMachine(){if(currentGame==='3star'){star3ClearBet(currentBetIndex);lastResult=null;renderStar3Controls();renderBetTabs();renderMachineTotal();renderBalls(document.getElementById('resultBalls'),[],new Set());return}if(currentGame==='4star'){star4ClearBet(currentBetIndex);lastResult=null;renderStar4Controls();renderBetTabs();renderMachineTotal();renderBalls(document.getElementById('resultBalls'),[],new Set());return}manualPicked=new Set();powerSecondPicked=new Set();betSelections[currentBetIndex]=new Set();powerSecondSelections[currentBetIndex]=new Set();lastResult=null;renderNumberBoard();renderBalls(document.getElementById('resultBalls'),[],new Set())}
-function clearAllBets(){if(currentGame==='bingo')bingoClearAllStars();if(currentGame==='3star'){star3ClearAll();currentBetIndex=0;lastResult=null;qrResultState=null;renderBetTabs();renderNumberBoard();renderBalls(document.getElementById('resultBalls'),[],new Set());return}if(currentGame==='4star'){star4ClearAll();currentBetIndex=0;lastResult=null;qrResultState=null;renderBetTabs();renderNumberBoard();renderBalls(document.getElementById('resultBalls'),[],new Set());return}for(let i=0;i<10;i++){betSelections[i]=new Set();powerSecondSelections[i]=new Set()}manualPicked=new Set();powerSecondPicked=new Set();currentBetIndex=0;lastResult=null;qrResultState=null;renderBetTabs();renderNumberBoard();renderBalls(document.getElementById('resultBalls'),[],new Set());const total=document.getElementById('machineTotal');if(total)total.textContent='0元';const count=document.getElementById('machineSelectedCount');if(count)count.textContent='第01注｜已選 0 個'}
+function clearAllBets(){if(convenienceActive){convenienceCount=0;renderMachineTotal();}if(currentGame==='bingo')bingoClearAllStars();if(currentGame==='3star'){star3ClearAll();currentBetIndex=0;lastResult=null;qrResultState=null;renderBetTabs();renderNumberBoard();renderBalls(document.getElementById('resultBalls'),[],new Set());return}if(currentGame==='4star'){star4ClearAll();currentBetIndex=0;lastResult=null;qrResultState=null;renderBetTabs();renderNumberBoard();renderBalls(document.getElementById('resultBalls'),[],new Set());return}for(let i=0;i<10;i++){betSelections[i]=new Set();powerSecondSelections[i]=new Set()}manualPicked=new Set();powerSecondPicked=new Set();currentBetIndex=0;lastResult=null;qrResultState=null;renderBetTabs();renderNumberBoard();renderBalls(document.getElementById('resultBalls'),[],new Set());const total=document.getElementById('machineTotal');if(total)total.textContent='0元';const count=document.getElementById('machineSelectedCount');if(count)count.textContent='第01注｜已選 0 個'}
 function useManualSelection(){const cfg=gameCfg();if(currentGame==='bingo'){const mode=bingoCurrentMode(),star=bingoCurrentStar();if(mode==='super'){if(manualPicked.size<1||manualPicked.size>20)return alert('BINGO 超級獎號請選1～20個號碼。')}else if(bingoSystemSelections[currentBetIndex]?(manualPicked.size<star||manualPicked.size>80):manualPicked.size!==star)return alert(`BINGO ${star}星請選${star}個號碼。`);syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b);lastResult={nums,logs:[mode==='super'?`BINGO手動選號｜超級獎號｜${nums.map(pad).join(' ')}｜${nums.length}注`:`BINGO手動選號｜${star}星｜${nums.map(pad).join(' ')}`],rolls:0,dup:0,sup:0,lastIssue:'',lastNums:[]};renderBalls(document.getElementById('resultBalls'),nums,new Set());renderNumberBoard();return}if(currentGame==='3star'){const u=star3UnitCount();if(!u)return alert('請在百位、十位、個位至少各選1個數字。');const sets=star3Sets(),txt=sets.map(s=>[...s].sort((a,b)=>a-b).join('')).join('｜');lastResult={nums:[...sets].map(s=>[...s]),logs:[`3星彩手動選號｜${txt}${star3GroupEnabled()?'｜組彩排列':''}｜×${star3Multiplier()}｜${u}注`],rolls:0,dup:0,sup:0,lastIssue:'',lastNums:[]};renderStar3Controls();renderMachineTotal();return} if(currentGame==='4star'){const u=star4UnitCount();if(!u)return alert('請在千位、百位、十位、個位至少各選1個數字。');const sets=star4Sets(),txt=sets.map(s=>[...s].sort((a,b)=>a-b).join('')).join('｜');lastResult={nums:[...sets].map(s=>[...s]),logs:[`4星彩手動選號｜${txt}${star4GroupEnabled()?'｜組彩排列':''}｜×${star4Multiplier()}｜${u}注`],rolls:0,dup:0,sup:0,lastIssue:'',lastNums:[]};renderStar4Controls();renderMachineTotal();return} if(isLottoComboGame()){const play=combo39CurrentPlay(),mul=combo39CurrentMultiplier(),meal=combo39InlineMainMealActive(manualPicked,currentBetIndex);if((manualPicked.size<play&&!meal)||manualPicked.size>10)return alert(`${combo39PlayName(play)}一般選號請選${play}～10碼；或選${play-1}碼啟動主支全餐。`);syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b),u=betUnitCount(manualPicked,currentBetIndex),base=meal?combo39InlineMainMealBaseCount(manualPicked,currentBetIndex):0;const res={nums,logs:[meal?`手動選號｜${gameCfg().name}｜${combo39PlayName(play)}主支全餐｜主支 ${nums.map(pad).join(' ')}｜${base}組｜×${mul}｜${u}注`:`手動選號｜${gameCfg().name}｜${combo39PlayName(play)}｜${nums.map(pad).join(' ')}｜×${mul}｜${u}注`],rolls:0,dup:0,sup:0,lastIssue:(currentGame==='39combo'?(latest539()?.issue||''):(latest()?.issue||'')),lastNums:(currentGame==='39combo'?(latest539()?.nums||[]):(latest()?.nums||[]))};lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set(res.lastNums));addHistory(meal?`${gameCfg().name}・${combo39PlayName(play)}主支全餐・${nums.length}主支・×${mul}・第${pad(currentBetIndex+1)}注`:`${gameCfg().name}・${combo39PlayName(play)}・×${mul}・第${pad(currentBetIndex+1)}注`,res);renderNumberBoard();return}if(currentGame==='power'){if(manualPicked.size<6||manualPicked.size>16||powerSecondPicked.size<1||powerSecondPicked.size>8)return alert('威力彩請完成第一區6～16碼與第二區1～8碼。');syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b),seconds=[...powerSecondPicked].sort((a,b)=>a-b),u=betUnitCount(manualPicked,currentBetIndex);const res={nums,logs:[`手動選號｜威力彩｜第${pad(currentBetIndex+1)}注｜第一區 ${nums.map(pad).join(' ')}｜第二區 ${seconds.map(pad).join(' ')}｜${u}注`],rolls:0,dup:0,sup:0,lastIssue:'',lastNums:[]};lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set());addHistory(`威力彩・第一區${nums.length}碼＋第二區${seconds.length}碼・${u}注・第${pad(currentBetIndex+1)}注`,res);renderNumberBoard();return}if(manualPicked.size<1)return alert('請先選擇號碼。');if(manualPicked.size>cfg.maxGeneralPick)return alert(`${cfg.name}目前一般選號最多${cfg.maxGeneralPick}碼。`);syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b);const res={nums,logs:[`手動選號｜${cfg.name}｜第${pad(currentBetIndex+1)}注｜${betLabel(manualPicked)}`],rolls:0,dup:0,sup:0,lastIssue:currentGame==='lotto649'?(latest()?.issue||''):'',lastNums:currentGame==='lotto649'?(latest()?.nums||[]):[]};lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set(res.lastNums));addHistory(`${cfg.name}・手動${nums.length}碼・第${pad(currentBetIndex+1)}注`,res);renderNumberBoard();if(currentGame==='lotto649'&&nums.length===6)setQrSelection({id:null,nums})}
+// V14-S 便利快選：獨立模式；下注時才產生隨機注數，不佔用原本十注選號盤。
+let convenienceActive=false, convenienceCount=0, convenienceChoiceId="";
+function convenienceEligible(){return currentGame==='539'||currentGame==='lotto649'||currentGame==='power'}
+function convenienceTotal(){return convenienceActive && convenienceEligible()?convenienceCount*gameCfg().price*periods:0}
+function updateConvenienceView(){
+ const btn=document.getElementById('conveniencePlayBtn'),panel=document.getElementById('conveniencePanel');
+ if(btn){
+   btn.disabled=!convenienceEligible();
+   btn.classList.toggle('placeholder',!convenienceEligible());
+   btn.classList.toggle('active',convenienceActive);
+   btn.setAttribute('aria-pressed',String(convenienceActive));
+ }
+ // 便利快選和一般選號是互斥模式；切入時清除一般選號留下的 active 狀態。
+ if(convenienceActive){
+   document.querySelectorAll('#lottoMachine .side-actions-grid .mode-btn').forEach(modeBtn=>{
+     const selected=modeBtn===btn;
+     modeBtn.classList.toggle('active',selected);
+     modeBtn.setAttribute('aria-pressed',String(selected));
+   });
+ }else if(getActivePlayMode()==='general'){
+   // 從便利快選返回一般選號時，恢復正確的單一選取高亮。
+   const generalBtn=document.getElementById('generalModeBtn');
+   if(generalBtn){generalBtn.classList.add('active');generalBtn.setAttribute('aria-pressed','true');}
+ }
+ document.body.classList.toggle('convenience-mode',convenienceActive);
+ if(panel)panel.hidden=!convenienceActive;
+ document.getElementById('convenienceSelectedHint').textContent=convenienceCount?`已選快選 ${convenienceCount} 柱｜每期 ${convenienceCount*gameCfg().price} 元｜${periods}期共 ${convenienceTotal().toLocaleString('zh-TW')} 元`:'請選擇一種快選柱數';
+ document.querySelectorAll('#convenienceGroups [data-convenience-count]').forEach(b=>{
+  const yes=b.dataset.convenienceChoice===convenienceChoiceId;
+  b.classList.toggle('active',yes);b.setAttribute('aria-pressed',String(yes));
+ });
+}
+function activateConvenience(){
+ if(!convenienceEligible())return;
+ // 清除其他包牌模式，沿用既有的「一般選號」收合流程。
+ convenienceActive=false;
+ document.getElementById('generalModeBtn')?.click();
+ convenienceActive=true;convenienceCount=0;convenienceChoiceId="";
+ const groups=document.getElementById('convenienceGroups');
+ if(groups){
+  const ranges=[{label:'每次增加 1 柱',values:Array.from({length:10},(_,i)=>i+1)},
+    {label:'每次增加 5 柱',values:Array.from({length:10},(_,i)=>(i+1)*5)},
+    {label:'每次增加 10 柱',values:Array.from({length:10},(_,i)=>(i+1)*10)}];
+  groups.innerHTML=ranges.map(({label,values},groupIndex)=>`<div class="convenience-group"><h3>${label}</h3><div class="convenience-grid">${values.map(n=>`<button type="button" data-convenience-count="${n}" data-convenience-choice="${groupIndex}-${n}" aria-pressed="false"><b>快選${n}柱</b><span>${(n*gameCfg().price).toLocaleString('zh-TW')}元</span></button>`).join('')}</div></div>`).join('');
+ }
+ updateConvenienceView();renderMachineTotal();
+}
+function generateConvenienceQr(){
+ if(!convenienceActive || !convenienceEligible() || convenienceCount<1)return alert('請先選擇一種便利快選柱數。');
+ try{
+  const game=currentGame,rows=[];
+  const engine=gameModule(game).d100;
+  for(let i=0;i<convenienceCount;i++){
+   if(game==='power')rows.push({first:[...engine.drawFirst(6).nums],second:[engine.drawSecond().num]});
+   else rows.push([...engine.draw(game==='539'?5:6).nums]);
+  }
+  const options={gameId:game,autoSplit10:true};
+  if(purchaseMode==='preorder'){options.startOffset=preorderOffsetForDate(preorderDate);options.preorderDate=preorderDate;}
+  showV003QrResultPage(rows,periods,options);
+ }catch(error){alert('便利快選 QR 產生失敗：'+String(error.message||error));}
+}
 function getActivePlayMode(){
+   if(convenienceActive)return 'convenience';
   if(window.columnModeActive)return 'column';
   if(window.smartModeActive)return 'smart';
   if(window.selfPackModeActive)return 'self';
@@ -3942,6 +4129,8 @@ document.getElementById('generalModeBtn')?.addEventListener('click',()=>{
   manualPicked=new Set();betSelections[currentBetIndex]=new Set();lastResult=null;
   renderBalls(document.getElementById('resultBalls'),[],new Set());renderNumberBoard();updateQuickPickUI();
 });const bingoSuperToggle=document.getElementById('bingoSuperPageToggle');if(bingoSuperToggle)bingoSuperToggle.addEventListener('click',()=>{if(currentGame!=='bingo')return;const next=bingoCurrentMode()==='super'?'star':'super';if(next==='super'&&bingoModeSelections.some((m,i)=>i!==currentBetIndex&&m==='super'))return alert('10注投注中只能設定一注超級獎號。');bingoModeSelections[currentBetIndex]=next;bingoSystemSelections[currentBetIndex]=false;manualPicked=new Set();betSelections[currentBetIndex]=new Set();lastResult=null;renderBalls(document.getElementById('resultBalls'),[],new Set());renderBingoControls();renderNumberBoard();renderBetTabs();renderMachineTotal();updateQuickPickUI()});const combo39=document.getElementById('combo39Controls');if(combo39)combo39.addEventListener('click',e=>{const b=e.target.closest('[data-combo39-play]');if(!b||!isLottoComboGame())return;const play=Math.max(2,Math.min(4,Number(b.dataset.combo39Play)||2)),set=combo39MultiPlaySelections[currentBetIndex];if(set.has(play)){if(set.size===1)return alert('請至少保留一種樂合彩玩法。');set.delete(play);if(combo39CurrentPlay()===play)combo39PlaySelections[currentBetIndex]=Math.min(...set);}else{set.add(play);combo39PlaySelections[currentBetIndex]=play;}lastResult=null;render39ComboControls();renderBetTabs();renderNumberBoard();renderMachineTotal();updateQuickPickUI();const sel=document.getElementById('quickPickCount');if(sel&&getActivePlayMode()==='general'){sel.value=String(combo39CurrentPlay());sel.dispatchEvent(new Event('change'));}});const combo39Mult=document.getElementById('combo39Multiplier');if(combo39Mult)combo39Mult.addEventListener('change',e=>{if(!isLottoComboGame())return;combo39MultiplierSelections[currentBetIndex]=Math.max(1,Math.min(10,Number(e.target.value)||1));render39ComboControls();if(window.columnModeActive&&window.columnRefresh)window.columnRefresh();if(window.smartModeActive&&window.smartRefresh)window.smartRefresh();if(window.selfPackModeActive&&window.selfPackRefresh)window.selfPackRefresh();renderBetTabs();renderNumberBoard();renderMachineTotal()});const rail=document.getElementById('gameRail');if(rail)rail.onclick=e=>{const b=e.target.closest('[data-game]');if(!b)return;const id=b.dataset.game;if(id==='lotto649'||id==='539'||id==='39combo'||id==='49combo'||id==='bingo'||id==='power'||id==='3star'||id==='4star'){switchGame(id);return}alert(`${b.textContent.replace(' 保留','')}目前尚未啟用遊戲規則。`)};document.getElementById('machineClear')?.addEventListener('click',clearMachine);const clearAllBtn=document.getElementById('machineClearAll');if(clearAllBtn)clearAllBtn.onclick=()=>{if(window.confirm('確定清除目前模式的全部選號？')){if(window.clearActivePlayMode)window.clearActivePlayMode();else clearAllBets();renderMachineTotal()}};document.getElementById('machineUseSelection')?.addEventListener('click',useManualSelection);document.getElementById('periodSelect')?.addEventListener('change',e=>{periods=Math.max(1,Math.min(gameCfg().periodMax||10,Number(e.target.value)||1));renderMachineTotal()});renderPeriodOptions();document.getElementById('preorderDate')?.addEventListener('change',e=>{preorderDate=e.target.value||'';purchaseMode=preorderDate?'preorder':'consecutive';renderMachineTotal()});renderPurchaseMode();document.getElementById('machineQr')?.addEventListener('click',()=>{
+  if(convenienceActive){generateConvenienceQr();return;}
+
   // 所有玩法共用右側唯一的「製作QR」入口。先判斷包牌模式，再走各遊戲的一般選號。
   if(currentGame==='bingo'){showBingoV003QrResultPage();return;}
   if(window.columnModeActive){const b=document.getElementById('columnApply');if(!b||b.disabled)return alert('請先完成有效的連碰立柱設定。');b.click();return}
@@ -4005,6 +4194,28 @@ document.getElementById('generalModeBtn')?.addEventListener('click',()=>{
   }
   syncCurrentBet();const all=betSelections.map((s,i)=>({i,nums:[...s].sort((a,b)=>a-b)})).filter(x=>x.nums.length>=6);if(!all.length)return alert('請至少完成1注。');if(all.some(x=>x.nums.length>16))return alert('系統玩法每個投注單位最多16碼。');const rows=all.map(v=>v.nums);if(purchaseMode==='preorder'){try{const off=preorderOffsetForDate(preorderDate);showV003QrResultPage(rows,periods,{startOffset:off,preorderDate,mixedTest:rows.some(r=>r.length===6)&&rows.some(r=>r.length>6),addonPlays:activeComboAddonPlays()});}catch(e){alert(String(e.message||e))}return}showV003QrResultPage(rows,periods,{mixedTest:rows.some(r=>r.length===6)&&rows.some(r=>r.length>6),addonPlays:activeComboAddonPlays()})
 })}
+(function installConvenienceControls(){
+ const toggle=document.getElementById('conveniencePlayBtn');
+ toggle?.addEventListener('click',activateConvenience);
+ document.getElementById('convenienceGroups')?.addEventListener('click',event=>{
+   const b=event.target.closest('[data-convenience-count]');if(!b||!convenienceActive)return;
+   convenienceCount=Number(b.dataset.convenienceCount);convenienceChoiceId=b.dataset.convenienceChoice||"";
+   updateConvenienceView();renderMachineTotal();
+ });
+ document.addEventListener('click',e=>{
+  if(!convenienceActive)return;
+  if(e.target.closest('#generalModeBtn,#columnPlayBtn,#smartPlayBtn,#machineSelfPick,#mainMealBtn,#bingoSystemSideBtn')){
+   convenienceActive=false;convenienceCount=0;convenienceChoiceId="";updateConvenienceView();
+   setTimeout(()=>{renderMachineTotal();refreshMachineQrEnabled();},0);
+  }
+  if(convenienceActive && e.target.closest('#machineClearAll,#mobileClearAll,#machineClear')){
+    e.preventDefault();e.stopImmediatePropagation();
+    if(window.confirm('確定清除便利快選的柱數設定？')){
+      convenienceCount=0;convenienceChoiceId="";updateConvenienceView();renderMachineTotal();
+    }
+  }
+ },true);
+})();
 function init(){renderNav();normalizeDraws();history=history.slice(0,20);save(KEY.history,history);renderHomeStatus();renderData();renderModel();renderHistory();const legacyModeBtns=document.getElementById('modeBtns'),legacyCustomN=document.getElementById('customN');if(legacyModeBtns)legacyModeBtns.onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;selectedN=Number(b.dataset.n);if(legacyCustomN)legacyCustomN.value=String(selectedN);legacyModeBtns.querySelectorAll('.modebtn').forEach(x=>x.classList.toggle('active',x===b))};if(legacyCustomN)legacyCustomN.oninput=()=>{selectedN=Math.min(49,Math.max(1,Number(legacyCustomN.value)||6));legacyModeBtns?.querySelectorAll('.modebtn').forEach(x=>x.classList.toggle('active',Number(x.dataset.n)===selectedN))};const quickPickCount=document.getElementById('quickPickCount');if(quickPickCount){quickPickCount.onchange=()=>{const range=quickRangeForMode(getActivePlayMode())||[6,16];selectedN=Math.max(range[0],Math.min(range[1],Number(quickPickCount.value)||range[0]));{const cn=document.getElementById('customN');if(cn)cn.value=String(selectedN)}}}{const drawBtnEl=document.getElementById('drawBtn');if(drawBtnEl)drawBtnEl.onclick=quickPickIntoActiveMode;}if(currentGame==='539'){quickPickCount.value='5';selectedN=5;}updateQuickPickUI();copyResult.onclick=async()=>{if(!lastResult)return;const t=currentGame==='3star'?star3Sets().map(s=>[...s].sort((a,b)=>a-b).join('')).join('｜'):currentGame==='4star'?star4Sets().map(s=>[...s].sort((a,b)=>a-b).join('')).join('｜'):lastResult.nums.map(pad).join(' ');await navigator.clipboard.writeText(t)};const useCurrentForQr=document.getElementById('useCurrentForQr'),generateHomeQr=document.getElementById('generateHomeQr'),copyHomePayloadBtn=document.getElementById('copyHomeQrPayload'),downloadHomeQrBtn=document.getElementById('downloadHomeQr'),printHomeQrBtn=document.getElementById('printHomeQr');if(useCurrentForQr)useCurrentForQr.onclick=()=>{if(!lastResult)return alert('目前尚無抽號結果。');setQrSelection({id:null,nums:lastResult.nums})};if(generateHomeQr)generateHomeQr.onclick=renderHomeQr;if(copyHomePayloadBtn)copyHomePayloadBtn.onclick=copyHomeQrPayload;if(downloadHomeQrBtn)downloadHomeQrBtn.onclick=downloadHomeQr;if(printHomeQrBtn)printHomeQrBtn.onclick=printHomeQr;const qrHomeBox=document.getElementById('qrHomeSelected');if(qrHomeBox)qrHomeBox.onclick=e=>{const b=e.target.closest('[data-qrnum]');if(b)toggleQrNumber(Number(b.dataset.qrnum))};manualAdd.onclick=addManual;importCsv.onclick=()=>{const r=parseCsv(csvText.value);csvMsg.textContent=`新增 ${r.added} 期，略過重複 ${r.skipped} 期${r.errors.length?'；錯誤：'+r.errors.join('；'):''}`;renderData();renderHomeStatus()};csvFile.onchange=async()=>{const f=csvFile.files[0];if(f)csvText.value=await f.text()};recalcBtn.onclick=calcModel;resetModelBtn.onclick=()=>{if(confirm('恢復 2026-09-18 v1 預設模型？')){model=makeDefaultModel();save(KEY.model,model);renderModel();renderHomeStatus()}};batchBtn.onclick=batchGenerate;copyBatch.onclick=async()=>{if(lastBatch.length)await navigator.clipboard.writeText(lastBatch.map((r,i)=>`${i+1}. ${r.nums.map(pad).join(' ')}`).join('\n'))};exportBatch.onclick=exportBatchCsv;historyOut.onclick=e=>{const sel=e.target.closest('[data-select]');if(sel){selectedHistoryId=sel.dataset.select;renderHistory();return}const make=e.target.closest('[data-makeqr]');if(make){const h=history.find(x=>String(x.id)===make.dataset.makeqr);if(h)setQrSelection({id:h.id,nums:h.nums});return}const b=e.target.closest('[data-del]');if(!b)return;history=history.filter(h=>String(h.id)!==b.dataset.del);if(String(selectedHistoryId)===b.dataset.del)selectedHistoryId=null;if(String(qrSelectedId)===b.dataset.del)setQrSelection(null);save(KEY.history,history);renderHistory()};clearHistory.onclick=()=>{if(confirm('確定清空所有歷史紀錄？')){history=[];selectedHistoryId=null;save(KEY.history,history);renderHistory()}};simRunBtn.onclick=simulateHistory;document.getElementById('qrBackBtn')?.addEventListener('click',backToNumberSelection);document.getElementById('qrResultBack2')?.addEventListener('click',backToNumberSelection);document.getElementById('qrResultPrint')?.addEventListener('click',printQrResultPage);document.getElementById('qrResultPrintAll')?.addEventListener('click',printAllQrResultPages);document.getElementById('qrResultDownload')?.addEventListener('click',downloadQrResultPage);document.getElementById('qrResultPager')?.addEventListener('click',e=>{const b=e.target.closest('[data-qr-page]');if(b)renderQrResultPage(Number(b.dataset.qrPage))});const cb=document.getElementById('checkLatestBtn');if(cb){cb.onclick=()=>checkLatest({silent:false});setTimeout(()=>checkLatest({silent:true}),400)};initQr();renderHomeQrSelection();initMachine();updateGameUI();setTimeout(()=>{try{if(currentGame==='539')gameModule('539').backgroundSync().then(()=>{if(currentGame==='539')updateGameUI()}).catch(e=>console.warn('539 啟動同步失敗',e));}catch(e){console.warn('啟動同步失敗',e)}},800)}
 
 window.__lottoArchiveBridge={
@@ -4211,21 +4422,25 @@ init();
    if(currentGame==='power'&&powerSecondPicked.size<1){alert('威力彩聰明包牌請先於第二區 01～08 至少選擇1碼。第二區可複選1～8碼，但不參與聰明包牌計算。');return}
    const btn=document.getElementById('smartApply'),old=btn?.textContent||'製作QR';if(btn){btn.disabled=true;btn.textContent='計算中…'}
    setTimeout(()=>{try{
-     if(!lastWheel.length)lastWheel=buildWheel(nums);render();
+     if(!lastWheel.length)lastWheel=buildWheel(nums);
+     // 畫面更新會重新整理 lastWheel；先保存本次已驗證配牌結果，避免 QR 收到空投注。
+     const qrWheel=lastWheel.map(row=>row.slice());
+     if(!qrWheel.length)throw new Error("未能產生有效配牌，請調整母號與中保條件。");
+     render();
      if(currentGame==='power'){
        if(!powerV003SelfTest())throw new Error('威力彩 V003 內建驗證失敗，已停止產生QR。');
-       const second=[...powerSecondPicked].sort((a,b)=>a-b);const opts={gameId:'power',autoSplit10:true,smartGuarantee:true,smartCondition:conditionText()};if(purchaseMode==='preorder'){opts.startOffset=preorderOffsetForDate(preorderDate);opts.preorderDate=preorderDate}showV003QrResultPage(lastWheel.map(first=>({first,second:[...second]})),periods,opts);
+       const second=[...powerSecondPicked].sort((a,b)=>a-b);const opts={gameId:'power',autoSplit10:true,smartGuarantee:true,smartCondition:conditionText()};if(purchaseMode==='preorder'){opts.startOffset=preorderOffsetForDate(preorderDate);opts.preorderDate=preorderDate}showV003QrResultPage(qrWheel.map(first=>({first,second:[...second]})),periods,opts);
      }else if(currentGame==='49combo'){
        if(!combo49V003SelfTest())throw new Error('49樂合彩 V003 內建樣本驗證失敗，已停止產生QR。');
-       const mult=combo39CurrentMultiplier(),rows49=lastWheel.map(r=>({play:ticketSize(),nums:r.slice(),multiplier:mult}));
+       const mult=combo39CurrentMultiplier(),rows49=qrWheel.map(r=>({play:ticketSize(),nums:r.slice(),multiplier:mult}));
        const opts={gameId:'49combo',autoSplit10:true,smartGuarantee:true,smartCondition:conditionText()};if(purchaseMode==='preorder'){opts.startOffset=preorderOffsetForDate(preorderDate);opts.preorderDate=preorderDate}showV003QrResultPage(rows49,periods,opts);
      }else if(currentGame==='39combo'){
        if(!combo39V003SelfTest())throw new Error('39樂合彩 V003 內建驗證失敗，已停止產生QR。');
-       const play=ticketSize(),multiplier=combo39CurrentMultiplier(),rows=lastWheel.map(nums=>({play,nums:[...nums],multiplier}));
+       const play=ticketSize(),multiplier=combo39CurrentMultiplier(),rows=qrWheel.map(nums=>({play,nums:[...nums],multiplier}));
        const opts={gameId:'39combo',autoSplit10:true,smartGuarantee:true,smartCondition:conditionText()};if(purchaseMode==='preorder'){opts.startOffset=preorderOffsetForDate(preorderDate);opts.preorderDate=preorderDate}showV003QrResultPage(rows,periods,opts);
      }else{
        if(currentGame==='lotto649'&&!v003SelfTest())throw new Error('V003內建驗證失敗，已停止產生QR。');
-       const opts={gameId:currentGame,autoSplit10:true,smartGuarantee:true,smartCondition:conditionText()};if(purchaseMode==='preorder'){opts.startOffset=preorderOffsetForDate(preorderDate);opts.preorderDate=preorderDate}showV003QrResultPage(lastWheel,periods,opts);
+       const opts={gameId:currentGame,autoSplit10:true,smartGuarantee:true,smartCondition:conditionText()};if(purchaseMode==='preorder'){opts.startOffset=preorderOffsetForDate(preorderDate);opts.preorderDate=preorderDate}showV003QrResultPage(qrWheel,periods,opts);
      }
    }catch(e){alert('聰明包牌QR產生失敗：'+String(e.message||e))}finally{if(btn)btn.textContent=old;render()}},20);
  }
@@ -4511,11 +4726,92 @@ init();
  render();
 })();
 </script>
+<div id="mobileColumnFloat" class="mobile-column-float" hidden>
+  <button type="button" id="mobileColumnFloatNext" aria-label="快速切換到下一柱，長按可指定柱數" title="下一柱；長按可直接指定柱數"><span id="mobileColumnFloatLabel">第1柱</span><span aria-hidden="true">→</span></button>
+  <button type="button" id="mobileColumnFloatMenuToggle" aria-label="直接選擇柱數">⌃</button>
+  <div id="mobileColumnFloatMenu" class="mobile-column-float-menu" hidden><div class="mobile-column-float-menu-title">直接切換至</div><div id="mobileColumnFloatMenuGrid" class="mobile-column-float-menu-grid"></div></div>
+</div>
+
 <script>
 (()=>{
  const panel=document.getElementById('columnInline'),cardsEl=document.getElementById('columnCards'); if(!panel||!cardsEl)return;
  const COLORS=['#2f8df5','#ef6c6c','#f3a51b','#42b883','#9b59b6','#00a8a8','#e67e22','#607d8b'];
  let star=gameCfg().pickCount,active=0,patternKey='',cols=Array.from({length:8},(_,i)=>({id:i+1,take:1,nums:new Set()}));
+
+ const mobilePicker=document.getElementById('mobileColumnPicker'),mobileAnchor=document.getElementById('mobileColumnAnchor');
+ const mobileChoices=document.getElementById('mobileColumnChoices'),mobileFloat=document.getElementById('mobileColumnFloat');
+ const mobileNext=document.getElementById('mobileColumnFloatNext'),mobileFloatMenu=document.getElementById('mobileColumnFloatMenu');
+ const mobileMenuChoices=document.getElementById('mobileColumnFloatMenuGrid');
+ const mobileSummary=document.getElementById('mobileColumnDetailRows');
+ let mobileLongPressTimer=0,mobileDidLongPress=false;
+ function mobileColumnIsVisible(){return !!window.columnModeActive && document.body.dataset.mobileStage==='numbers' && matchMedia('(max-width:600px)').matches;}
+ function syncMobileColumnHeader(){
+   const activeMode=!!window.columnModeActive;
+   document.body.classList.toggle('mobile-column-mode',activeMode);
+   if(!mobileAnchor||!mobileFloat)return;
+   mobileAnchor.hidden=!activeMode;
+   mobileFloat.hidden=!mobileColumnIsVisible();
+   if(!mobileColumnIsVisible()){ mobileFloatMenu.hidden=true;mobilePicker.classList.remove('mobile-column-stuck');return; }
+   mobilePicker.style.setProperty('--column-picker-width',mobileAnchor.getBoundingClientRect().width+'px');
+ }
+ window.syncColumnPhoneUI=()=>{syncMobileColumnHeader();schedulePickerDock()};
+ function updateMobileColumn(){
+   if(!mobileChoices)return;
+   const renderBtns=()=>cols.map((col,i)=>{
+     const c=COLORS[i],sel=i===active,count=col.nums.size;
+     return `<button type="button" data-mobile-column="${i}" style="--column-color:${c}" class="${sel?'selected':''}" aria-pressed="${sel}" aria-label="第${i+1}柱，${count}碼">第${i+1}柱<small>${count}碼</small></button>`;
+   }).join('');
+   mobileChoices.innerHTML=renderBtns();
+   if(mobileMenuChoices)mobileMenuChoices.innerHTML=renderBtns();
+   const activeLabel=document.getElementById('mobileColumnCurrent');if(activeLabel)activeLabel.textContent=`目前：第${active+1}柱`;
+   const floatLabel=document.getElementById('mobileColumnFloatLabel');if(floatLabel)floatLabel.textContent=`第${active+1}柱`;
+   const total=document.getElementById('mobileColumnTotal');if(total)total.textContent=`${usedCols().length} / 8柱`;
+   if(mobileSummary)mobileSummary.innerHTML=cols.map((col,i)=>`<div class="mobile-column-detail-row" style="--column-color:${COLORS[i]}"><span class="mobile-column-detail-dot"></span><b>第${i+1}柱</b><span>${col.nums.size?[...col.nums].sort((a,b)=>a-b).map(pad).join('、'):'尚未選號'}</span></div>`).join('');
+   const help=document.getElementById('mobileColumnHelp');if(help)help.textContent=`目前編輯第${active+1}柱，已選${cols[active].nums.size}碼。點其他柱切換，已分配的號碼保留原柱顏色。`;
+   syncMobileColumnHeader();
+ }
+ function mobileSelectCol(i){
+   if(!window.columnModeActive)return;
+   if(!Number.isInteger(i)||i<0||i>=cols.length)return;
+   active=i;
+   if(mobileFloatMenu)mobileFloatMenu.hidden=true;
+   render();
+ }
+ function mobileNextCol(){mobileSelectCol((active+1)%cols.length)}
+ function mobileShowMenu(){if(mobileFloatMenu)mobileFloatMenu.hidden=false}
+ mobileChoices?.addEventListener('click',e=>{const b=e.target.closest('[data-mobile-column]');if(b)mobileSelectCol(Number(b.dataset.mobileColumn))});
+ mobileMenuChoices?.addEventListener('click',e=>{const b=e.target.closest('[data-mobile-column]');if(b)mobileSelectCol(Number(b.dataset.mobileColumn))});
+ document.getElementById('mobileColumnClear')?.addEventListener('click',()=>{cols[active].nums.clear();render()});
+ document.getElementById('mobileColumnNextBottom')?.addEventListener('click',mobileNextCol);
+ document.getElementById('mobileColumnFloatMenuToggle')?.addEventListener('click',()=>{mobileFloatMenu.hidden=!mobileFloatMenu.hidden});
+ mobileNext?.addEventListener('pointerdown',e=>{
+   if(e.button!==0)return;
+   clearTimeout(mobileLongPressTimer);mobileDidLongPress=false;
+   mobileLongPressTimer=setTimeout(()=>{mobileDidLongPress=true;mobileShowMenu()},510);
+ });
+ ['pointerup','pointercancel','pointerleave'].forEach(name=>mobileNext?.addEventListener(name,()=>clearTimeout(mobileLongPressTimer)));
+ mobileNext?.addEventListener('contextmenu',e=>{e.preventDefault();mobileDidLongPress=true;mobileShowMenu()});
+ mobileNext?.addEventListener('click',()=>{if(mobileDidLongPress){mobileDidLongPress=false;return}mobileNextCol()});
+ document.addEventListener('pointerdown',e=>{if(mobileFloat&&mobileFloat.contains(e.target))return;if(mobileFloatMenu)mobileFloatMenu.hidden=true});
+ function updateMobilePickerDock(){
+   if(!mobileAnchor||!mobilePicker||!mobileColumnIsVisible())return;
+   const rect=mobileAnchor.getBoundingClientRect();
+   const globalHeader=document.querySelector('body > header')||document.querySelector('header');
+   const minY=Math.max(0,globalHeader?.getBoundingClientRect().bottom||0)+5;
+   mobilePicker.style.setProperty('--column-picker-top',minY+'px');
+   mobilePicker.style.setProperty('--column-picker-left',rect.left+'px');
+   mobilePicker.style.setProperty('--column-picker-width',rect.width+'px');
+   const boardBottom=document.getElementById('numberBoard')?.getBoundingClientRect().bottom||0;
+   const pin=rect.top<minY&&boardBottom>minY+mobilePicker.offsetHeight+5;
+   mobilePicker.classList.toggle('mobile-column-stuck',pin);
+   mobileAnchor.style.minHeight=mobilePicker.offsetHeight+'px';
+ }
+ let dockScheduled=false;
+ function schedulePickerDock(){if(dockScheduled)return;dockScheduled=true;requestAnimationFrame(()=>{dockScheduled=false;updateMobilePickerDock()})}
+ document.addEventListener('scroll',schedulePickerDock,{passive:true});
+ window.addEventListener('resize',()=>{syncMobileColumnHeader();schedulePickerDock()},{passive:true});
+ new MutationObserver(()=>{syncMobileColumnHeader();schedulePickerDock()}).observe(document.body,{attributes:true,attributeFilter:['data-mobile-stage']});
+
  const pad=n=>String(n).padStart(2,'0');
  function is39Column(){return isLottoComboGame()}
  function columnPickSize(){return is39Column()?combo39CurrentPlay():gameCfg().pickCount}
@@ -4595,15 +4891,15 @@ init();
      document.getElementById('columnValid').textContent='目前柱數已達最低要求，請確認每個使用中的柱至少有1個號碼。';
    }
    const hint=document.querySelector('#columnInline .column-inline-hint');if(hint)hint.textContent=is39?`39樂合彩${combo39PlayName()}立柱：至少${minCols}柱、最多8柱；實際投注會從所有使用中的柱任取${minCols}柱，每柱各取1碼；投注倍數 ×${mul}。`:(isPower?`第一區至少${minCols}柱、最多8柱，從所有使用中的柱任取${minCols}柱，每柱各取1碼；第二區不分柱並附掛到每一組第一區結果。`:`${gameCfg().name}立柱：至少${minCols}柱、最多8柱；從所有使用中的柱任取${minCols}柱，每柱各取1碼。`);
-   decorateMainBoard();renderMachineTotal();
+   decorateMainBoard();renderMachineTotal();updateMobileColumn();schedulePickerDock();
  }
  function resetColumns(){cols=Array.from({length:8},(_,i)=>({id:i+1,take:1,nums:new Set()}));active=0;patternKey='';star=columnPickSize()}
  window.columnResetAll=()=>{resetColumns();render()};
  window.columnRefresh=render;
  window.columnGetUnitCount=()=>{const first=bets(),mul=columnMultiplier();return currentGame==='power'?first*powerSecondPicked.size:(is39Column()?first*mul:first)};
  function paintModeButtons(mode){document.getElementById('generalModeBtn')?.classList.toggle('active',mode==='general');document.getElementById('columnPlayBtn')?.classList.toggle('active',mode==='column');document.getElementById('smartPlayBtn')?.classList.toggle('active',mode==='smart');document.getElementById('machineSelfPick')?.classList.toggle('active',mode==='self');document.getElementById('mainMealBtn')?.classList.toggle('active',mode==='mainmeal');renderBetTabs()}
- function open(){if(window.closeMainMealMode)window.closeMainMealMode(false);if(window.closeSelfPackMode)window.closeSelfPackMode(false);if(window.closeSmartMode)window.closeSmartMode(false);panel.classList.add('open');panel.setAttribute('aria-hidden','false');window.columnModeActive=true;paintModeButtons('column');render();window.updateQuickPickUI?.();setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),20)}
- function close(){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');window.columnModeActive=false;paintModeButtons('general');renderNumberBoard();window.updateQuickPickUI?.()}
+ function open(){if(window.closeMainMealMode)window.closeMainMealMode(false);if(window.closeSelfPackMode)window.closeSelfPackMode(false);if(window.closeSmartMode)window.closeSmartMode(false);panel.classList.add('open');panel.setAttribute('aria-hidden','false');window.columnModeActive=true;paintModeButtons('column');render();window.updateQuickPickUI?.();if(!matchMedia('(max-width:600px)').matches)setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),20)}
+ function close(){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');window.columnModeActive=false;document.body.classList.remove('mobile-column-mode');syncMobileColumnHeader();paintModeButtons('general');renderNumberBoard();window.updateQuickPickUI?.()}
  function setMode(mode){
    const target=mode==='column'?'column':'general';
    const current=window.columnModeActive?'column':(window.mainMealModeActive?'mainmeal':(window.smartModeActive?'smart':(window.selfPackModeActive?'self':'general')));
@@ -4875,6 +5171,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
     if(!Object.hasOwn(indices,next))return;
     stage=next;
     document.body.dataset.mobileStage=next;
+    queueMicrotask(()=>window.syncColumnPhoneUI?.());
     const n=indices[next];
     kicker.textContent=`步驟 ${n} / 3`;
     back.hidden=n===1;
@@ -4926,7 +5223,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   app.addEventListener('click',event=>{
     if(stage!=='plays'||chosenGame==='combo'||!window.matchMedia('(max-width:600px)').matches)return;
     const button=event.target.closest('.side-actions-grid .mode-btn');
-    if(!button||button.disabled||button.classList.contains('placeholder'))return;
+    if(!button||button.disabled||button.classList.contains('placeholder')||(button.id==='generalModeBtn'&&!event.isTrusted))return;
     button.classList.add('mobile-play-flash');
     setTimeout(()=>{
       button.classList.remove('mobile-play-flash');
@@ -5150,7 +5447,17 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
  function favs(){try{return get(localStorage,favKey)}catch(e){return memoryFav}}
  function storeCart(arr){try{return put(sessionStorage,cartKey,arr)}catch(e){memoryCart=arr;return true}}
  function storeFav(arr){try{return put(localStorage,favKey,arr)}catch(e){memoryFav=arr;alert('目前預覽環境禁止長期儲存，我的最愛只能暫存於這次開啟的頁面。請下載後以一般瀏覽器使用，才能長期保存。');return true}}
- let quickOnly=false, viewing='cart';
+ let quickOnly=false, viewing='cart', archiveBrowsing=null;
+ window.__lottoArchiveAdvance=function(delta){
+   if(!archiveBrowsing)return false;
+   const list=archiveBrowsing.type==='cart'?carts():favs();
+   const i=list.findIndex(item=>item.id===archiveBrowsing.id);
+   const next=list[i+delta];
+   if(!next)return false;
+   try{bridge()?.open(next.snapshot);archiveBrowsing.id=next.id;quickOnly=!!next.quickOnly;updateUI();return true;}
+   catch(e){console.warn('切換收藏 QR 失敗',e);return false;}
+ };
+ document.getElementById('machineQr')?.addEventListener('click',()=>{archiveBrowsing=null},true);
  document.addEventListener('click',e=>{
     if(e.target.closest('#drawBtn'))quickOnly=true;
     if(e.target.closest('#numberBoard [data-picknum],#powerSecondBoard [data-power-second],.digit-btn,[data-star-digit]'))quickOnly=false;
@@ -5225,6 +5532,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
      const item=(viewing==='cart'?carts():favs()).find(x=>x.id===row.dataset.id);
      if(!item)return;
      hideSheet();
+     archiveBrowsing={type:viewing,id:item.id};
      try{bridge()?.open(item.snapshot);quickOnly=!!item.quickOnly;updateUI()}
      catch(err){alert('無法開啟此 QR：'+String(err.message||err))}
    }
@@ -5312,5 +5620,24 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
 }
 @media(max-width:700px){#comboAddonSwitches.combo-addon-switches{margin-left:0;width:100%;justify-content:flex-start;gap:6px;flex:1 0 100%}}
 </style>
+<script id="v14s-qr-swipe">(function(){
+ let begin=null;
+ const result=()=>document.querySelector('.page[data-page="qrresult"].active');
+ document.addEventListener('touchstart',e=>{
+  if(!result()||!e.target.closest('.qr-result-card')||e.target.closest('button,input,select,.qr-result-pager,.qr-result-actions'))return;
+  if(e.touches.length!==1)return;
+  begin={x:e.touches[0].clientX,y:e.touches[0].clientY};
+ },{passive:true});
+ document.addEventListener('touchend',e=>{
+  if(!begin || !result()){begin=null;return}
+  const dx=e.changedTouches[0].clientX-begin.x,dy=e.changedTouches[0].clientY-begin.y;
+  begin=null;
+  if(Math.abs(dx)>=55&&Math.abs(dx)>Math.abs(dy)*1.35){window.__lottoQrSwipeAdvance?.(dx<0?1:-1)}
+ },{passive:true});
+ // Trackpad / mouse drag also work in desktop preview; don't interfere with buttons.
+ let pointer=null;
+ document.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||!result()||!e.target.closest('#qrResultCanvas'))return;pointer={x:e.clientX,y:e.clientY};});
+ document.addEventListener('pointerup',e=>{if(!pointer)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;pointer=null;if(Math.abs(dx)>=65&&Math.abs(dx)>Math.abs(dy)*1.4)window.__lottoQrSwipeAdvance?.(dx<0?1:-1)});
+})();</script>
 </body>
 </html>
