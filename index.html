@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號 V14-V｜操作介面優化版</title>
+<title>奧爾樂透選號 V14-Y2｜QR介面精緻版</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -1185,12 +1185,13 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 <div class="qr-result-meta" id="qrResultMeta"></div>
 <div class="qr-result-pager" id="qrResultPager"></div>
 <div class="qr-page-summary" id="qrPageSummary"></div>
-<canvas class="qr-result-canvas" height="520" id="qrResultCanvas" width="520"></canvas>
+<div class="qr-swipe-frame" id="qrSwipeFrame" role="group" aria-label="左右滑動切換 QR" tabindex="0"><canvas class="qr-result-canvas" height="520" id="qrResultCanvas" width="520"></canvas></div>
+<div aria-live="polite" class="qr-swipe-indicator" id="qrSwipeIndicator"></div>
 <div aria-live="polite" class="qr-simple-total" id="qrResultTotal"></div>
 <div class="qr-result-bets" id="qrResultBets"></div>
 <div class="qr-result-actions"><div class="mobile-archive-actions" id="mobileArchiveActions"><button id="archiveAddCart" type="button">放入購物車</button></div>
-<button class="primary" id="qrResultPrint">列印目前 QR</button>
-<button class="primary hidden" id="qrResultPrintAll">一次列印全部 QR</button>
+<button class="primary" id="qrResultPrint">列印目前QR</button>
+<button class="primary hidden" id="qrResultPrintAll">列印全部QR</button>
 <button class="secondary" id="qrResultBack2">回到選號區</button>
 </div>
 <div class="qr-result-payload" id="qrResultPayload"></div>
@@ -5938,20 +5939,25 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
 <script id="v14s-qr-swipe">(function(){
  let begin=null;
  const result=()=>document.querySelector('.page[data-page="qrresult"].active');
+ const swipeZone=(target)=>target?.closest?.('#qrSwipeFrame');
  document.addEventListener('touchstart',e=>{
-  if(!result()||!e.target.closest('.qr-result-card')||e.target.closest('button,input,select,.qr-result-pager,.qr-result-actions'))return;
+  if(!result()||!swipeZone(e.target)||e.target.closest('button,input,select,.qr-result-pager,.qr-result-actions'))return;
   if(e.touches.length!==1)return;
   begin={x:e.touches[0].clientX,y:e.touches[0].clientY};
  },{passive:true});
+ document.addEventListener('touchmove',e=>{
+  if(!begin||!result()||!swipeZone(e.target)||e.touches.length!==1)return;
+  const dx=e.touches[0].clientX-begin.x,dy=e.touches[0].clientY-begin.y;
+  if(Math.abs(dx)>Math.abs(dy)*1.1&&Math.abs(dx)>10)e.preventDefault();
+ },{passive:false});
  document.addEventListener('touchend',e=>{
   if(!begin || !result()){begin=null;return}
   const dx=e.changedTouches[0].clientX-begin.x,dy=e.changedTouches[0].clientY-begin.y;
   begin=null;
   if(Math.abs(dx)>=55&&Math.abs(dx)>Math.abs(dy)*1.35){window.__lottoAnimatedQrSwipe?.(dx<0?1:-1)}
  },{passive:true});
- // Trackpad / mouse drag also work in desktop preview; don't interfere with buttons.
  let pointer=null;
- document.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||!result()||!e.target.closest('#qrResultCanvas'))return;pointer={x:e.clientX,y:e.clientY};});
+ document.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||!result()||!e.target.closest('#qrSwipeFrame'))return;pointer={x:e.clientX,y:e.clientY};});
  document.addEventListener('pointerup',e=>{if(!pointer)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;pointer=null;if(Math.abs(dx)>=65&&Math.abs(dx)>Math.abs(dy)*1.4)window.__lottoAnimatedQrSwipe?.(dx<0?1:-1)});
 })();</script>
 
@@ -5996,7 +6002,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
 #star3Controls .star3-group-toggle:focus-within,#star4Controls .star3-group-toggle:focus-within{outline:3px solid #e7b6ef;outline-offset:3px}
 #star3Controls .star3-group-toggle:active,#star4Controls .star3-group-toggle:active{transform:scale(.98)}
 /* An animation that does not blur or resize the QR image. */
-.page[data-page="qrresult"] .qr-result-card{will-change:transform,opacity}
+.page[data-page="qrresult"] .qr-swipe-frame{will-change:transform,opacity}
 #conveniencePanel .convenience-input-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;max-width:740px}
 #conveniencePanel .convenience-input-grid label{font-size:15px}
 #conveniencePanel .convenience-input-grid select{font-size:17px;min-height:48px;max-width:100%;}
@@ -6015,23 +6021,23 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
  window.__lottoAnimatedQrSwipe=function(dir){
   if(busy||!document.querySelector('.page[data-page="qrresult"].active'))return false;
   if(!window.__lottoQrSwipeAdvance)return false;
-  const card=document.querySelector('.page[data-page="qrresult"] .qr-result-card');
-  if(!card||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return window.__lottoQrSwipeAdvance(dir);
+  const frame=document.getElementById('qrSwipeFrame')||document.querySelector('.page[data-page="qrresult"] .qr-swipe-frame');
+  if(!frame||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return window.__lottoQrSwipeAdvance(dir);
   busy=true;
-  const dist=dir>0?-34:34;
-  card.style.transition='transform 145ms ease-in, opacity 145ms ease-in';
-  card.style.transform='translateX('+dist+'px)';
-  card.style.opacity='0.15';
+  const dist=dir>0?-30:30;
+  frame.style.transition='transform 145ms ease-in, opacity 145ms ease-in';
+  frame.style.transform='translateX('+dist+'px)';
+  frame.style.opacity='0.18';
   setTimeout(()=>{
     const changed=window.__lottoQrSwipeAdvance(dir);
-    if(!changed){card.style.transition='transform 165ms ease-out, opacity 165ms ease-out';card.style.transform='translateX(0)';card.style.opacity='1';setTimeout(()=>{busy=false;},175);return;}
-    card.style.transition='none';
-    card.style.transform='translateX('+(-dist)+'px)';
-    card.style.opacity='0.15';
+    if(!changed){frame.style.transition='transform 165ms ease-out, opacity 165ms ease-out';frame.style.transform='translateX(0)';frame.style.opacity='1';setTimeout(()=>{busy=false;},175);return;}
+    frame.style.transition='none';
+    frame.style.transform='translateX('+(-dist)+'px)';
+    frame.style.opacity='0.18';
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      card.style.transition='transform 200ms cubic-bezier(.2,.65,.35,1),opacity 200ms ease-out';
-      card.style.transform='translateX(0)';card.style.opacity='1';
-      setTimeout(()=>{card.style.transition='';card.style.transform='';card.style.opacity='';busy=false;},240);
+      frame.style.transition='transform 210ms cubic-bezier(.2,.65,.35,1),opacity 210ms ease-out';
+      frame.style.transform='translateX(0)';frame.style.opacity='1';
+      setTimeout(()=>{frame.style.transition='';frame.style.transform='';frame.style.opacity='';busy=false;},250);
     }));
   },145);
   return true;
@@ -6058,5 +6064,198 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   }
 }
 </style>
+
+<style id="v14y-qr-swipe-and-actions-polish">
+.page[data-page="qrresult"] .qr-result-card{position:relative;padding-top:64px!important;overflow:hidden}
+.page[data-page="qrresult"] #archiveToggleFav{
+ display:grid!important;place-items:center;position:absolute;right:12px;top:10px;z-index:8;
+ width:auto!important;min-width:0!important;height:auto!important;padding:0!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;
+ color:#d54b69!important;font-size:34px!important;line-height:1!important
+}
+.page[data-page="qrresult"] #archiveToggleFav::before{content:'';position:absolute;inset:-6px;border-radius:999px;background:rgba(255,255,255,.35);opacity:0;transition:opacity .18s ease}
+.page[data-page="qrresult"] #archiveToggleFav:hover::before,.page[data-page="qrresult"] #archiveToggleFav:focus-visible::before{opacity:1}
+.page[data-page="qrresult"] #archiveToggleFav[aria-pressed="true"]{color:#F596AA!important}
+.page[data-page="qrresult"] #qrGameLogo{position:absolute;left:12px;top:12px;width:min(118px,32vw);max-width:118px;z-index:7;margin:0!important}
+.page[data-page="qrresult"] #qrGameLogo img{display:block;width:100%;height:auto;max-height:38px;object-fit:contain;object-position:left center;margin:0}
+.page[data-page="qrresult"] #qrResultTitle{padding:0 54px;min-height:28px;font-size:21px}
+.page[data-page="qrresult"] #qrSwipeFrame{position:relative;overflow:hidden;border-radius:22px;background:linear-gradient(180deg,#fff 0%,#f7fbff 100%);touch-action:pan-y pinch-zoom;overscroll-behavior-x:contain}
+.page[data-page="qrresult"] #qrResultCanvas{display:block;margin:10px auto 6px}
+.page[data-page="qrresult"] #qrSwipeIndicator{display:flex;align-items:center;justify-content:center;gap:8px;min-height:16px;margin:8px 0 12px}
+.page[data-page="qrresult"] .qr-swipe-dot{width:8px;height:8px;border-radius:999px;background:#cfd9e9;flex:0 0 auto;transition:width .22s ease,transform .22s ease,background .22s ease,box-shadow .22s ease,opacity .22s ease;opacity:.95}
+.page[data-page="qrresult"] .qr-swipe-dot.active{width:22px;background:linear-gradient(90deg,#9CC5FF 0%,#4B8DFF 100%);box-shadow:0 4px 10px rgba(75,141,255,.28);transform:translateY(-1px)}
+.page[data-page="qrresult"] #qrResultPager{padding-top:0;margin:6px 0 2px;scrollbar-width:none}
+.page[data-page="qrresult"] #qrResultPager::-webkit-scrollbar{display:none}
+.page[data-page="qrresult"] .qr-page-btn{transition:transform .18s ease,background .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease}
+.page[data-page="qrresult"] .qr-page-btn.active{transform:translateY(-1px);box-shadow:0 5px 14px rgba(22,93,255,.16)}
+.page[data-page="qrresult"] .qr-result-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch}
+.page[data-page="qrresult"] #mobileArchiveActions,.page[data-page="qrresult"] #qrResultBack2{grid-column:1 / -1}
+.page[data-page="qrresult"] .qr-result-actions button,.page[data-page="qrresult"] #mobileArchiveActions>button{
+ min-width:0!important;width:100%;padding:13px 14px!important;border-radius:16px!important;
+ border:1px solid rgba(255,255,255,.62)!important;background:rgba(255,255,255,.34)!important;
+ backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#20425f!important;
+ box-shadow:0 8px 18px rgba(48,88,122,.12),inset 0 1px 0 rgba(255,255,255,.75)!important;
+ font-size:15px!important;font-weight:900!important
+}
+.page[data-page="qrresult"] .qr-result-actions button:hover,.page[data-page="qrresult"] #mobileArchiveActions>button:hover{transform:translateY(-1px)}
+.page[data-page="qrresult"] .qr-result-actions button:active,.page[data-page="qrresult"] #mobileArchiveActions>button:active{transform:translateY(0) scale(.99)}
+@media(max-width:380px){
+  .page[data-page="qrresult"] .qr-result-actions{grid-template-columns:1fr}
+  .page[data-page="qrresult"] #qrResultTitle{padding:0 44px;font-size:19px}
+  .page[data-page="qrresult"] #qrGameLogo{width:min(102px,30vw)}
+}
+</style>
+<script id="v14y-qr-pager-indicator-sync">
+(function(){
+  const pager=document.getElementById('qrResultPager');
+  const indicator=document.getElementById('qrSwipeIndicator');
+  if(!pager||!indicator)return;
+  let previous=-1;
+  function sync(){
+    const buttons=Array.from(pager.querySelectorAll('[data-qr-page]'));
+    const activeIndex=Math.max(0,buttons.findIndex(el=>el.classList.contains('active')));
+    if(buttons.length<2){ indicator.replaceChildren(); previous=-1; return; }
+    const dots=buttons.map((button,index)=>{
+      const dot=document.createElement('span');
+      dot.className='qr-swipe-dot'+(index===activeIndex?' active':'');
+      dot.setAttribute('aria-hidden','true');
+      return dot;
+    });
+    const number=document.createElement('span');
+    number.className='qr-swipe-position';
+    number.textContent=`${activeIndex+1} / ${buttons.length}`;
+    indicator.replaceChildren(...dots,number);
+    indicator.setAttribute('aria-label',`目前第 ${activeIndex+1} 筆，共 ${buttons.length} 筆 QR`);
+    // Scroll only the horizontal QR pager; never call scrollIntoView on the page.
+    const active=buttons[activeIndex];
+    if(active && previous!==activeIndex){
+      const left=Math.max(0,active.offsetLeft-pager.offsetLeft-(pager.clientWidth-active.offsetWidth)/2);
+      pager.scrollTo({left,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+    }
+    previous=activeIndex;
+  }
+  const watcher=new MutationObserver(()=>window.requestAnimationFrame(sync));
+  watcher.observe(pager,{childList:true,attributes:true,subtree:true,attributeFilter:['class']});
+  window.addEventListener('load',sync,{once:true});
+  sync();
+})();
+</script>
+
+
+<style id="v14y2-qr-elegance">
+/* Y2: QR display polish, keep existing V003 encoder and all non-QR screens untouched. */
+@media screen{
+.page[data-page="qrresult"]{background:transparent}
+.page[data-page="qrresult"] .qr-result-shell{max-width:780px;margin:0 auto}
+.page[data-page="qrresult"] .qr-result-card{
+ background:linear-gradient(160deg,#ffffff 0%,#fffef9 100%)!important;
+ border:1px solid #e8dfc8!important;border-radius:23px!important;
+ box-shadow:0 10px 36px rgba(71,70,69,.09),inset 0 1px rgba(255,255,255,.92)!important;
+ padding-top:70px!important;
+}
+.page[data-page="qrresult"] #qrGameLogo{left:10px!important;top:12px!important;max-width:120px!important}
+.page[data-page="qrresult"] #qrGameLogo img{max-height:43px!important}
+.page[data-page="qrresult"] #archiveToggleFav{top:10px!important;right:13px!important;font-size:35px!important;
+ line-height:1!important;color:#d75975!important;transition:transform .16s ease,color .16s ease!important}
+.page[data-page="qrresult"] #archiveToggleFav[aria-pressed="true"]{color:#F596AA!important}
+.page[data-page="qrresult"] #archiveToggleFav:active{transform:scale(1.13)}
+.page[data-page="qrresult"] .qr-result-pager{gap:7px;margin:4px 0 0;padding:5px 3px 8px;scroll-padding-inline:20px}
+.page[data-page="qrresult"] .qr-page-btn{
+ border:1px solid #d7deeb;border-radius:999px;padding:8px 13px;
+ background:linear-gradient(145deg,#fff,#f1f5fc);font-weight:800;
+ color:#4a6388;box-shadow:0 2px 6px rgba(35,58,88,.05);
+}
+.page[data-page="qrresult"] .qr-page-btn.active{
+ color:white;border-color:#3b7ce6;
+ background:linear-gradient(135deg,#6BA4FF,#2766CE);box-shadow:0 5px 14px rgba(43,97,201,.22);
+}
+.page[data-page="qrresult"] #qrSwipeFrame{
+ background:#fff!important;border-radius:15px!important;
+ border:1px solid rgba(216,226,238,.7);margin-top:4px;
+ contain:paint;overflow:hidden;overscroll-behavior-x:contain;
+}
+.page[data-page="qrresult"] #qrSwipeFrame:focus-visible{outline:3px solid #8cb6ef;outline-offset:3px}
+.page[data-page="qrresult"] #qrResultCanvas{max-width:100%;margin:8px auto!important;user-select:none;-webkit-user-select:none}
+.page[data-page="qrresult"] #qrSwipeIndicator{gap:7px;margin:7px 0 7px;min-height:19px;flex-wrap:wrap}
+.page[data-page="qrresult"] .qr-swipe-dot{width:7px;height:7px;background:#d3ddea;box-shadow:none}
+.page[data-page="qrresult"] .qr-swipe-dot.active{width:20px;background:#3176e3;box-shadow:0 2px 5px rgba(50,110,220,.2)}
+.page[data-page="qrresult"] .qr-swipe-position{font-size:12px;color:#66758f;font-weight:800;margin-left:8px;font-variant-numeric:tabular-nums}
+.page[data-page="qrresult"] #qrResultTotal{
+ width:100%;margin:8px auto 14px;padding:12px 16px!important;
+ color:#b44525!important;font-size:19px!important;font-weight:900!important;text-align:center;
+ background:linear-gradient(135deg,#fff7df,#fff2e8)!important;border:1px solid #f6dfcc;
+ border-radius:15px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)!important;
+}
+.page[data-page="qrresult"] #qrResultBets{gap:7px;margin-top:0}
+.page[data-page="qrresult"] #qrResultBets .qr-min-count{
+ font-size:14px;font-weight:850;color:#375a8b;margin:6px 0 4px;
+ padding-left:3px;
+}
+.page[data-page="qrresult"] .qr-result-bet{
+ border:1px solid #e7edf5!important;border-radius:13px!important;
+ background:#f8fbff!important;padding:12px 13px!important;
+ box-shadow:0 2px 6px rgba(34,59,93,.025);
+}
+.page[data-page="qrresult"] .qr-result-bet .qr-min-title{color:#61748e;font-size:12px;line-height:1.4;font-weight:750}
+.page[data-page="qrresult"] .qr-result-nums{font-size:16px;font-weight:900;line-height:1.65;letter-spacing:.015em}
+.page[data-page="qrresult"] .qr-result-actions{margin-top:18px;gap:10px}
+.page[data-page="qrresult"] .qr-result-actions button,
+.page[data-page="qrresult"] #mobileArchiveActions>button{
+ display:flex;align-items:center;justify-content:center;
+ border-radius:14px!important;min-height:49px;
+ background:linear-gradient(146deg,rgba(255,255,255,.99),rgba(227,236,247,.88))!important;
+ border:1px solid #dbe4f1!important;color:#235186!important;
+ box-shadow:0 5px 12px rgba(46,81,125,.10),inset 0 1px 0 rgba(255,255,255,.95)!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ transition:transform .15s ease,box-shadow .15s ease!important;
+}
+.page[data-page="qrresult"] .qr-result-actions button:hover{
+ box-shadow:0 7px 15px rgba(46,81,125,.16),inset 0 1px 0 #fff!important
+}
+.page[data-page="qrresult"] .qr-result-actions button:focus-visible{outline:3px solid #9fbff1;outline-offset:2px}
+}
+@media (max-width:600px){
+ .page[data-page="qrresult"] .qr-result-card{padding:65px 13px 18px!important}
+ .page[data-page="qrresult"] .qr-result-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ .page[data-page="qrresult"].active .qr-result-actions #mobileArchiveActions{display:contents!important}
+ .page[data-page="qrresult"].active .qr-result-actions #mobileArchiveActions>button{display:flex!important;grid-column:auto!important}
+ .page[data-page="qrresult"] .qr-result-actions #qrResultBack2{grid-column:auto!important}
+ .page[data-page="qrresult"] .qr-result-actions:has(#qrResultPrintAll.hidden) #qrResultBack2{grid-column:1/-1!important}
+ .page[data-page="qrresult"] .qr-result-actions button{width:100%;min-width:0!important;padding:10px 5px!important;font-size:14px!important;white-space:nowrap}
+ .page[data-page="qrresult"] #qrResultTotal{font-size:18px!important}
+}
+@media (min-width:601px){
+ .page[data-page="qrresult"] #archiveToggleFav{display:none!important}
+}
+@media (max-width:350px){
+ .page[data-page="qrresult"] .qr-result-actions{grid-template-columns:1fr!important}
+ .page[data-page="qrresult"] .qr-result-actions button{min-height:45px!important}
+}
+/* Wrapped QR canvas must remain printable. Print QR at exactly 50mm, no surrounding UI. */
+@media print{
+ body.qr-print .qr-result-card > #qrSwipeFrame{display:block!important;visibility:visible!important;
+  position:absolute!important;inset:0 auto auto 0!important;
+  width:50mm!important;height:50mm!important;max-width:50mm!important;max-height:50mm!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+  background:#fff!important;overflow:visible!important;transform:none!important;opacity:1!important}
+ body.qr-print #qrSwipeFrame > #qrResultCanvas{display:block!important;visibility:visible!important;
+  width:50mm!important;height:50mm!important;max-width:50mm!important;max-height:50mm!important;
+  margin:0!important;padding:0!important;border:0!important;position:absolute!important;left:0!important;top:0!important;
+  transform:none!important;opacity:1!important}
+}
+</style>
+<script id="v14y2-qr-key-navigation">
+(function(){
+ const frame=document.getElementById('qrSwipeFrame');
+ if(!frame)return;
+ frame.addEventListener('keydown',e=>{
+   if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+   if(!document.querySelector('.page[data-page="qrresult"].active'))return;
+   e.preventDefault();
+   window.__lottoAnimatedQrSwipe?.(e.key==='ArrowLeft'?1:-1);
+ });
+})();
+</script>
+
 </body>
 </html>
