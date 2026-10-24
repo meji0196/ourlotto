@@ -611,97 +611,13 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 @media(max-width:600px){body:not(:has(.page[data-page="qrresult"].active)) #mobileCartBubble:not([hidden]){z-index:1200!important;bottom:calc(119px + env(safe-area-inset-bottom,0px))!important}}
 </style>
 
-<style id="v14t-mobile-scroll-and-convenience">
+<style id="v14t-convenience-controls-only">
 #conveniencePanel .convenience-input-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:660px}
 #conveniencePanel .convenience-input-grid label{display:flex;flex-direction:column;gap:5px;font-weight:850;color:#3e4b5e;font-size:14px;min-width:0}
 #conveniencePanel .convenience-input-grid input,#conveniencePanel .convenience-input-grid select{box-sizing:border-box;width:100%;height:48px;min-width:0;padding:8px 10px;background:#fff;border:1.5px solid #cbd7e4;border-radius:12px;color:#183d6a;font-size:19px;font-weight:800}
 #conveniencePanel .convenience-input-grid select:disabled{background:#edf0f4;color:#667085}
 #conveniencePanel .convenience-unit-hint{font-size:13px;font-weight:850;color:#2b6b4b;margin:10px 0 5px}
 #conveniencePanel .convenience-help{font-size:12px;line-height:1.55;margin:0;color:#6c6144}
-@media(max-width:600px){
-  html,body{overscroll-behavior-y:none}
-  body[data-mobile-stage="numbers"] #mobileFlowHeader{padding:8px 9px!important;gap:6px!important;flex-wrap:wrap;align-items:center;min-height:0!important;}
-  body[data-mobile-stage="numbers"] #mobileFlowHeader .mobile-flow-kicker,
-  body[data-mobile-stage="numbers"] #mobileFlowHeader .mobile-flow-progress{display:none!important}
-  body[data-mobile-stage="numbers"] #mobileFlowHeader .mobile-flow-heading{order:2;flex-basis:100%!important;}
-  body[data-mobile-stage="numbers"] #mobileFlowHeader #mobileFlowTitle{font-size:16px!important;}
-  body[data-mobile-stage="numbers"] #mobileFlowHeader #mobileFlowHint{margin-top:0!important;font-size:12px!important;}
-  body[data-mobile-stage="numbers"] #lottoMachine{
-    height:var(--v14t-machine-height,510px)!important;min-height:0!important;
-    overflow:hidden!important;display:flex!important;flex-direction:column!important;
-  }
-  body[data-mobile-stage="numbers"] #lottoMachine .machine-main{
-    display:flex!important;flex-direction:column!important;height:100%!important;
-    min-height:0!important;min-width:0!important;overflow:hidden!important;
-  }
-  #v14tMobileShell{display:none}
-  body[data-mobile-stage="numbers"] #v14tMobileShell{
-    flex:1;min-height:0;display:flex!important;flex-direction:column;
-    overflow:hidden!important;gap:0;width:100%;
-  }
-  #v14tMobileTop{flex:none;display:flex;flex-direction:column;gap:3px;
-    max-height:min(50dvh,400px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
-    background:linear-gradient(180deg,#fff5cc,#fff2be);
-    border:1px solid #e7cf7b;border-radius:13px 13px 0 0;padding:5px;
-  }
-  #v14tMobileScroll{flex:1;min-height:80px;overflow-y:auto;overflow-x:hidden;
-    -webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;
-    touch-action:pan-y;padding:6px 4px 11px;background:#ffeaa5;border:1px solid #e5cc7b;border-top:0;
-    border-radius:0 0 12px 12px;
-  }
-  body[data-mobile-stage="numbers"] #v14tMobileTop #betTabs{display:flex!important;margin:0!important;padding:1px!important;min-height:34px}
-  body[data-mobile-stage="numbers"] #v14tMobileTop .machine-top{margin:0!important;padding:1px!important;min-height:35px}
-  body[data-mobile-stage="numbers"] #v14tMobileTop .machine-actions{display:flex!important;flex-wrap:wrap;gap:5px!important;margin:0!important;padding:2px 0!important}
-  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox{
-    display:flex!important;flex-direction:row!important;gap:6px!important;
-    margin:1px 0 0!important;padding:5px!important;min-width:0;width:100%!important;
-    background:rgba(255,255,255,.55);border-radius:9px;
-  }
-  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox > *{flex:1 1 0;min-width:0!important;width:auto!important;}
-  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox .period-single-row,
-  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox #preorderBox{display:flex!important;flex-direction:column;gap:3px!important;align-items:stretch!important;}
-  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox .period-title,
-  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox #preorderBox label{font-size:11px!important;}
-  body[data-mobile-stage="numbers"] #v14tMobileTop #periodBox select{min-height:36px!important;padding:5px 14px 5px 6px!important}
-  body[data-mobile-stage="numbers"] #v14tMobileTop #powerSecondZone{margin:0!important;padding:4px!important;border-radius:9px;}
-  body[data-mobile-stage="numbers"] #v14tMobileTop #powerSecondBoard{gap:4px!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;}
-  body[data-mobile-stage="numbers"] #v14tMobileTop #powerSecondBoard button{min-height:36px!important;font-size:13px!important;}
-  body[data-mobile-stage="numbers"] #v14tMobileTop #bingoTopRow{height:auto!important;min-height:48px!important;max-height:105px!important;overflow:visible!important;flex:0 0 auto;align-items:center;margin:0!important;padding:5px!important}
-  #v14tBingoFold{display:none;padding:3px 6px 5px;border:1px solid #accdea;border-radius:10px;background:#f5fbff;}
-  body[data-mobile-stage="numbers"] #lottoMachine:has(#gameRail [data-game="bingo"].active) #v14tBingoFold{display:block!important;}
-  #v14tBingoFold summary{font-size:13px;font-weight:850;color:#256aa4;padding:6px 5px;cursor:pointer;list-style:revert;}
-  #v14tBingoFold #bingoControls{margin:0!important;padding:2px 0 5px!important;}
-  body[data-mobile-stage="numbers"] #v14tBingoFold[open]{max-height:200px;overflow-y:auto;}
-  body[data-mobile-stage="numbers"] #v14tMobileScroll #powerFirstZone,
-  body[data-mobile-stage="numbers"] #v14tMobileScroll #star3Controls,
-  body[data-mobile-stage="numbers"] #v14tMobileScroll #star4Controls{width:100%!important;max-width:100%!important;min-width:0!important;}
-  body[data-mobile-stage="numbers"] #v14tMobileScroll .power-first-head{padding:0 4px 5px!important}
-  body[data-mobile-stage="numbers"] #v14tMobileScroll #conveniencePanel{margin:0!important;max-width:100%!important;}
-  body[data-mobile-stage="numbers"] #v14tMobileTop #mobileColumnAnchor{display:none!important;}
-  body[data-mobile-stage="numbers"].mobile-column-mode #v14tMobileTop #mobileColumnAnchor:not([hidden]){display:block!important;margin:1px 0 5px!important;min-height:0!important;}
-  body[data-mobile-stage="numbers"] #v14tMobileTop #mobileColumnPicker.mobile-column-stuck{
-    position:static!important;top:auto!important;left:auto!important;width:100%!important;box-shadow:none!important;
-  }
-  body[data-mobile-stage="numbers"] #v14tMobileScroll .number-board,
-  body[data-mobile-stage="numbers"] #v14tMobileScroll #numberBoard{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;}
-  body[data-mobile-stage="numbers"] #v14tMobileScroll .num-btn{min-height:53px!important;font-size:18px!important;}
-  body.convenience-mode[data-mobile-stage="numbers"] #lottoMachine .machine-main > #v14tMobileShell{display:flex!important;}
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop{display:none!important;}
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileScroll > :not(#conveniencePanel){display:none!important;}
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileScroll{padding:7px!important;}
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop #betTabs,
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop .machine-top,
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop .machine-actions{display:none!important}
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileScroll #conveniencePanel{display:block!important}
-  body[data-mobile-stage="numbers"] #lottoMachine .machine-main > :not(#v14tMobileShell){display:none!important}
-  body[data-mobile-stage="numbers"] #lottoMachine .machine-side{display:contents!important}
-  body[data-mobile-stage="numbers"] #lottoMachine #machineQr{z-index:940!important}
-  @media (max-height:700px){
-    #v14tMobileTop{max-height:45dvh!important}
-  }
-}
-@media(min-width:601px){#v14tMobileShell{display:contents!important}#v14tMobileTop,#v14tMobileScroll{display:contents!important}}
-@media print{#v14tMobileShell,#v14tMobileTop,#v14tMobileScroll{display:contents!important}}
 </style>
 
 <script id="aoer-remote-settings-core">
@@ -906,6 +822,67 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 })();
 
 </script>
+
+<style id="v14w-phone-bet-tabs-sticky">
+/* Mobile only: restore the original vertically-scrolling S1 number page.
+   Only the bet-number tabs remain sticky beneath the title bar. */
+@media (max-width:600px){
+  body[data-mobile-stage="numbers"] #lottoMachine{
+    height:auto!important;min-height:0!important;max-height:none!important;
+    display:flex!important;flex-direction:column!important;
+    overflow:visible!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine .machine-main{
+    display:block!important;height:auto!important;min-height:0!important;
+    overflow:visible!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #betTabs{
+    position:sticky!important;
+    top:var(--v14w-sticky-top,58px)!important;
+    z-index:18!important;
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:4px!important;
+    margin:-8px -8px 8px!important;
+    padding:6px 5px 5px!important;
+    border:1px solid rgba(214,179,79,.60);
+    border-radius:12px!important;
+    background:rgba(255,233,147,.98)!important;
+    box-shadow:0 5px 15px rgba(97,72,20,.16);
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #betTabs .bet-tab{
+    min-width:0!important;min-height:37px!important;
+  }
+  /* A small buffer for the fixed QR button, preserving normal document scroll. */
+  body[data-mobile-stage="numbers"] #lottoMachine .machine-side{
+    overflow:visible!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine .number-board,
+  body[data-mobile-stage="numbers"] #lottoMachine #numberBoard,
+  body[data-mobile-stage="numbers"] #lottoMachine #powerFirstZone{
+    overflow:visible!important;
+    height:auto!important;max-height:none!important;
+  }
+}
+</style>
+<script id="v14w-phone-bet-tabs-position">
+(function(){
+  const doc=document.documentElement;
+  const head=document.querySelector('body > header');
+  if(!head)return;
+  function sync(){
+    // Sticky header height differs between phone widths and orientation.
+    doc.style.setProperty('--v14w-sticky-top', Math.ceil(head.getBoundingClientRect().height + 4) + 'px');
+  }
+  sync();
+  window.addEventListener('resize',sync,{passive:true});
+  if(typeof ResizeObserver!=='undefined')new ResizeObserver(sync).observe(head);
+  document.addEventListener('DOMContentLoaded',sync,{once:true});
+})();
+</script>
+
 </head>
 <body>
 <header><div class="brand">奧爾樂透選號</div><span aria-live="polite" class="draw-date-badge" id="latestDrawDateBadge">獎號更新：讀取中</span><div class="status-mini" id="headerStatus">模型：2026-09-18 v1</div></header>
@@ -5978,65 +5955,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
  document.addEventListener('pointerup',e=>{if(!pointer)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;pointer=null;if(Math.abs(dx)>=65&&Math.abs(dx)>Math.abs(dy)*1.4)window.__lottoAnimatedQrSwipe?.(dx<0?1:-1)});
 })();</script>
 
-<script id="v14t-mobile-scroll-controller">
-(function(){
-  const root=document.getElementById('lottoMachine');
-  const main=root?.querySelector('.machine-main');
-  const side=root?.querySelector('.machine-side');
-  if(!root||!main||!side)return;
-  const shell=document.createElement('div');shell.id='v14tMobileShell';
-  const top=document.createElement('div');top.id='v14tMobileTop';
-  const scroll=document.createElement('div');scroll.id='v14tMobileScroll';
-  shell.append(top,scroll);main.appendChild(shell);
-  const bingoFold=document.createElement('details');bingoFold.id='v14tBingoFold';
-  const bingoSummary=document.createElement('summary');bingoSummary.textContent='猜大小／單雙（點此展開）';bingoFold.appendChild(bingoSummary);
-  const definitions=[
-    ['#betTabs',top],['.machine-top',top],['#mobileColumnAnchor',top],
-    ['#bingoTopRow',top],['#powerSecondZone',top],['.machine-actions',top],
-    ['#periodBox',top],
-    ['#conveniencePanel',scroll],['#powerFirstZone',scroll],
-    ['#combo39Controls',top],['#bingoControls',bingoFold],
-    ['#star3Controls',scroll],['#star4Controls',scroll]
-  ];
-  const slots=[];
-  for(const [sel,dest] of definitions){
-    const el=document.querySelector(sel);if(!el)continue;
-    const placeholder=document.createComment('v14t '+sel);
-    el.parentNode.insertBefore(placeholder,el);
-    slots.push({el,placeholder,dest});
-  }
-  let moved=false;
-  const mobile=()=>window.matchMedia('(max-width:600px)').matches;
-  function updateHeight(){
-    if(!moved||document.body.dataset.mobileStage!=='numbers')return;
-    // Available area between this machine's top and the fixed QR bar.
-    const bounds=root.getBoundingClientRect();
-    const h=Math.max(255,Math.round(window.innerHeight-bounds.top-84));
-    root.style.setProperty('--v14t-machine-height',h+'px');
-  }
-  function reconcile(){
-    const shouldMove=mobile();
-    if(shouldMove&&!moved){
-      for(const {el,dest} of slots)dest.appendChild(el);
-      top.appendChild(bingoFold);
-      moved=true;
-    }else if(!shouldMove&&moved){
-      for(const {el,placeholder} of slots)placeholder.parentNode.insertBefore(el,placeholder);
-      moved=false;
-    }
-    updateHeight();
-  }
-  const stageObs=new MutationObserver(()=>{if(mobile())updateHeight();});
-  stageObs.observe(document.body,{attributes:true,attributeFilter:['data-mobile-stage','class']});
-  window.addEventListener('resize',reconcile,{passive:true});
-  window.addEventListener('orientationchange',()=>setTimeout(reconcile,100),{passive:true});
-  // User interactions never re-render the numeric grid's enclosing scroll viewport.
-  document.getElementById('v14tMobileScroll').addEventListener('click',()=>{}, {passive:true});
-  reconcile();
-  document.addEventListener('DOMContentLoaded',reconcile,{once:true});
-  setTimeout(reconcile,100);
-})();
-</script>
+
 
 <style id="v14v-ui-updates">
 /* Only 539/Lotto ordinary picking supports add-on combo bets. */
@@ -6085,11 +6004,8 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   #conveniencePanel .convenience-input-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
   #conveniencePanel .convenience-input-grid label{font-size:14px}
   #conveniencePanel .convenience-input-grid select{font-size:15px;min-width:0;padding:5px 2px;}
-  /* The shared period selector is visible in convenience mode; no second period setting. */
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop{display:flex!important;max-height:none!important;}
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop > :not(#periodBox){display:none!important}
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop #periodBox{display:flex!important;margin:0!important;padding:5px 7px!important;gap:3px!important;}
-  body.convenience-mode[data-mobile-stage="numbers"] #v14tMobileTop #periodBox .period-single-row{margin:0!important;}
+  /* Convenience mode reuses the original period control, outside the selection panel. */
+  body.convenience-mode[data-mobile-stage="numbers"] #lottoMachine #periodBox{display:flex!important;}
 }
 @media(prefers-reduced-motion:reduce){.page[data-page="qrresult"] .qr-result-card{transition:none!important;animation:none!important}}
 </style>
@@ -6123,5 +6039,24 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
 })();
 </script>
 
+
+<style id="v14x-mobile-24px-side-margins">
+/* Mobile number-screen content now has 24px of total side clearance at all widths.
+   Underlying structure remains: main (8), card border+padding (9),
+   machine border+padding (4), machine-main border+padding (3) = 24px. */
+@media (max-width: 600px) {
+  main {padding-left:8px!important; padding-right:8px!important;}
+  body[data-mobile-stage="numbers"] #lottoMachine {
+    padding-left:3px!important; padding-right:3px!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine .machine-main {
+    padding-left:2px!important; padding-right:2px!important;
+  }
+  /* Keep the sticky tabs within the machine boundary. */
+  body[data-mobile-stage="numbers"] #lottoMachine #betTabs {
+    margin-left:-2px!important; margin-right:-2px!important;
+  }
+}
+</style>
 </body>
 </html>
