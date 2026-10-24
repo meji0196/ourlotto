@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號 V14-Y2｜QR介面精緻版</title>
+<title>奧爾樂透選號 V14-AB｜BINGO便利快選欄位優化版</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -883,6 +883,17 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 })();
 </script>
 
+
+<style id="v14z-combo-convenience">
+#convenienceComboPlays.convenience-play-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 18px;padding:10px;border-radius:14px;background:rgba(255,255,255,.6);border:1px solid #e4d5a7}
+#convenienceComboPlays button{appearance:none;flex:1 1 70px;min-height:48px;min-width:68px;border-radius:12px;border:1px solid #cbd6e5;background:linear-gradient(140deg,#fff,#edf3fb);color:#244565;box-shadow:0 3px 9px rgba(36,65,95,.1),inset 0 1px rgba(255,255,255,.85);font-size:17px;font-weight:850;cursor:pointer}
+#convenienceComboPlays button.active{background:linear-gradient(145deg,#80affb,#2469dd);color:#fff;border-color:#3975d3;box-shadow:0 4px 14px rgba(30,94,208,.24),inset 0 1px rgba(255,255,255,.35)}
+#convenienceComboPlays .convenience-pack-toggle{border-color:#c5aad1;color:#6d487f;background:linear-gradient(145deg,#fff,#f5e8fa)}
+#convenienceComboPlays .convenience-pack-toggle.active{background:linear-gradient(145deg,#B481BB,#9361a8);border-color:#9464ac;color:#fff}
+#convenienceComboPlays button:focus-visible{outline:3px solid #f0ad49;outline-offset:2px}
+#conveniencePanel .convenience-input-grid select:disabled{opacity:.55;background:#e9ebef;color:#7c8490;cursor:not-allowed}
+@media(max-width:600px){#convenienceComboPlays.convenience-play-bar{gap:5px;padding:8px;margin:5px 0 14px}#convenienceComboPlays button{flex-basis:22%;min-width:0;padding:8px 2px;min-height:48px;font-size:15px}}
+</style>
 </head>
 <body>
 <header><div class="brand">奧爾樂透選號</div><span aria-live="polite" class="draw-date-badge" id="latestDrawDateBadge">獎號更新：讀取中</span><div class="status-mini" id="headerStatus">模型：2026-09-18 v1</div></header>
@@ -3495,11 +3506,11 @@ function bingoNormalizeQrRows(rows){
     if(!nums.length||nums.some(n=>!Number.isInteger(n)||n<1||n>80)||new Set(nums).size!==nums.length)throw new Error(`第${i+1}注包含無效或重複號碼。`);
     if(mode==='super'){
       if(nums.length>20)throw new Error(`第${i+1}注超級獎號最多20碼。`);
-      return {mode,nums};
+      return {mode,nums,multiplier:bingoBoundedMultiplier(bet.multiplier,'超級獎號')};
     }
     const stars=Number(bet.stars);
     if(!Number.isInteger(stars)||stars<1||stars>10||nums.length!==stars)throw new Error(`第${i+1}注需選足${stars}星號碼。`);
-    return {mode,nums,stars};
+    return {mode,nums,stars,multiplier:bingoBoundedMultiplier(bet.multiplier,'一般星數')};
   });
 }
 function bingoNumberSet(values,allowed,label){
@@ -3551,8 +3562,8 @@ function buildV003PayloadFromBingoBets(rows,options={}){
   // Header 20, mode flags 15, super fields 40, super stake 3;
   // each regular bet: star count 2 + number fields 20 + stake 3 + reserved 7 = 32.
   const header='01102'+String(opt.periodCount).padStart(2,'0')+'00'+'1'+'0000000000';
-  const regular=normal.map(b=>String(b.stars).padStart(2,'0')+b.nums.map(pad).join('').padEnd(20,'0')+'0010000000').join('');
-  return bingoV003EncodedRaw(header+flags+superNums+'001'+regular,'01102');
+  const regular=normal.map(b=>String(b.stars).padStart(2,'0')+b.nums.map(pad).join('').padEnd(20,'0')+String(b.multiplier).padStart(3,'0')+'0000000').join('');
+  return bingoV003EncodedRaw(header+flags+superNums+String(supers[0]?.multiplier||1).padStart(3,'0')+regular,'01102');
 }
 function bingoV003DecodeRaw(payload){
   if(!/^#V003#\d{87,}$/.test(payload)||(payload.length-13)%10!==0)throw new Error('BINGO QR 字串長度或格式無效。');
@@ -3576,22 +3587,23 @@ function parseBingoV003Payload(payload){
   const sizeChoices=[...(flag[4]==='1'?['big']:[]),...(flag[5]==='1'?['small']:[])];
   const parityChoices=[...(flag[9]==='1'?['odd']:[]),...(flag[10]==='1'?['even']:[])];
   const sizeMultiplier=Number(flag.slice(6,9)),parityMultiplier=Number(flag.slice(11,14));
-  if(raw.slice(75,78)!=='001')throw new Error('BINGO 超級獎號基本金額欄位不符。');
+  const superMultiplier=bingoBoundedMultiplier(Number(raw.slice(75,78)),'超級獎號');
   const superField=raw.slice(35,75),superNums=superField.match(/\d\d/g).map(Number).filter(n=>n!==0);
   const rows=[];
-  if(superPresent){if(superNums.length<1||superNums.length>20)throw new Error('超級獎號數量不合理。');rows.push({mode:'super',nums:superNums});}
+  if(superPresent){if(superNums.length<1||superNums.length>20)throw new Error('超級獎號數量不合理。');rows.push({mode:'super',nums:superNums,multiplier:superMultiplier});}
   else if(superNums.some(Boolean))throw new Error('無超級獎號標記但存在號碼。');
   const rem=raw.slice(78);
   for(let i=0;i+32<=rem.length;i+=32){
     const unit=rem.slice(i,i+32);
     if(/^0+$/.test(unit))break;
     const stars=Number(unit.slice(0,2)),nums=unit.slice(2,22).match(/\d\d/g).map(Number).filter(n=>n!==0);
-    if(stars<1||stars>10||nums.length!==stars||unit.slice(22)!=='0010000000')throw new Error('一般星數欄位與目前已驗證格式不符。');
-    rows.push({mode:'star',stars,nums});
+    const multiplier=bingoBoundedMultiplier(Number(unit.slice(22,25)),'一般星數');
+    if(stars<1||stars>10||nums.length!==stars||unit.slice(25)!=='0000000')throw new Error('一般星數欄位不符。');
+    rows.push({mode:'star',stars,nums,multiplier});
   }
   const opts=bingoQrOptions({periodCount,sizeChoices,parityChoices,sizeMultiplier,parityMultiplier});
   if(!rows.length&&!opts.sizeChoices.size&&!opts.parityChoices.size)throw new Error('QR 沒有可辨識的投注內容。');
-  const betUnits=rows.reduce((sum,b)=>sum+(b.mode==='super'?b.nums.length:1),0)+opts.sizeChoices.size*sizeMultiplier+opts.parityChoices.size*parityMultiplier;
+  const betUnits=rows.reduce((sum,b)=>sum+(b.mode==='super'?b.nums.length:1)*b.multiplier,0)+opts.sizeChoices.size*sizeMultiplier+opts.parityChoices.size*parityMultiplier;
   return {gameCode:'01102',periodCount,sizeChoices,parityChoices,sizeMultiplier,parityMultiplier,rows,total:betUnits*25*periodCount,raw};
 }
 
@@ -3639,7 +3651,7 @@ function bingoV003Partition(snapshot){
     const payload=buildV003PayloadFromBingoBets(group.rows,groupOpt);
     const decoded=parseBingoV003Payload(payload);
     // 確保組合後每一注的內容、星數、超級獎號及金額皆可完整回讀。
-    const signature=rows=>rows.map(b=>b.mode==='super'?'S:'+b.nums.join(','):'R:'+b.stars+':'+b.nums.join(',')).sort().join('|');
+    const signature=rows=>rows.map(b=>b.mode==='super'?'S:'+b.nums.join(',')+':'+(b.multiplier||1):'R:'+b.stars+':'+b.nums.join(',')+':'+(b.multiplier||1)).sort().join('|');
     if(signature(decoded.rows)!==signature(group.rows))throw new Error('BINGO 多注合併後回讀資料不一致，已停止輸出。');
     const found=BINGO_V003_TESTS.find(t=>t.payload===payload);
     return {rows:group.rows,periodCount:opt.periodCount,payload,total:decoded.total,totalUnits:decoded.total/25/opt.periodCount,dataUrl:'',gameId:'bingo',matchedSample:found?.id||null,decoded};
@@ -3668,6 +3680,7 @@ function renderMinimalQrDisplay(index=0){
       description=superBet?'超級獎號':`${bet.stars}星`;
       numbers=digits(bet.nums);
       count=superBet?bet.nums.length:1;
+      multiple=Number(bet.multiplier)||1;
     }else if(game==='3star'||game==='4star'){
       description=game==='3star'?'3星彩':'4星彩';
       numbers=(bet.digits||[]).join('、');
@@ -3895,7 +3908,25 @@ function printAllQrResultPages(){
     w.document.open();
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>全部 QR 列印</title><style>
       @page{size:58mm 60mm;margin:0}html,body{margin:0;padding:0;background:#fff}.ticket{position:relative;width:58mm;height:60mm;margin:0;padding:0;page-break-after:always;break-after:page;overflow:hidden}.ticket:last-child{page-break-after:auto;break-after:auto}.ticket img{position:absolute;left:4mm;top:4mm;width:50mm;height:50mm;display:block;image-rendering:pixelated}@media screen{body{background:#eee}.ticket{margin:8px auto;background:#fff;box-shadow:0 1px 7px rgba(0,0,0,.15)}}@media print{body{background:#fff}.ticket{box-shadow:none}}
-    </style></head><body>${imgs}<script>window.onload=()=>setTimeout(()=>window.print(),120);<\/script></body></html>`);
+    </style>
+<style id="v14ab-bingo-convenience-layout">
+/* Separate BINGO subtotals, use a single multiplier for all size/parity selections. */
+#conveniencePanel .bingo-conv-section .bingo-conv-grid{align-items:end}
+#conveniencePanel .bingo-conv-side-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:520px}
+#conveniencePanel .bingo-conv-super-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+#conveniencePanel #bingoConvSidePrice{font-variant-numeric:tabular-nums;font-weight:900;color:#245076}
+@media(max-width:600px){
+ #conveniencePanel .bingo-conv-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #conveniencePanel .bingo-conv-side-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #conveniencePanel .bingo-conv-super-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ #conveniencePanel .bingo-conv-super-grid select{padding-left:4px;padding-right:2px;font-size:14px}
+}
+@media(max-width:360px){
+ #conveniencePanel .bingo-conv-super-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #conveniencePanel .bingo-conv-super-grid label:last-child{grid-column:1/-1}
+}
+</style>
+</head><body>${imgs}<script>window.onload=()=>setTimeout(()=>window.print(),120);<\/script></body></html>`);
     w.document.close();w.focus();
   }catch(e){alert('無法列印全部 QR：'+String(e.message||e));}
 }
@@ -4268,79 +4299,262 @@ function clearAllBets(){if(convenienceActive){convenienceCount=0;renderMachineTo
 function useManualSelection(){const cfg=gameCfg();if(currentGame==='bingo'){const mode=bingoCurrentMode(),star=bingoCurrentStar();if(mode==='super'){if(manualPicked.size<1||manualPicked.size>20)return alert('BINGO 超級獎號請選1～20個號碼。')}else if(bingoSystemSelections[currentBetIndex]?(manualPicked.size<star||manualPicked.size>80):manualPicked.size!==star)return alert(`BINGO ${star}星請選${star}個號碼。`);syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b);lastResult={nums,logs:[mode==='super'?`BINGO手動選號｜超級獎號｜${nums.map(pad).join(' ')}｜${nums.length}注`:`BINGO手動選號｜${star}星｜${nums.map(pad).join(' ')}`],rolls:0,dup:0,sup:0,lastIssue:'',lastNums:[]};renderBalls(document.getElementById('resultBalls'),nums,new Set());renderNumberBoard();return}if(currentGame==='3star'){const u=star3UnitCount();if(!u)return alert('請在百位、十位、個位至少各選1個數字。');const sets=star3Sets(),txt=sets.map(s=>[...s].sort((a,b)=>a-b).join('')).join('｜');lastResult={nums:[...sets].map(s=>[...s]),logs:[`3星彩手動選號｜${txt}${star3GroupEnabled()?'｜組彩排列':''}｜×${star3Multiplier()}｜${u}注`],rolls:0,dup:0,sup:0,lastIssue:'',lastNums:[]};renderStar3Controls();renderMachineTotal();return} if(currentGame==='4star'){const u=star4UnitCount();if(!u)return alert('請在千位、百位、十位、個位至少各選1個數字。');const sets=star4Sets(),txt=sets.map(s=>[...s].sort((a,b)=>a-b).join('')).join('｜');lastResult={nums:[...sets].map(s=>[...s]),logs:[`4星彩手動選號｜${txt}${star4GroupEnabled()?'｜組彩排列':''}｜×${star4Multiplier()}｜${u}注`],rolls:0,dup:0,sup:0,lastIssue:'',lastNums:[]};renderStar4Controls();renderMachineTotal();return} if(isLottoComboGame()){const play=combo39CurrentPlay(),mul=combo39CurrentMultiplier(),meal=combo39InlineMainMealActive(manualPicked,currentBetIndex);if((manualPicked.size<play&&!meal)||manualPicked.size>10)return alert(`${combo39PlayName(play)}一般選號請選${play}～10碼；或選${play-1}碼啟動主支全餐。`);syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b),u=betUnitCount(manualPicked,currentBetIndex),base=meal?combo39InlineMainMealBaseCount(manualPicked,currentBetIndex):0;const res={nums,logs:[meal?`手動選號｜${gameCfg().name}｜${combo39PlayName(play)}主支全餐｜主支 ${nums.map(pad).join(' ')}｜${base}組｜×${mul}｜${u}注`:`手動選號｜${gameCfg().name}｜${combo39PlayName(play)}｜${nums.map(pad).join(' ')}｜×${mul}｜${u}注`],rolls:0,dup:0,sup:0,lastIssue:(currentGame==='39combo'?(latest539()?.issue||''):(latest()?.issue||'')),lastNums:(currentGame==='39combo'?(latest539()?.nums||[]):(latest()?.nums||[]))};lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set(res.lastNums));addHistory(meal?`${gameCfg().name}・${combo39PlayName(play)}主支全餐・${nums.length}主支・×${mul}・第${pad(currentBetIndex+1)}注`:`${gameCfg().name}・${combo39PlayName(play)}・×${mul}・第${pad(currentBetIndex+1)}注`,res);renderNumberBoard();return}if(currentGame==='power'){if(manualPicked.size<6||manualPicked.size>16||powerSecondPicked.size<1||powerSecondPicked.size>8)return alert('威力彩請完成第一區6～16碼與第二區1～8碼。');syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b),seconds=[...powerSecondPicked].sort((a,b)=>a-b),u=betUnitCount(manualPicked,currentBetIndex);const res={nums,logs:[`手動選號｜威力彩｜第${pad(currentBetIndex+1)}注｜第一區 ${nums.map(pad).join(' ')}｜第二區 ${seconds.map(pad).join(' ')}｜${u}注`],rolls:0,dup:0,sup:0,lastIssue:'',lastNums:[]};lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set());addHistory(`威力彩・第一區${nums.length}碼＋第二區${seconds.length}碼・${u}注・第${pad(currentBetIndex+1)}注`,res);renderNumberBoard();return}if(manualPicked.size<1)return alert('請先選擇號碼。');if(manualPicked.size>cfg.maxGeneralPick)return alert(`${cfg.name}目前一般選號最多${cfg.maxGeneralPick}碼。`);syncCurrentBet();const nums=[...manualPicked].sort((a,b)=>a-b);const res={nums,logs:[`手動選號｜${cfg.name}｜第${pad(currentBetIndex+1)}注｜${betLabel(manualPicked)}`],rolls:0,dup:0,sup:0,lastIssue:currentGame==='lotto649'?(latest()?.issue||''):'',lastNums:currentGame==='lotto649'?(latest()?.nums||[]):[]};lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set(res.lastNums));addHistory(`${cfg.name}・手動${nums.length}碼・第${pad(currentBetIndex+1)}注`,res);renderNumberBoard();if(currentGame==='lotto649'&&nums.length===6)setQrSelection({id:null,nums})}
 // V14-S 便利快選：獨立模式；下注時才產生隨機注數，不佔用原本十注選號盤。
 let convenienceActive=false, convenienceCount=0, convenienceChoiceId="";
-function convenienceEligible(){return currentGame==='539'||currentGame==='lotto649'||currentGame==='power'}
-function convenienceTotal(){return convenienceActive && convenienceEligible()?convenienceCount*gameCfg().price*periods:0}
+/* 39／49 樂合彩便利快選：先選玩法；包牌開啟後可複選玩法。 */
+const convenienceStarSelections={
+ '3star':{group:false,multiplier:1},'4star':{group:false,multiplier:1}
+};
+const BINGO_CONVENIENCE_MULTIPLIERS=[1,2,3,4,5,6,8,10,12,20,50];
+const convenienceBingo={stars:1,starCount:0,starMultiplier:1,size:new Set(),parity:new Set(),sizeMultiplier:1,parityMultiplier:1,superCount:0,superMultiplier:1};
+const convenienceComboSelections={
+ '39combo':{pack:false,plays:new Set(),multiplier:1},
+ '49combo':{pack:false,plays:new Set(),multiplier:1}
+};
+function convenienceEligible(){return currentGame==='539'||currentGame==='lotto649'||currentGame==='power'||isLottoComboGame()||currentGame==='3star'||currentGame==='4star'||currentGame==='bingo'}
+function convenienceComboState(){return convenienceComboSelections[currentGame]}
+function convenienceComboPlays(){return isLottoComboGame()?[...convenienceComboState().plays].sort((a,b)=>a-b):[]}
+function convenienceComboPickSize(){const p=convenienceComboPlays();return p.length?Math.max(...p):0}
+function convenienceComboBaseUnits(){
+ if(!isLottoComboGame())return 1;
+ const n=convenienceComboPickSize();
+ return n?convenienceComboPlays().reduce((sum,play)=>sum+combinationCount(n,play),0):0;
+}
+function convenienceStarGroupUnits(game=currentGame){return game==='3star'?6:24}
+function convenienceCostPerGroup(){
+ if(!convenienceEligible())return 0;
+ if(currentGame==='bingo')return 25*periods;
+ if(currentGame==='3star'||currentGame==='4star'){
+  const state=convenienceStarSelections[currentGame];
+  return 25*(state.group?convenienceStarGroupUnits():1)*state.multiplier*periods;
+ }
+ const multiplier=isLottoComboGame()?convenienceComboState().multiplier:1;
+ return gameCfg().price*convenienceComboBaseUnits()*multiplier*periods;
+}
+function convenienceBingoTotal(){
+ const b=convenienceBingo;
+ return 25*periods*(b.starCount*b.starMultiplier+b.superCount*b.superMultiplier+b.size.size*b.sizeMultiplier+b.parity.size*b.parityMultiplier);
+}
+function convenienceTotal(){return !convenienceActive||!convenienceEligible()?0:(currentGame==='bingo'?convenienceBingoTotal():convenienceCount*convenienceCostPerGroup())}
+function convenienceBingoConfigured(){const b=convenienceBingo;return b.starCount>0||b.superCount>0||b.size.size>0||b.parity.size>0}
+function convenienceSelectedOptions(label,max,multiplier=false){
+ const values=multiplier?BINGO_CONVENIENCE_MULTIPLIERS:Array.from({length:max},(_,i)=>i+1);
+ return `<option value="0">${label}</option>`+values.map(v=>`<option value="${v}">${v}${multiplier?'倍':'注'}</option>`).join('');
+}
+function renderConvenienceBingo(){
+ const b=convenienceBingo;
+ b.parityMultiplier=b.sizeMultiplier;
+ const s=document.getElementById('bingoConvStar');if(s)s.value=String(b.stars);
+ const star=document.getElementById('bingoConvStarCount');if(star)star.value=String(b.starCount);
+ const starM=document.getElementById('bingoConvStarMul');if(starM)starM.value=String(b.starMultiplier);
+ const starPrice=document.getElementById('bingoConvStarPrice');if(starPrice){
+  const per=25*periods*b.starMultiplier;
+  if(starPrice.dataset.unit!==String(per)){starPrice.innerHTML='<option value="0">請選金額</option>'+Array.from({length:100},(_,i)=>`<option value="${(i+1)*per}">${((i+1)*per).toLocaleString('zh-TW')}元</option>`).join('');starPrice.dataset.unit=String(per)}
+  starPrice.value=String(per*b.starCount);
+ }
+ for(const btn of document.querySelectorAll('[data-bingo-convenience-side]')){
+   const v=btn.dataset.bingoConvenienceSide,active=(v==='big'||v==='small'?b.size:b.parity).has(v);
+   btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active));
+ }
+ const sidePrice=document.getElementById('bingoConvSidePrice');if(sidePrice){
+   const sideUnits=b.size.size+b.parity.size;
+   sidePrice.textContent=(25*periods*sideUnits*b.sizeMultiplier).toLocaleString('zh-TW')+'元';
+   sidePrice.setAttribute('aria-label',`猜大小單雙共 ${sideUnits} 注，本玩法金額`);
+ }
+ const sideMul=document.getElementById('bingoConvSideMul');if(sideMul)sideMul.value=String(b.sizeMultiplier);
+ const su=document.getElementById('bingoConvSuperCount');if(su)su.value=String(b.superCount);
+ const suM=document.getElementById('bingoConvSuperMul');if(suM)suM.value=String(b.superMultiplier);
+ const suPrice=document.getElementById('bingoConvSuperPrice');if(suPrice){
+  const per=25*periods*b.superMultiplier;
+  if(suPrice.dataset.unit!==String(per)){suPrice.innerHTML='<option value="0">請選金額</option>'+Array.from({length:20},(_,i)=>`<option value="${(i+1)*per}">${((i+1)*per).toLocaleString('zh-TW')}元</option>`).join('');suPrice.dataset.unit=String(per)}
+  suPrice.value=String(per*b.superCount);
+ }
+ const hint=document.getElementById('convenienceSelectedHint');
+ if(hint)hint.textContent=convenienceBingoConfigured()?`已設定：一般星數 ${b.starCount} 注｜大小單雙 ${b.size.size+b.parity.size} 注｜超級獎號 ${b.superCount} 碼。總金額以製作QR區為準。`:'可擇一或同時啟用星數、大小單雙、超級獎號；各區金額分別計算。';
+}
+function renderConvenienceStars(){
+ const state=convenienceStarSelections[currentGame],btn=document.getElementById('convenienceStarGroupToggle');
+ if(btn){btn.classList.toggle('active',state.group);btn.setAttribute('aria-pressed',String(state.group));}
+ const hint=document.getElementById('convenienceUnitHint');
+ if(hint)hint.textContent=state.group?`每組產生 ${convenienceStarGroupUnits()} 注不重複數字的組彩排列，每注25元 × ${state.multiplier}倍 × ${periods}期。`:`每注25元 × ${state.multiplier}倍 × ${periods}期。`;
+}
+
 function updateConvenienceView(){
  const btn=document.getElementById('conveniencePlayBtn'),panel=document.getElementById('conveniencePanel');
  if(btn){
-   btn.disabled=!convenienceEligible();
-   btn.classList.toggle('placeholder',!convenienceEligible());
-   btn.classList.toggle('active',convenienceActive);
-   btn.setAttribute('aria-pressed',String(convenienceActive));
+   btn.disabled=!convenienceEligible();btn.classList.toggle('placeholder',!convenienceEligible());
+   btn.classList.toggle('active',convenienceActive);btn.setAttribute('aria-pressed',String(convenienceActive));
  }
- // 便利快選和一般選號是互斥模式；切入時清除一般選號留下的 active 狀態。
  if(convenienceActive){
    document.querySelectorAll('#lottoMachine .side-actions-grid .mode-btn').forEach(modeBtn=>{
-     const selected=modeBtn===btn;
-     modeBtn.classList.toggle('active',selected);
-     modeBtn.setAttribute('aria-pressed',String(selected));
+     const selected=modeBtn===btn;modeBtn.classList.toggle('active',selected);modeBtn.setAttribute('aria-pressed',String(selected));
    });
  }else if(getActivePlayMode()==='general'){
-   // 從便利快選返回一般選號時，恢復正確的單一選取高亮。
    const generalBtn=document.getElementById('generalModeBtn');
-   if(generalBtn){generalBtn.classList.add('active');generalBtn.setAttribute('aria-pressed','true');}
+   if(generalBtn){generalBtn.classList.add('active');generalBtn.setAttribute('aria-pressed','true')}
  }
  document.body.classList.toggle('convenience-mode',convenienceActive);
  if(panel)panel.hidden=!convenienceActive;
+ if(!convenienceActive)return;
+ if(currentGame==='bingo'){renderConvenienceBingo();return;}
+ if(currentGame==='3star'||currentGame==='4star'){renderConvenienceStars();}
+ const isCombo=isLottoComboGame(),plays=isCombo?convenienceComboPlays():[],configured=!isCombo||plays.length>0;
+ const perBet=convenienceCostPerGroup();
+ const isStar=currentGame==='3star'||currentGame==='4star';
  const selected=document.getElementById('convenienceSelectedHint');
- if(selected)selected.textContent=convenienceCount?`已設定 ${convenienceCount} 注｜${periods} 期｜總金額 ${convenienceTotal().toLocaleString('zh-TW')} 元`:'請設定注數或投注金額。';
+ if(selected)selected.textContent=configured?(convenienceCount?`已設定 ${convenienceCount} 組快選${isCombo?`（展開 ${convenienceCount*convenienceComboBaseUnits()} 注）`:''}｜${periods} 期｜總金額 ${convenienceTotal().toLocaleString('zh-TW')} 元`:'請選擇注數或投注金額。'):'請先選擇二合、三合或四合玩法。';
+ const packBtn=document.getElementById('conveniencePackToggle');
+ if(packBtn&&isCombo){
+   packBtn.classList.toggle('active',convenienceComboState().pack);
+   packBtn.setAttribute('aria-pressed',String(convenienceComboState().pack));
+   packBtn.textContent=convenienceComboState().pack?'包牌 ✓':'包牌';
+ }
+ if(isCombo)document.querySelectorAll('#convenienceComboPlays [data-convenience-play]').forEach(p=>{
+   const active=plays.includes(Number(p.dataset.conveniencePlay));
+   p.classList.toggle('active',active);p.setAttribute('aria-pressed',String(active));
+ });
  const c=document.getElementById('convenienceCountInput');
  const a=document.getElementById('convenienceAmountInput');
-
- const unit=gameCfg().price;
- const perBet=unit*periods;
+ const m=document.getElementById('convenienceMultiplierInput');
  if(c){
-   if(c.options.length!==101){c.innerHTML='<option value="0">請選注數</option>'+Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}注</option>`).join('');}
-   c.value=String(convenienceCount);
+   const maxC=isStar?Math.max(1,Math.floor(1000/(convenienceStarSelections[currentGame].group?convenienceStarGroupUnits():1))):100;
+   if(c.options.length!==maxC+1)c.innerHTML='<option value="0">請選注數</option>'+Array.from({length:maxC},(_,i)=>`<option value="${i+1}">${i+1}${isCombo||isStar?'組':'注'}</option>`).join('');
+   if(convenienceCount>maxC)convenienceCount=maxC;
+   c.disabled=!configured;c.value=String(configured?convenienceCount:0);
  }
  if(a){
    if(a.dataset.perBet!==String(perBet)){
-     a.innerHTML='<option value="0">請選金額</option>'+Array.from({length:100},(_,i)=>`<option value="${(i+1)*perBet}">${((i+1)*perBet).toLocaleString('zh-TW')}元</option>`).join('');
+     const maxA=isStar?Math.max(1,Math.floor(1000/(convenienceStarSelections[currentGame].group?convenienceStarGroupUnits():1))):100;
+     a.innerHTML='<option value="0">請選金額</option>'+(perBet?Array.from({length:maxA},(_,i)=>`<option value="${(i+1)*perBet}">${((i+1)*perBet).toLocaleString('zh-TW')}元</option>`).join(''):'');
      a.dataset.perBet=String(perBet);
    }
-   a.value=String(convenienceCount*perBet);
+   a.disabled=!configured;a.value=String(configured?convenienceCount*perBet:0);
+ }
+ if(m){
+   if((isCombo||isStar)&&m.options.length!==(isStar?50:10))m.innerHTML=Array.from({length:isStar?50:10},(_,i)=>`<option value="${i+1}">${i+1}倍</option>`).join('');
+   if(!isCombo&&!isStar&&m.options.length!==1)m.innerHTML='<option value="1">1倍</option>';
+   m.disabled=!configured;m.value=String(isCombo?convenienceComboState().multiplier:isStar?convenienceStarSelections[currentGame].multiplier:1);
  }
  const simple=document.getElementById('convenienceUnitHint');
- if(simple)simple.textContent=`每注 ${unit} 元 × 1倍 × ${periods}期 = 每注 ${unit*periods} 元`;
+ if(simple){
+   if(isStar){return;}
+   if(isCombo&&configured){const k=convenienceComboPickSize(),breakdown=plays.map(p=>`${p===2?'二合':p===3?'三合':'四合'} ${combinationCount(k,p)} 注`).join('＋');
+     simple.textContent=`每組快選 ${k} 碼 → ${breakdown}＝${convenienceComboBaseUnits()}注；每組 ${perBet.toLocaleString('zh-TW')}元（含${convenienceComboState().multiplier}倍、${periods}期）`;
+   }else if(isCombo){simple.textContent='選定玩法後，才能設定注數、金額及倍率。';}
+   else simple.textContent=`每注 ${gameCfg().price} 元 × 1倍 × ${periods}期 = 每注 ${perBet} 元`;
+ }
 }
 function activateConvenience(){
  if(!convenienceEligible())return;
- // 清除其他包牌模式，沿用既有的「一般選號」收合流程。
  convenienceActive=false;
  document.getElementById('generalModeBtn')?.click();
- convenienceActive=true;convenienceCount=0;convenienceChoiceId="";
+ convenienceActive=true;convenienceCount=0;convenienceChoiceId='';
+ const isCombo=isLottoComboGame();
+ if(isCombo){const state=convenienceComboState();state.pack=false;state.plays.clear();state.multiplier=1;}
+ const isStar=currentGame==='3star'||currentGame==='4star',isBingo=currentGame==='bingo';
+ if(isStar){convenienceStarSelections[currentGame].group=false;convenienceStarSelections[currentGame].multiplier=1;}
+ if(isBingo){Object.assign(convenienceBingo,{stars:1,starCount:0,starMultiplier:1,size:new Set(),parity:new Set(),sizeMultiplier:1,parityMultiplier:1,superCount:0,superMultiplier:1});}
+
+ const panel=document.getElementById('conveniencePanel');
+ if(panel){
+   const title=panel.querySelector('h2'),intro=panel.querySelector('p');
+   if(title)title.textContent=isCombo?'樂合彩便利快選':isBingo?'BINGO 便利快選':isStar?`${currentGame==='3star'?'3星彩':'4星彩'}便利快選`:'便利快選';
+   if(intro)intro.textContent=isCombo?'先選二合／三合／四合；開啟「包牌」可複選玩法，使用同一組號碼分別投注。':isBingo?'可分別設定星數、猜大小／單雙與超級獎號；注數、金額、倍率與期數連動。':isStar?'先設定注數、金額及倍率；組彩會對不重複的快選數字排列展開。':'選取注數或投注金額，兩者自動連動；製作 QR 時才使用百面骰抽號。';
+ }
  const groups=document.getElementById('convenienceGroups');
- if(groups){
-   groups.innerHTML=`<div class="convenience-input-grid">
-      <label>注數<select id="convenienceCountInput" aria-label="便利快選注數"></select></label>
+ if(groups&&isBingo){
+  const multOpts=BINGO_CONVENIENCE_MULTIPLIERS.map(v=>`<option value="${v}">${v}倍</option>`).join('');
+  const starOpts=Array.from({length:10},(_,i)=>`<option value="${i+1}">${i+1}星</option>`).join('');
+  const qty=(max,withZero=true)=>`${withZero?'<option value="0">未選注數</option>':''}`+Array.from({length:max},(_,i)=>`<option value="${i+1}">${i+1}注</option>`).join('');
+  groups.innerHTML=`<div class="bingo-conv-section"><h3>一般星數</h3>
+    <div class="bingo-conv-grid"><label>選星<select id="bingoConvStar">${starOpts}</select></label><label>注數<select id="bingoConvStarCount">${qty(100)}</select></label><label>倍率<select id="bingoConvStarMul">${multOpts}</select></label><label>金額<select id="bingoConvStarPrice" aria-label="一般星數金額"></select></label></div></div>
+    <div class="bingo-conv-section"><h3>猜大小單雙</h3>
+      <div class="bingo-conv-options">${[['big','大'],['small','小'],['odd','單'],['even','雙']].map(([v,t])=>`<button type="button" data-bingo-convenience-side="${v}" aria-pressed="false">${t}</button>`).join('')}</div>
+      <div class="bingo-conv-grid bingo-conv-side-grid"><label>倍率<select id="bingoConvSideMul" aria-label="猜大小單雙共用倍率">${multOpts}</select></label><label>金額<output id="bingoConvSidePrice" aria-live="polite">0元</output></label></div>
+    </div><div class="bingo-conv-section"><h3>超級獎號</h3>
+      <div class="bingo-conv-grid bingo-conv-super-grid"><label>注數<select id="bingoConvSuperCount">${qty(20)}</select></label><label>倍率<select id="bingoConvSuperMul">${multOpts}</select></label><label>金額<select id="bingoConvSuperPrice" aria-label="超級獎號金額"></select></label></div></div>
+      <p class="convenience-help">各區金額獨立計算，總金額以製作 QR 區為準。每注25元；星數最多100注、超級獎號最多20碼、期數沿用原設定。新倍率格式仍需投注站實機掃描驗證。</p>`;
+ }
+ if(groups&&!isBingo){
+   groups.innerHTML=(isCombo?`<div class="convenience-play-bar" id="convenienceComboPlays" role="group" aria-label="選擇樂合彩玩法">
+       <button type="button" data-convenience-play="2" aria-pressed="false">二合</button>
+       <button type="button" data-convenience-play="3" aria-pressed="false">三合</button>
+       <button type="button" data-convenience-play="4" aria-pressed="false">四合</button>
+       <button type="button" class="convenience-pack-toggle" id="conveniencePackToggle" aria-pressed="false">包牌</button>
+     </div>`:isStar?`<div class="convenience-star-mode"><button type="button" id="convenienceStarGroupToggle" aria-pressed="false">組彩</button><span>關閉：直選｜開啟：排列組彩</span></div>`:'')+`<div class="convenience-input-grid">
+      <label>${isCombo||isStar?'注數（組）':'注數'}<select id="convenienceCountInput" aria-label="便利快選注數"></select></label>
       <label>金額<select id="convenienceAmountInput" aria-label="便利快選投注金額"></select></label>
       <label>倍率<select id="convenienceMultiplierInput" aria-label="便利快選投注倍數"><option value="1">1倍</option></select></label>
-   </div><div id="convenienceUnitHint" class="convenience-unit-hint"></div>
-   <p class="convenience-help">選擇注數或金額會自動連動，最多100注；期數沿用原本「多期投注」選單，倍率目前只支援1倍。</p>`;
+   </div><div id="convenienceUnitHint" class="convenience-unit-hint" aria-live="polite"></div>
+   <p class="convenience-help">${isCombo?'「注數」代表產生幾組快選號碼，每組按所選玩法計算實際投注組合；最多100組。':isStar?'「組彩」快選只產生不重複的數字：三星彩每組展開6注，四星彩每組展開24注。':'選擇注數或金額會自動連動，最多100注；倍率目前只支援1倍。'} 期數沿用原本「多期投注」選單。</p>`;
  }
  updateConvenienceView();renderMachineTotal();
 }
+function generateConvenienceStarRows(){
+ const is3=currentGame==='3star',n=is3?3:4,st=convenienceStarSelections[currentGame];
+ const rows=[];
+ for(let i=0;i<convenienceCount;i++){
+   let d;
+   if(st.group){
+     const pool=Array.from({length:10},(_,k)=>k);
+     d=[];for(let j=0;j<n;j++){const k=cryptoInt(pool.length);d.push(pool.splice(k,1)[0]);}
+     const values=is3?star3Permutations3(...d):star4UniquePermutations(d);
+     for(const val of values)rows.push({digits:val.split('').map(Number),multiplier:st.multiplier});
+   }else{
+     d=Array.from({length:n},()=>cryptoInt(10));rows.push({digits:d,multiplier:st.multiplier});
+   }
+ }
+ return rows;
+}
+function buildConvenienceBingoPages(){
+ const b=convenienceBingo;
+ if(!convenienceBingoConfigured())throw new Error('請先設定至少一項 BINGO 投注。');
+ if(!bingoV003SelfTest())throw new Error('BINGO 既有 QR 樣本測試未通過。');
+ const starRows=Array.from({length:b.starCount},()=>({mode:'star',stars:b.stars,nums:bingoUniformPick(b.stars),multiplier:b.starMultiplier}));
+ const superRows=b.superCount?[{mode:'super',nums:bingoUniformPick(b.superCount),multiplier:b.superMultiplier}]:[];
+ const groups=[];
+ for(let i=0;i<starRows.length;){const size=i===0&&superRows.length?9:10;groups.push(starRows.slice(i,i+size));i+=size;}
+ if(!groups.length)groups.push([]);
+ groups[0].push(...superRows);
+ const opts={periodCount:periods,sizeChoices:[...b.size],parityChoices:[...b.parity],sizeMultiplier:b.sizeMultiplier,parityMultiplier:b.parityMultiplier};
+ const pages=groups.map((rows,i)=>{
+   const o=i===0?opts:{periodCount:periods};
+   const payload=buildV003PayloadFromBingoBets(rows,o);
+   const decoded=parseBingoV003Payload(payload);
+   const expectedUnits=rows.reduce((sum,row)=>sum+(row.mode==='super'?row.nums.length:1)*row.multiplier,0)+(i===0?b.size.size*b.sizeMultiplier+b.parity.size*b.parityMultiplier:0);
+   if(decoded.total!==expectedUnits*25*periods||decoded.rows.length!==rows.length||([ ...decoded.rows ].map(r=>`${r.mode}:${r.multiplier}:${r.stars||0}:${r.nums.join(',')}`).sort().join('|')!==[ ...rows ].map(r=>`${r.mode}:${r.multiplier}:${r.stars||0}:${r.nums.join(',')}`).sort().join('|')))throw Error('BINGO QR 回讀金額或號碼不符。');
+   return {rows,periodCount:periods,payload,total:decoded.total,totalUnits:expectedUnits,dataUrl:'',gameId:'bingo',matchedSample:null,decoded};
+ });
+ const total=pages.reduce((sum,page)=>sum+page.total,0);
+ if(total!==convenienceBingoTotal())throw Error('QR 實際金額與預覽金額不一致。');
+ qrResultState={pages,current:0,columnExpanded:false,allowPrintAll:true,overall:{rows:b.starCount+b.superCount+b.size.size+b.parity.size,total},periodCount:periods,gameId:'bingo'};
+ renderBingoV003QrResultPage(0);showAppPage('qrresult');
+}
 function generateConvenienceQr(){
- if(!convenienceActive || !convenienceEligible() || convenienceCount<1)return alert('請先選擇一種便利快選柱數。');
+ if(!convenienceActive||!convenienceEligible()||(currentGame!=='bingo'&&convenienceCount<1)||convenienceTotal()<=0)return alert('請先選擇玩法及注數。');
  try{
   const game=currentGame,rows=[];
+  if(game==='bingo'){buildConvenienceBingoPages();return;}
+  if(game==='3star'||game==='4star'){
+    const rows=generateConvenienceStarRows();
+    showV003QrResultPage(rows,periods,{gameId:game,autoSplit10:true});return;
+  }
   const engine=gameModule(game).d100;
-  for(let i=0;i<convenienceCount;i++){
-   if(game==='power')rows.push({first:[...engine.drawFirst(6).nums],second:[engine.drawSecond().num]});
-   else rows.push([...engine.draw(game==='539'?5:6).nums]);
+  if(isLottoComboGame()){
+    const plays=convenienceComboPlays(),size=convenienceComboPickSize(),multiple=convenienceComboState().multiplier;
+    if(!plays.length||size<2||size>4)throw Error('請先選擇樂合彩玩法。');
+    for(let i=0;i<convenienceCount;i++){
+      const nums=[...engine.draw(size).nums].sort((a,b)=>a-b);
+      if(nums.length!==size||new Set(nums).size!==size)throw Error('百面骰選號結果無效。');
+      for(const play of plays)rows.push({play,nums:[...nums],multiplier:multiple});
+    }
+  }else{
+    for(let i=0;i<convenienceCount;i++){
+      if(game==='power')rows.push({first:[...engine.drawFirst(6).nums],second:[engine.drawSecond().num]});
+      else rows.push([...engine.draw(game==='539'?5:6).nums]);
+    }
   }
   const options={gameId:game,autoSplit10:true};
   if(purchaseMode==='preorder'){options.startOffset=preorderOffsetForDate(preorderDate);options.preorderDate=preorderDate;}
+  // 任何玩法都保留樂合彩所需獨立 V003 編碼，單張最多10個投注單位。
   showV003QrResultPage(rows,periods,options);
  }catch(error){alert('便利快選 QR 產生失敗：'+String(error.message||error));}
 }
@@ -4494,40 +4708,97 @@ document.getElementById('generalModeBtn')?.addEventListener('click',()=>{
  const panel=document.getElementById('convenienceGroups');
  function setCount(n){
    const target=Number.isFinite(n)?n:0;
-   convenienceCount=Math.max(0,Math.min(100,Math.round(target)));
+   const max=(currentGame==='3star'||currentGame==='4star')?Math.floor(1000/(convenienceStarSelections[currentGame].group?convenienceStarGroupUnits():1)):100;
+   convenienceCount=Math.max(0,Math.min(max,Math.round(target)));
    convenienceChoiceId=convenienceCount?String(convenienceCount):'';
-   updateConvenienceView();renderMachineTotal();refreshMachineQrEnabled();
+   renderMachineTotal();refreshMachineQrEnabled();
  }
- panel?.addEventListener('input',event=>{
+ panel?.addEventListener('click',event=>{
    if(!convenienceActive)return;
-   if(event.target.id==='convenienceCountInput')setCount(Number(event.target.value)||0);
-   if(event.target.id==='convenienceAmountInput'){
-     const n=Number(event.target.value)||0;
-     const cost=gameCfg().price*periods;
-     // Only whole bets are valid; floor to avoid exceeding entered budget.
-     setCount(Math.floor(Math.max(0,n)/cost));
+   if(currentGame==='bingo'){
+     const side=event.target.closest('[data-bingo-convenience-side]');
+     if(side){const v=side.dataset.bingoConvenienceSide,set=v==='big'||v==='small'?convenienceBingo.size:convenienceBingo.parity;
+       if(set.has(v))set.delete(v);else set.add(v);
+       renderMachineTotal();refreshMachineQrEnabled();}return;
    }
+   if(currentGame==='3star'||currentGame==='4star'){
+     if(event.target.closest('#convenienceStarGroupToggle')){
+       const st=convenienceStarSelections[currentGame];st.group=!st.group;convenienceCount=0;
+       renderMachineTotal();refreshMachineQrEnabled();
+     }return;
+   }
+   if(!isLottoComboGame())return;
+   const state=convenienceComboState();
+   const packBtn=event.target.closest('#conveniencePackToggle');
+   if(packBtn){
+     state.pack=!state.pack;
+     if(!state.pack&&state.plays.size>1){const last=Math.max(...state.plays);state.plays=new Set([last]);}
+     renderMachineTotal();refreshMachineQrEnabled();return;
+   }
+   const playBtn=event.target.closest('[data-convenience-play]');
+   if(!playBtn)return;
+   const n=Number(playBtn.dataset.conveniencePlay);if(![2,3,4].includes(n))return;
+   if(!state.pack){state.plays=new Set([n]);}
+   else if(state.plays.has(n))state.plays.delete(n);
+   else state.plays.add(n);
+   if(!state.plays.size)convenienceCount=0;
+   renderMachineTotal();refreshMachineQrEnabled();
  });
+ function handleInputs(event){
+   if(!convenienceActive)return;
+   const id=event.target.id;
+   if(id==='convenienceCountInput'){setCount(Number(event.target.value)||0);}
+   else if(id==='convenienceAmountInput'){
+     const budget=Number(event.target.value)||0,perBet=convenienceCostPerGroup();
+     setCount(perBet?Math.floor(budget/perBet):0);
+   }
+   else if(id==='convenienceMultiplierInput'&&(isLottoComboGame()||currentGame==='3star'||currentGame==='4star')){
+     if(isLottoComboGame())convenienceComboState().multiplier=Math.max(1,Math.min(10,Number(event.target.value)||1));
+     else convenienceStarSelections[currentGame].multiplier=Math.max(1,Math.min(50,Number(event.target.value)||1));
+     renderMachineTotal();refreshMachineQrEnabled();
+   }
+   else if(currentGame==='bingo'){
+     const mapping={bingoConvStar:'stars',bingoConvStarCount:'starCount',bingoConvStarMul:'starMultiplier',bingoConvSideMul:'sizeMultiplier',bingoConvSuperCount:'superCount',bingoConvSuperMul:'superMultiplier'};
+     if(id==='bingoConvStarPrice')convenienceBingo.starCount=Math.max(0,Math.min(100,Math.floor(Number(event.target.value)/(25*periods*convenienceBingo.starMultiplier))));
+     else if(id==='bingoConvSuperPrice')convenienceBingo.superCount=Math.max(0,Math.min(20,Math.floor(Number(event.target.value)/(25*periods*convenienceBingo.superMultiplier))));
+     else if(mapping[id]){
+       const v=Number(event.target.value)||0,field=mapping[id];
+       if(field==='stars')convenienceBingo[field]=Math.max(1,Math.min(10,v));
+       else if(field==='starCount')convenienceBingo[field]=Math.max(0,Math.min(100,v));
+       else if(field==='superCount')convenienceBingo[field]=Math.max(0,Math.min(20,v));
+       else if(BINGO_CONVENIENCE_MULTIPLIERS.includes(v)){
+         convenienceBingo[field]=v;
+         // UI deliberately shares one multiplier across all selected big/small/odd/even bets.
+         if(id==='bingoConvSideMul')convenienceBingo.parityMultiplier=v;
+       }
+     }
+     if(mapping[id]||id==='bingoConvStarPrice'||id==='bingoConvSuperPrice'){
+       renderMachineTotal();refreshMachineQrEnabled();
+     }
+   }
+ }
+ panel?.addEventListener('input',handleInputs);
+ // Some mobile browsers deliver both input and change events for the same select.
  panel?.addEventListener('change',event=>{
    if(!convenienceActive)return;
-   if(event.target.id==='convenienceCountInput'||event.target.id==='convenienceAmountInput'||event.target.id==='convenienceMultiplierInput'){
-     updateConvenienceView();renderMachineTotal();
-   }
+   if(['convenienceCountInput','convenienceAmountInput','convenienceMultiplierInput'].includes(event.target.id)||event.target.id.startsWith('bingoConv'))handleInputs(event);
  });
- // Mirror changes made from the shared multi-period selector.
  document.getElementById('periodSelect')?.addEventListener('change',()=>{
    if(convenienceActive){updateConvenienceView();renderMachineTotal();}
  });
  document.addEventListener('click',e=>{
   if(!convenienceActive)return;
   if(e.target.closest('#generalModeBtn,#columnPlayBtn,#smartPlayBtn,#machineSelfPick,#mainMealBtn,#bingoSystemSideBtn')){
-   convenienceActive=false;convenienceCount=0;convenienceChoiceId="";updateConvenienceView();
+   convenienceActive=false;convenienceCount=0;convenienceChoiceId='';updateConvenienceView();
    setTimeout(()=>{renderMachineTotal();refreshMachineQrEnabled();},0);
   }
-  if(convenienceActive && e.target.closest('#machineClearAll,#mobileClearAll,#machineClear')){
+  if(convenienceActive&&e.target.closest('#machineClearAll,#mobileClearAll,#machineClear')){
     e.preventDefault();e.stopImmediatePropagation();
-    if(window.confirm('確定清除便利快選的柱數設定？')){
-      convenienceCount=0;convenienceChoiceId="";updateConvenienceView();renderMachineTotal();
+    if(window.confirm('確定清除便利快選的投注設定？')){
+      convenienceCount=0;convenienceChoiceId='';
+      if(isLottoComboGame()){const state=convenienceComboState();state.plays.clear();state.pack=false;state.multiplier=1;}
+      if(currentGame==='bingo'){Object.assign(convenienceBingo,{starCount:0,size:new Set(),parity:new Set(),superCount:0});}
+      renderMachineTotal();refreshMachineQrEnabled();
     }
   }
  },true);
@@ -6257,5 +6528,23 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
 })();
 </script>
 
+
+<style id="v14aa-convenience-more-games">
+#convenienceStarGroupToggle{min-height:46px;min-width:108px;padding:9px 20px;font-size:17px;font-weight:900;border:1px solid rgba(255,255,255,.66);border-radius:14px;background:#c7c0cf;color:#352b43;box-shadow:0 4px 12px rgba(70,55,80,.12),inset 0 1px 0 rgba(255,255,255,.7);cursor:pointer}
+#convenienceStarGroupToggle.active{background:#B481BB;color:#fff}
+#conveniencePanel .convenience-star-mode{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:12px 0}
+#conveniencePanel .convenience-star-mode span{font-size:13px;color:#6c6274;font-weight:750}
+#conveniencePanel .bingo-conv-section{border:1px solid rgba(255,255,255,.78);border-radius:16px;background:linear-gradient(145deg,#fffbeb,#fff1c4);padding:13px;margin-top:12px;box-shadow:0 4px 11px rgba(80,80,60,.07)}
+#conveniencePanel .bingo-conv-section h3{font-size:17px;margin:0 0 12px;color:#3c4053}
+#conveniencePanel .bingo-conv-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#conveniencePanel .bingo-conv-grid label{font-size:13px;min-width:0}
+#conveniencePanel .bingo-conv-grid select,#conveniencePanel .bingo-conv-grid output{display:flex;align-items:center;width:100%;min-height:44px;border-radius:11px;border:1px solid #d5dbe2;background:#fff;padding:8px;font-weight:850;font-size:16px;color:#1c3449}
+#conveniencePanel .bingo-conv-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:0 0 12px}
+#conveniencePanel [data-bingo-convenience-side]{min-height:46px;border-radius:11px;border:1px solid #b8c0d2;background:linear-gradient(145deg,#fff,#f0f4f9);font-size:17px;font-weight:900;color:#36506b;cursor:pointer}
+#conveniencePanel [data-bingo-convenience-side].active{background:linear-gradient(135deg,#68a9ff,#165dff);color:#fff;border-color:#78a9ff;box-shadow:0 5px 14px rgba(24,96,190,.21)}
+#star3Controls .star3-group-toggle:not(:has(input:checked)),#star4Controls .star3-group-toggle:not(:has(input:checked)){background:#c7c0cf!important;color:#362e44!important}
+@media(max-width:600px){#conveniencePanel .bingo-conv-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#conveniencePanel .bingo-conv-grid select,#conveniencePanel .bingo-conv-grid output{font-size:15px}}
+@media(max-width:350px){#conveniencePanel .bingo-conv-options{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
 </body>
 </html>
