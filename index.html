@@ -217,8 +217,6 @@ button:disabled{background:#d9d9d9!important;color:#8b8b8b!important;border-colo
   .mobile-flow-kicker{color:#736443;font-weight:700;font-size:12px;margin-bottom:2px}
   #mobileFlowTitle{margin:0;font-size:20px;color:#4b3c1a;line-height:1.3}
   #mobileFlowHint{margin:4px 0 0;font-size:13px;line-height:1.5;color:#756748}
-  #mobileFlowBack{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:6px 11px;border-radius:11px;border:1px solid #e1c879;background:linear-gradient(145deg,#fff,#fff3cc);font-size:14px;font-weight:800;color:#584923}
-  #mobileFlowBack[hidden]{display:none!important}
   .mobile-flow-progress{position:absolute;right:12px;top:13px;display:flex;gap:4px}
   .mobile-flow-progress span{width:13px;height:5px;border-radius:99px;background:#e9dca9}
   .mobile-flow-progress span.on{background:#2d73d5}
@@ -894,6 +892,75 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 #conveniencePanel .convenience-input-grid select:disabled{opacity:.55;background:#e9ebef;color:#7c8490;cursor:not-allowed}
 @media(max-width:600px){#convenienceComboPlays.convenience-play-bar{gap:5px;padding:8px;margin:5px 0 14px}#convenienceComboPlays button{flex-basis:22%;min-width:0;padding:8px 2px;min-height:48px;font-size:15px}}
 </style>
+
+<style id="v14ac-mobile-header-c-style">
+.mobile-step-nav,.mobile-flow-summary{display:none}
+@media(max-width:600px){
+  body>header{background:#fff9eb!important;border-bottom:1px solid #ead69e!important}
+  body>header .brand{color:#76501b!important;font-size:19px!important}
+  body>header .draw-date-badge{background:#f0f7e9!important;border-color:#d6e5c7!important;color:#507747!important}
+  #mobileStepNav{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;
+    position:sticky;top:var(--v14ac-header-height,56px);z-index:24;
+    background:linear-gradient(148deg,rgba(255,255,255,.97),rgba(255,252,244,.97));
+    border:1px solid #edddbb;border-radius:14px;
+    margin:0 0 9px;padding:10px 9px 8px;
+    box-shadow:0 5px 16px rgba(103,81,34,.10);
+    -webkit-backdrop-filter:saturate(1.08);backdrop-filter:saturate(1.08)
+  }
+  #mobileStepNav .mobile-step-item{
+    appearance:none;border:0!important;background:transparent!important;color:#9299a4;
+    display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;
+    min-width:0;padding:2px 0 0;cursor:pointer;font-size:13px;font-weight:850;
+    box-shadow:none!important;outline-offset:2px;transition:color .17s ease
+  }
+  #mobileStepNav .mobile-step-item .mobile-step-marker{font-size:15px;line-height:1;font-weight:950}
+  #mobileStepNav .mobile-step-item i{
+    display:block;flex-basis:100%;height:3px;min-width:0;margin-top:8px;
+    border-radius:99px;background:#dfe1e7;transition:background .2s ease
+  }
+  #mobileStepNav .mobile-step-item.is-complete{color:#a17e27!important}
+  #mobileStepNav .mobile-step-item.is-complete i{background:#e3c46d}
+  #mobileStepNav .mobile-step-item.is-current{color:#2f7df6!important}
+  #mobileStepNav .mobile-step-item.is-current i{background:#2f7df6}
+  #mobileStepNav .mobile-step-item.is-pending{color:#9aa1ac!important}
+  #mobileStepNav .mobile-step-item:disabled{cursor:default;opacity:1}
+  #mobileStepNav .mobile-step-item:focus-visible{outline:2px solid #2f7df6;border-radius:8px}
+  #mobileFlowHeader{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important;
+    padding:10px!important;margin-bottom:11px!important;position:relative!important;
+    background:linear-gradient(152deg,#fffdfa,#fff7e4)!important;
+    border:1px solid #ead8aa!important;border-radius:15px!important;
+    box-shadow:0 3px 12px rgba(114,86,18,.08)!important
+  }
+  #mobileFlowHeader .mobile-flow-heading,#mobileFlowHeader .mobile-flow-progress{display:none!important}
+  #mobileFlowHeader .mobile-flow-summary{
+    display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;
+    min-height:66px;border:1px solid #e9ddc5;border-radius:12px;
+    background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(255,248,231,.90));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.92)
+  }
+  #mobileFlowHeader .mobile-summary-logo,#mobileFlowHeader .mobile-summary-play{
+    min-width:0;min-height:60px;display:flex;align-items:center;justify-content:center;
+    padding:6px 9px;text-align:center
+  }
+  #mobileFlowHeader .mobile-summary-logo img{display:block;width:100%;max-width:145px;height:48px;max-height:48px;object-fit:contain;object-position:center}
+  #mobileFlowHeader .mobile-summary-logo span{font-size:13px;font-weight:750;color:#978b70}
+  #mobileFlowHeader .mobile-summary-play{position:relative;font-size:15px;font-weight:800;color:#9b907b;line-height:1.3}
+  #mobileFlowHeader .mobile-summary-play:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:1px;height:35px;background:#d6c6a5}
+  #mobileFlowHeader .mobile-summary-play.has-play{font-size:17px;font-weight:900;color:#f75c2f}
+  #mobileFlowHeader #mobileFavoritesEntry{order:3;margin:0!important}
+  /* The existing betting-tabs stay sticky immediately beneath the new step bar. */
+  body[data-mobile-stage="numbers"] #lottoMachine #betTabs{
+    top:var(--v14ac-tabs-top,112px)!important;z-index:18!important
+  }
+}
+@media(max-width:360px){
+  #mobileStepNav .mobile-step-item{font-size:12px;gap:3px}
+  #mobileFlowHeader .mobile-summary-logo img{height:42px}
+  #mobileFlowHeader .mobile-summary-play.has-play{font-size:15px}
+}
+</style>
 </head>
 <body>
 <header><div class="brand">奧爾樂透選號</div><span aria-live="polite" class="draw-date-badge" id="latestDrawDateBadge">獎號更新：讀取中</span><div class="status-mini" id="headerStatus">模型：2026-09-18 v1</div></header>
@@ -903,13 +970,18 @@ body.convenience-mode #conveniencePlayBtn{background:linear-gradient(145deg,#68a
 <div class="grid">
 <div class="card col12" style="padding:8px">
 <!-- 手機專用分頁式操作，桌機仍使用原有完整介面 -->
-<div aria-label="手機操作導覽" class="mobile-flow-header" id="mobileFlowHeader">
-<div class="mobile-flow-navigation">
-<button aria-label="返回上一步" class="mobile-flow-back" hidden="" id="mobileFlowBack" type="button">‹ 返回</button>
-<button aria-label="回選擇彩種" class="mobile-flow-games" hidden="" id="mobileFlowGames" type="button">↶ 回選擇彩種</button>
+<div aria-label="選號三步驟進度" class="mobile-step-nav" id="mobileStepNav" role="group">
+  <button type="button" class="mobile-step-item is-current" data-mobile-step="games" aria-current="step"><span class="mobile-step-marker" aria-hidden="true">●</span><span>彩種</span><i aria-hidden="true"></i></button>
+  <button type="button" class="mobile-step-item is-pending" data-mobile-step="plays" disabled><span class="mobile-step-marker" aria-hidden="true">○</span><span>玩法</span><i aria-hidden="true"></i></button>
+  <button type="button" class="mobile-step-item is-pending" data-mobile-step="numbers" disabled><span class="mobile-step-marker" aria-hidden="true">○</span><span>選號投注</span><i aria-hidden="true"></i></button>
 </div>
+<div aria-label="手機操作導覽" class="mobile-flow-header" id="mobileFlowHeader">
 <div class="mobile-flow-heading"><div class="mobile-flow-kicker" id="mobileFlowKicker">步驟 1 / 3</div>
 <h2 id="mobileFlowTitle">選擇彩種</h2><p id="mobileFlowHint">點選彩種 LOGO，進入玩法選擇。</p>
+</div>
+<div class="mobile-flow-summary" id="mobileFlowSummary" aria-live="polite">
+  <div class="mobile-summary-logo" id="mobileSummaryLogo"><span>請選擇彩種</span></div>
+  <div class="mobile-summary-play" id="mobileSummaryPlay">選擇彩種後繼續</div>
 </div>
 <div aria-hidden="true" class="mobile-flow-progress"><span class="on"></span><span></span><span></span></div>
 <button disabled="" id="mobileFavoritesEntry" type="button">♡ 我的最愛</button></div>
@@ -5743,17 +5815,51 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   const rail=document.getElementById('gameRail');
   const modeGrid=app?.querySelector('.side-actions-grid');
   const head=document.getElementById('mobileFlowHeader');
-  const back=document.getElementById('mobileFlowBack');
-  const gamesBack=document.getElementById('mobileFlowGames');
   const title=document.getElementById('mobileFlowTitle');
   const kicker=document.getElementById('mobileFlowKicker');
   const hint=document.getElementById('mobileFlowHint');
+  const stepNav=document.getElementById('mobileStepNav');
+  const logoBox=document.getElementById('mobileSummaryLogo');
+  const playBox=document.getElementById('mobileSummaryPlay');
   const comboChoices=document.getElementById('mobileComboChoices');
   const comboError=document.getElementById('mobileComboError');
-  if(!app||!rail||!modeGrid||!head||!back||!gamesBack||!comboChoices)return;
+  if(!app||!rail||!modeGrid||!head||!comboChoices)return;
   const names={'539':'今彩539',lotto649:'大樂透',power:'威力彩',bingo:'BINGO', '39combo':'39樂合彩', '49combo':'49樂合彩','3star':'3星彩','4star':'4星彩',combo:'套餐'};
   const indices={games:1,plays:2,numbers:3};
   let stage='games', chosenGame=null, chosenPlay='';
+  function syncMobileSummary(){
+    if(logoBox){
+      logoBox.replaceChildren();
+      const original=chosenGame&&rail.querySelector(`.game-btn[data-game="${chosenGame}"] img.game-logo`);
+      if(stage==='games'||!chosenGame){
+        const text=document.createElement('span');text.textContent='請選擇彩種';logoBox.appendChild(text);
+      }else if(original){
+        const image=document.createElement('img');
+        image.src=original.src;image.alt=names[chosenGame]||'彩種 LOGO';image.decoding='async';
+        logoBox.appendChild(image);
+      }else{
+        const text=document.createElement('span');text.textContent=names[chosenGame]||'套餐';logoBox.appendChild(text);
+      }
+    }
+    if(playBox){
+      playBox.textContent=stage==='games'?'選擇彩種後繼續':stage==='plays'?'請選擇玩法':(chosenPlay||'請選擇玩法');
+      playBox.classList.toggle('has-play',stage==='numbers'&&!!chosenPlay);
+    }
+    if(stepNav){
+      const rank=indices[stage];
+      stepNav.querySelectorAll('[data-mobile-step]').forEach(button=>{
+        const index=indices[button.dataset.mobileStep],isCurrent=index===rank,isComplete=index<rank;
+        const allowed=index===1||(index===2&&!!chosenGame)||(index===3&&!!chosenGame&&!!chosenPlay);
+        button.disabled=!allowed;
+        button.classList.toggle('is-current',isCurrent);
+        button.classList.toggle('is-complete',isComplete);
+        button.classList.toggle('is-pending',index>rank);
+        if(isCurrent)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current');
+        const marker=button.querySelector('.mobile-step-marker');
+        if(marker)marker.textContent=isComplete?'✓':isCurrent?'●':'○';
+      });
+    }
+  }
   function setStage(next){
     if(!Object.hasOwn(indices,next))return;
     stage=next;
@@ -5761,9 +5867,6 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
     queueMicrotask(()=>window.syncColumnPhoneUI?.());
     const n=indices[next];
     kicker.textContent=`步驟 ${n} / 3`;
-    back.hidden=n===1;
-    gamesBack.hidden=next!=='numbers';
-    back.textContent=next==='numbers'?'‹ 返回玩法':'‹ 回選擇彩種';
     title.textContent=next==='games'?'選擇彩種':next==='plays'?'選擇玩法':'選號與投注';
     if(next==='numbers'){
       hint.replaceChildren(document.createTextNode(names[chosenGame]||''));
@@ -5779,6 +5882,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
     }
     const dots=head.querySelectorAll('.mobile-flow-progress span');
     dots.forEach((dot,i)=>dot.classList.toggle('on',i===n-1));
+    syncMobileSummary();
     if(window.matchMedia('(max-width:600px)').matches){
       const active=document.querySelector('.page[data-page="home"].active');
       if(active)window.scrollTo({top:0,behavior:'instant'});
@@ -5836,11 +5940,13 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
       comboError.textContent=document.getElementById('comboPlayStatus')?.textContent || '此套餐尚無法產生，請重新選擇。';
     }
   });
-  back.addEventListener('click',()=>{
-    if(stage==='numbers')setStage('plays');
-    else if(stage==='plays')setStage('games');
+  stepNav?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-mobile-step]');
+    if(!button||button.disabled||!window.matchMedia('(max-width:600px)').matches)return;
+    const target=button.dataset.mobileStep;
+    // Completed selections may be revisited directly; disabled steps remain protected above.
+    setStage(target);
   });
-  gamesBack.addEventListener('click',()=>setStage('games'));
   window.__lottoMobileFlow={setStage, selectGame, currentStage:()=>stage};
   setStage('games');
 })();
@@ -5860,14 +5966,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
 #mobileClearAll{display:none}
 @media(max-width:600px){
   #mobileFlowHeader{flex-direction:column!important;align-items:stretch!important;gap:9px!important}
-  .mobile-flow-navigation{display:flex;gap:8px;align-items:center;min-height:40px;padding-right:50px}
-  body[data-mobile-stage="games"] .mobile-flow-navigation{display:none}
   #mobileFlowHeader .mobile-flow-heading{min-width:0;flex:1}
-  #mobileFlowBack,#mobileFlowGames{font:inherit;font-size:13px;font-weight:850;min-height:40px;white-space:nowrap;
-    border-radius:10px;padding:7px 10px;border:1px solid #d7c991;
-    color:#43522e;background:linear-gradient(145deg,#fff,#f3f8e5);cursor:pointer}
-  #mobileFlowGames{background:linear-gradient(145deg,#f6fff9,#e0f1e6);border-color:#b1d5bf;color:#245c3b}
-  #mobileFlowGames[hidden],#mobileFlowBack[hidden]{display:none!important}
   #mobileFlowHeader .mobile-flow-progress{top:17px}
   #lottoMachine .machine-top{display:flex;flex-wrap:nowrap;align-items:center;gap:6px}
   body[data-mobile-stage="numbers"] #lottoMachine #mobileClearAll{
@@ -6000,8 +6099,6 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   new MutationObserver(schedule).observe(document.getElementById('bingoSuperPageToggle'),{attributes:true,attributeFilter:['class']});
   new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['data-mobile-stage']});
   document.getElementById('gameRail').addEventListener('click',()=>setTimeout(schedule,185));
-  document.getElementById('mobileFlowBack')?.addEventListener('click',()=>setTimeout(schedule,0));
-  document.getElementById('mobileFlowGames')?.addEventListener('click',()=>setTimeout(schedule,0));
   window.addEventListener('resize',schedule);
   document.addEventListener('click',()=>setTimeout(schedule,0),true);
   schedule();
@@ -6048,7 +6145,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
  document.addEventListener('click',e=>{
     if(e.target.closest('#drawBtn'))quickOnly=true;
     if(e.target.closest('#numberBoard [data-picknum],#powerSecondBoard [data-power-second],.digit-btn,[data-star-digit]'))quickOnly=false;
-    if(e.target.closest('#gameRail [data-game],.side-actions-grid .mode-btn,#mobileFlowBack,#mobileFlowGames'))quickOnly=false;
+    if(e.target.closest('#gameRail [data-game],.side-actions-grid .mode-btn'))quickOnly=false;
  },true);
  function fingerprint(state){return (state?.pages||[]).map(p=>p.payload||'').join('|')}
  function firstSelection(snapshot){
@@ -6546,5 +6643,29 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
 @media(max-width:600px){#conveniencePanel .bingo-conv-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#conveniencePanel .bingo-conv-grid select,#conveniencePanel .bingo-conv-grid output{font-size:15px}}
 @media(max-width:350px){#conveniencePanel .bingo-conv-options{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
+
+<script id="v14ac-sticky-step-geometry">
+(function(){
+  const root=document.documentElement;
+  const header=document.querySelector('body>header');
+  const steps=document.getElementById('mobileStepNav');
+  function update(){
+    if(!header||!steps)return;
+    const h=Math.ceil(header.getBoundingClientRect().height);
+    const style=getComputedStyle(steps);
+    const stepH=Math.ceil(steps.getBoundingClientRect().height+parseFloat(style.marginBottom||'0'));
+    root.style.setProperty('--v14ac-header-height',h+'px');
+    root.style.setProperty('--v14ac-tabs-top',(h+stepH+4)+'px');
+  }
+  window.addEventListener('resize',update,{passive:true});
+  if(typeof ResizeObserver!=='undefined'){
+    const obs=new ResizeObserver(update);
+    if(header)obs.observe(header);
+    if(steps)obs.observe(steps);
+  }
+  update();
+  requestAnimationFrame(update);
+})();
+</script>
 </body>
 </html>
