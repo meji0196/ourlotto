@@ -5714,7 +5714,7 @@ init();
   makeQr.classList.remove('hidden');
  }
  rail.addEventListener('click',function(event){const btn=event.target.closest('[data-game]');if(!btn)return;if(btn.dataset.game==='combo'){event.preventDefault();event.stopImmediatePropagation();activate();return}if(active)deactivate()},true);
- panel.addEventListener('click',function(event){const btn=event.target.closest('[data-combo-play]');if(!btn)return;const key=btn.dataset.comboPlay;try{const next=build(key);panel.querySelectorAll('[data-combo-play]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));showSelection(next)}catch(error){selection=null;output.replaceChildren();total.textContent='';makeQr.classList.add('hidden');status.textContent='無法產生：'+String(error.message||error)}});
+ panel.addEventListener('click',function(event){const btn=event.target.closest('[data-combo-play]');if(!btn)return;const key=btn.dataset.comboPlay;try{const next=build(key);panel.querySelectorAll('[data-combo-play]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));showSelection(next);if(window.matchMedia('(min-width:601px)').matches)makeQr.click()}catch(error){selection=null;output.replaceChildren();total.textContent='';makeQr.classList.add('hidden');status.textContent='無法產生：'+String(error.message||error)}});
  makeQr.addEventListener('click',function(){if(!selection)return;try{showV003QrResultPage(selection.rows,1,{gameId:selection.cfg.gameId,autoSplit10:true})}catch(e){status.textContent='QR 產生失敗：'+String(e.message||e)}});
  window.comboFullMealTest={build,configs};
   window.__lottoComboResetAfterStore=()=>{deactivate();clearView();};
@@ -5894,6 +5894,9 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
       playBox.textContent=stage==='games'?'選擇彩種後繼續':stage==='plays'?'請選擇玩法':(chosenPlay||'請選擇玩法');
       playBox.classList.toggle('has-play',stage==='numbers'&&!!chosenPlay);
     }
+    rail.querySelectorAll('.game-btn[data-game]').forEach(button=>{
+      button.classList.toggle('ai-last-game',stage==='games'&&!!chosenGame&&button.dataset.game===chosenGame);
+    });
     if(stepNav){
       const rank=indices[stage];
       stepNav.querySelectorAll('[data-mobile-step]').forEach(button=>{
@@ -5940,7 +5943,12 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   function selectGame(button){
     const key=button.dataset.game;
     if(!key)return;
-    // 短暫按壓回饋，第一頁不保留選取高亮；原遊戲事件照常執行。
+    // Only actually changing the game discards the previous edited picks.
+    if(chosenGame&&key!==chosenGame){
+      try{if(typeof clearAllBets==='function')clearAllBets();}catch(error){console.warn('切換彩種清除舊選號失敗',error)}
+    }
+    // 選中同一彩種時保留既有選號資料；切換不同彩種由原始核心清除並重設。
+    // 手機彩種高亮會在返回第一頁時持續顯示。
     button.classList.add('mobile-game-flash');
     setTimeout(()=>{
       button.classList.remove('mobile-game-flash');
@@ -5957,8 +5965,24 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   app.addEventListener('click',event=>{
     if(stage!=='games'||!window.matchMedia('(max-width:600px)').matches)return;
     const game=event.target.closest('#gameRail [data-game]');
-    if(game)selectGame(game);
+    if(game){
+      const alreadySelected=!!chosenGame&&chosenGame===game.dataset.game;
+      selectGame(game);
+      if(alreadySelected){
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }
   },true);
+  logoBox?.addEventListener('click',()=>{
+    if(chosenGame&&stage!=='games'&&window.matchMedia('(max-width:600px)').matches)setStage('games');
+  });
+  logoBox?.addEventListener('keydown',event=>{
+    if((event.key==='Enter'||event.key===' ')&&chosenGame&&stage!=='games'){
+      event.preventDefault();setStage('games');
+    }
+  });
+  if(logoBox){logoBox.setAttribute('role','button');logoBox.setAttribute('tabindex','0');logoBox.setAttribute('aria-label','返回彩種選擇');}
   // Existing mode handlers still run normally, then the new flow switches to the number board.
   app.addEventListener('click',event=>{
     if(stage!=='plays'||chosenGame==='combo'||!window.matchMedia('(max-width:600px)').matches)return;
@@ -5984,7 +6008,8 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
     const generate=document.getElementById('comboMakeQr');
     if(generate&&!generate.classList.contains('hidden')){
       chosenPlay=button.firstChild.textContent.trim();
-      setStage('numbers');
+      // 套餐由既有的 QR 產生器直接完成，不再中途進入選號頁。
+      generate.click();
     }else{
       comboError.textContent=document.getElementById('comboPlayStatus')?.textContent || '此套餐尚無法產生，請重新選擇。';
     }
@@ -6104,55 +6129,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   }
 })();
 </script>
-<script id="v14n-bingo-mobile-star-and-actions">
-(function(){
-  'use strict';
-  const top=document.getElementById('bingoTopRow'),grp=document.getElementById('bingoStarGroup');
-  const clear=document.getElementById('machineClear'),clearAll=document.getElementById('mobileClearAll');
-  const machineTop=document.querySelector('#lottoMachine .machine-top');
-  if(!top||!grp||!clear||!clearAll||!machineTop)return;
-  const label=document.createElement('label');
-  label.id='mobileBingoStarControl';
-  label.textContent='選星 ';
-  const select=document.createElement('select');
-  select.id='mobileBingoStarSelect';
-  select.setAttribute('aria-label','BINGO 星數');
-  for(let i=1;i<=10;i++){
-    const op=document.createElement('option');op.value=String(i);op.textContent=i+'星';select.appendChild(op);
-  }
-  label.appendChild(select);
-  grp.insertAdjacentElement('beforebegin',label);
-  select.addEventListener('change',()=>{
-    const star=grp.querySelector('[data-bingo-star="'+select.value+'"]');
-    if(star)star.click();
-  });
-  function sync(){
-    const mobile=window.matchMedia('(max-width:600px)').matches;
-    const bingo=document.querySelector('#gameRail .game-btn[data-game="bingo"].active')!==null;
-    const active=mobile&&bingo&&document.body.dataset.mobileStage==='numbers';
-    label.style.display=active?'inline-flex':'none';
-    if(active){
-      if(clear.parentElement!==top)top.appendChild(clear);
-      if(clearAll.parentElement!==top)top.appendChild(clearAll);
-      const btn=grp.querySelector('.bingo-star-btn.active');
-      select.value=btn?.dataset.bingoStar || String(select.value||1);
-      select.disabled=!!document.querySelector('#bingoSuperPageToggle.active');
-    } else {
-      if(clear.parentElement!==machineTop)machineTop.appendChild(clear);
-      if(clearAll.parentElement!==machineTop)machineTop.appendChild(clearAll);
-    }
-  }
-  let scheduled=false;
-  function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;sync()})}
-  new MutationObserver(schedule).observe(grp,{childList:true,attributes:true,subtree:true,attributeFilter:['class']});
-  new MutationObserver(schedule).observe(document.getElementById('bingoSuperPageToggle'),{attributes:true,attributeFilter:['class']});
-  new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['data-mobile-stage']});
-  document.getElementById('gameRail').addEventListener('click',()=>setTimeout(schedule,185));
-  window.addEventListener('resize',schedule);
-  document.addEventListener('click',()=>setTimeout(schedule,0),true);
-  schedule();
-})();
-</script>
+<!-- V14-AI: BINGO mobile star + clear toolbar integrated into unified toolbar below. -->
 <button aria-label="開啟購物車" hidden id="mobileCartBubble" type="button">🛒</button>
 <section aria-label="投注收藏清單" aria-modal="true" hidden="" id="archiveSheet" role="dialog"><div class="archive-sheet-card"><div class="archive-sheet-top"><h2 id="archiveSheetTitle">購物車</h2><div class="archive-sheet-tools"><button id="archiveDeleteAll" type="button">全部刪除</button><button aria-label="關閉" id="archiveClose" type="button">✕</button></div></div><p id="archiveSheetHint"></p><div id="archiveEntries"></div></div></section><script id="v14o-archive-script">
 (function(){
@@ -6986,5 +6963,227 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   choose('regular');
 })();
 </script>
+
+<style id="v14ai-mobile-edit-layout">
+@media(max-width:600px){
+  /* 回到彩種選擇：上一個正在編輯的彩種持續發光，直到真正換彩種。 */
+  body[data-mobile-stage="games"] #lottoMachine #gameRail .game-btn.ai-last-game,
+  body[data-mobile-stage="games"] #lottoMachine #gameRail .game-btn.ai-last-game.active{
+    background:linear-gradient(145deg,#fff9d9,#e3f1ff)!important;
+    border:2px solid #3b8dff!important;
+    box-shadow:0 0 0 3px rgba(55,134,255,.19),0 0 20px rgba(74,151,255,.5),inset 0 1px 0 #fff!important;
+    transform:none!important;
+  }
+  body[data-mobile-stage="games"] #lottoMachine #gameRail .game-btn.ai-last-game:after{
+    content:'目前編輯';position:absolute;top:5px;right:6px;font-size:10px;
+    padding:2px 5px;border-radius:999px;background:#3079e6;color:white;font-weight:900;
+  }
+  #gameRail .game-btn{position:relative}
+  #mobileFlowHeader #mobileSummaryLogo[role="button"]{cursor:pointer;touch-action:manipulation}
+  #mobileFlowHeader #mobileSummaryLogo[role="button"]:focus-visible{outline:2px solid #3787ea;outline-offset:2px}
+  body[data-mobile-stage="numbers"] #lottoMachine #star3Controls .star3-digit,
+  body[data-mobile-stage="numbers"] #lottoMachine #star4Controls .star3-digit{
+    width:48px!important;height:48px!important;min-height:48px!important;font-size:19px!important;
+    border-radius:12px!important;touch-action:manipulation;
+  }
+  #aiMobilePickTools{display:none}
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickTools{
+    display:flex!important;flex-direction:column;gap:8px;width:100%;
+    margin:5px 0 9px;padding:0;align-items:stretch;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine .machine-top{display:none!important}
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow{
+    display:flex;align-items:center;flex-wrap:nowrap;gap:6px;width:100%;min-height:51px;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #drawBtn{
+    min-width:94px!important;min-height:50px!important;padding:10px 15px!important;
+    font-size:19px!important;line-height:1.1!important;border-radius:12px!important;
+    order:0!important;flex-shrink:0;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #quickPickCount{
+    max-width:80px;min-width:60px!important;height:44px!important;padding:5px 7px!important;
+    order:1!important;flex:0 1 auto;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #machineClear,
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #mobileClearAll,
+  body[data-mobile-stage="numbers"] #lottoMachine #bingoTopRow #machineClear,
+  body[data-mobile-stage="numbers"] #lottoMachine #bingoTopRow #mobileClearAll{
+    display:inline-flex!important;align-items:center;justify-content:center;
+    min-height:43px!important;margin:0!important;padding:8px 7px!important;
+    font-size:12px!important;white-space:nowrap;border-radius:9px!important;
+    flex:0 0 auto;order:3!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #machineClear{margin-left:auto!important}
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #mobileClearAll{margin-left:0!important}
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickTools #combo39Controls{
+    display:flex;flex-wrap:nowrap;align-items:center;gap:6px;padding:7px 3px!important;
+    background:transparent!important;border:0!important;border-bottom:1px solid #e9ddc8!important;
+    box-shadow:none!important;margin:0!important;border-radius:0;
+  }
+  #aiMobilePickTools #combo39Controls .combo39-title,
+  #aiMobilePickTools #combo39Controls .combo39-note{display:none!important}
+  #aiMobilePickTools #combo39Controls .combo39-play-group{
+    display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;
+    min-width:0;flex:1;
+  }
+  #aiMobilePickTools #combo39Controls .combo39-play-btn,
+  #aiMobilePickTools #combo39Controls #aiComboPackToggle{
+    min-width:0;min-height:43px;padding:6px 2px;font-size:12px;border-radius:9px;
+    border:1px solid #e0c58c;background:#fffaf1;font-weight:900;color:#6b5535;
+  }
+  #aiMobilePickTools #combo39Controls #aiComboPackToggle[aria-pressed="true"]{
+    border-color:#2876e2;background:#dcebff;color:#1256a7;
+  }
+  #aiMobilePickTools #combo39Controls .combo39-mult-wrap{
+    display:flex;align-items:center;gap:3px;flex:0 0 auto;font-size:12px;white-space:nowrap;
+  }
+  #aiMobilePickTools #combo39Controls #combo39Multiplier{
+    min-width:51px!important;width:51px!important;max-width:51px!important;
+    height:43px;padding:3px 2px;font-size:13px;
+  }
+  #aiMobilePickTools #bingoTopRow{
+    display:flex!important;align-items:center;flex-wrap:wrap;gap:5px;
+    padding:5px 1px!important;border:0!important;background:transparent!important;
+    box-shadow:none!important;margin:0!important;overflow:visible;
+  }
+  #aiMobilePickTools #bingoTopRow.hidden{display:none!important}
+  #aiMobilePickTools #bingoStarGroup{display:none!important}
+  #aiMobilePickTools #aiBingoStarSelect{display:block;min-width:69px;max-width:76px;height:44px;
+    border-radius:9px;border:1px solid #9dc7f5;background:white;color:#225d9c;
+    font-size:13px;font-weight:850;padding:3px;
+  }
+  #aiMobilePickTools #bingoSuperPageToggle{height:44px;min-width:82px!important;padding:6px 7px;font-size:13px}
+  #aiMobilePickTools #bingoTopRow #machineClear{margin-left:auto!important}
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #drawBtn{min-width:110px!important}
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #quickPickCount{order:1!important}
+  #lottoMachine #aiMobilePickTools #quickModeExtras{order:3!important;width:100%;}
+  @media(max-width:359px){
+    #lottoMachine #aiMobilePickRow #drawBtn{min-width:87px!important;padding:9px!important}
+    #lottoMachine #aiMobilePickRow #machineClear,#lottoMachine #aiMobilePickRow #mobileClearAll{font-size:11px!important;padding:7px 5px!important}
+    #aiMobilePickTools #combo39Controls .combo39-play-btn,#aiMobilePickTools #combo39Controls #aiComboPackToggle{font-size:11px!important}
+    #aiMobilePickTools #combo39Controls{gap:3px!important}
+    #aiMobilePickTools #combo39Controls .combo39-play-group{gap:2px!important}
+    #aiMobilePickTools #combo39Controls .combo39-mult-wrap{font-size:11px!important;gap:2px!important}
+    #aiMobilePickTools #combo39Controls #combo39Multiplier{width:42px!important;min-width:42px!important;max-width:42px!important;font-size:12px!important}
+    #aiMobilePickTools #aiBingoStarSelect{min-width:60px;max-width:62px;font-size:12px}
+    #aiMobilePickTools #bingoSuperPageToggle{min-width:72px!important;font-size:12px!important}
+    #aiMobilePickTools #bingoTopRow #machineClear,#aiMobilePickTools #bingoTopRow #mobileClearAll{font-size:11px!important;padding:8px 4px!important}
+    #aiMobilePickTools #bingoTopRow{gap:3px!important}
+  }
+}
+</style>
+<script id="v14ai-mobile-behavior">
+(function(){
+  'use strict';
+  const machine=document.getElementById('lottoMachine');
+  const main=machine?.querySelector('.machine-main');
+  const tabs=document.getElementById('betTabs');
+  const quick=document.getElementById('drawBtn');
+  const quickSelect=document.getElementById('quickPickCount');
+  const clear=document.getElementById('machineClear');
+  const allClear=document.getElementById('mobileClearAll');
+  const bingoRow=document.getElementById('bingoTopRow');
+  const combo=document.getElementById('combo39Controls');
+  const dock=document.getElementById('quickModeExtras');
+  if(!machine||!main||!tabs||!quick||!bingoRow||!combo)return;
+  const homes=new Map();
+  [quick,quickSelect,clear,allClear,bingoRow,combo,dock].filter(Boolean).forEach(el=>{
+    const anchor=document.createComment('AI: restore '+el.id);
+    el.before(anchor);homes.set(el,anchor);
+  });
+  const tools=document.createElement('section');tools.id='aiMobilePickTools';tools.setAttribute('aria-label','手機選號快捷操作');
+  const row=document.createElement('div');row.id='aiMobilePickRow';tools.appendChild(row);
+  tabs.after(tools);
+  const comboPack=document.createElement('button');comboPack.id='aiComboPackToggle';comboPack.type='button';comboPack.textContent='包牌';comboPack.setAttribute('aria-pressed','false');
+  combo.querySelector('.combo39-play-group')?.appendChild(comboPack);
+  const packStates={'39combo':false,'49combo':false};
+  const bingoSelect=document.createElement('select');bingoSelect.id='aiBingoStarSelect';bingoSelect.setAttribute('aria-label','選擇BINGO星數');
+  for(let i=1;i<=10;i++){const opt=document.createElement('option');opt.value=String(i);opt.textContent=i+'星';bingoSelect.appendChild(opt)}
+  bingoRow.prepend(bingoSelect);
+  bingoSelect.addEventListener('change',()=>{
+    const btn=document.querySelector('#bingoStarGroup [data-bingo-star="'+bingoSelect.value+'"]');
+    if(btn&&bingoCurrentMode()==='star')btn.click();
+  });
+  function refreshPack(){
+    const isCombo=currentGame==='39combo'||currentGame==='49combo';
+    const on=isCombo&&!!packStates[currentGame];
+    comboPack.setAttribute('aria-pressed',String(on));
+    if(!isCombo)return;
+    if(!on){
+      const set=combo39MultiPlaySelections[currentBetIndex];
+      const current=set.has(combo39CurrentPlay())?combo39CurrentPlay():Math.max(...set);
+      if(set.size!==1||!set.has(current)){combo39MultiPlaySelections[currentBetIndex]=new Set([current]);combo39PlaySelections[currentBetIndex]=current;render39ComboControls();}
+    }
+  }
+  comboPack.addEventListener('click',()=>{
+    if(currentGame!=='39combo'&&currentGame!=='49combo')return;
+    packStates[currentGame]=!packStates[currentGame];
+    refreshPack();renderBetTabs();renderMachineTotal();updateQuickPickUI();
+  });
+  // Single-play mode replaces selection directly; package mode uses the existing multi-play handler.
+  combo.addEventListener('click',event=>{
+    const b=event.target.closest('[data-combo39-play]');
+    if(!b||(currentGame!=='39combo'&&currentGame!=='49combo'))return;
+    if(packStates[currentGame])return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const n=Number(b.dataset.combo39Play);
+    combo39MultiPlaySelections[currentBetIndex]=new Set([n]);combo39PlaySelections[currentBetIndex]=n;
+    lastResult=null;render39ComboControls();renderBetTabs();renderNumberBoard();renderMachineTotal();updateQuickPickUI();
+    if(quickSelect){quickSelect.value=String(n);quickSelect.dispatchEvent(new Event('change'));}
+  },true);
+  combo.addEventListener('click',event=>{
+    const button=event.target.closest('[data-combo39-play]');
+    if(!button||!packStates[currentGame])return;
+    const plays=combo39MultiPlaySelections[currentBetIndex];
+    const maximum=Math.max(...plays);
+    combo39PlaySelections[currentBetIndex]=maximum;
+    render39ComboControls();updateQuickPickUI();
+    if(quickSelect){quickSelect.value=String(maximum);quickSelect.dispatchEvent(new Event('change'));}
+  });
+  let lastGame='';
+  function updatePosition(){
+    const mobile=window.matchMedia('(max-width:600px)').matches;
+    if(!mobile){
+      for(const [el,anchor] of homes){if(anchor.parentNode&&el.previousSibling!==anchor)anchor.after(el)}
+      tools.hidden=true;document.body.classList.remove('ai-mobile-bingo');
+      return;
+    }
+    const bingo=currentGame==='bingo',isCombo=currentGame==='39combo'||currentGame==='49combo';
+    tools.hidden=false;
+    if(lastGame!==currentGame){lastGame=currentGame;refreshPack()}
+    document.body.classList.toggle('ai-mobile-bingo',bingo);
+    if(isCombo){tools.insertBefore(combo,row);}else{const anchor=homes.get(combo);if(anchor?.parentNode&&combo.previousSibling!==anchor)anchor.after(combo)}
+    if(bingo){tools.insertBefore(bingoRow,row)}else{const anchor=homes.get(bingoRow);if(anchor?.parentNode&&bingoRow.previousSibling!==anchor)anchor.after(bingoRow)}
+    for(const el of [quick,quickSelect]){if(el&&el.parentNode!==row)row.appendChild(el)}
+    if(bingo){
+      for(const el of [clear,allClear])if(el&&el.parentNode!==bingoRow)bingoRow.appendChild(el);
+    }else{
+      for(const el of [clear,allClear])if(el&&el.parentNode!==row)row.appendChild(el);
+    }
+    if(dock&&dock.parentNode!==tools)tools.appendChild(dock);
+    if(bingo){try{bingoSelect.value=String(bingoCurrentStar())}catch{}}
+    comboPack.setAttribute('aria-pressed',String(isCombo&&!!packStates[currentGame]));
+  }
+  let pending=false;
+  function schedule(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;updatePosition()})}
+  const observer=new MutationObserver(schedule);
+  observer.observe(document.body,{attributes:true,attributeFilter:['data-mobile-stage']});
+  observer.observe(combo,{attributes:true,attributeFilter:['class']});
+  observer.observe(bingoRow,{attributes:true,attributeFilter:['class']});
+  machine.addEventListener('click',schedule,true);
+  machine.addEventListener('change',schedule,true);
+  window.addEventListener('resize',schedule,{passive:true});
+  window.__lottoAIMobileLayout={sync:schedule};
+  schedule();
+})();
+</script>
+
+<style id="v14ai-narrow-touch-fix">
+@media screen and (max-width:359px){
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickTools #bingoTopRow{column-gap:1px!important;row-gap:4px!important}
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickTools #bingoTopRow #machineClear,
+  body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickTools #bingoTopRow #mobileClearAll{min-width:0!important;padding:7px 4px!important;font-size:11px!important}
+}
+</style>
 </body>
 </html>
