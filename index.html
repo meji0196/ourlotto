@@ -6974,10 +6974,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
     box-shadow:0 0 0 3px rgba(55,134,255,.19),0 0 20px rgba(74,151,255,.5),inset 0 1px 0 #fff!important;
     transform:none!important;
   }
-  body[data-mobile-stage="games"] #lottoMachine #gameRail .game-btn.ai-last-game:after{
-    content:'目前編輯';position:absolute;top:5px;right:6px;font-size:10px;
-    padding:2px 5px;border-radius:999px;background:#3079e6;color:white;font-weight:900;
-  }
+  /* Returning game remains highlighted without an extra text label. */
   #gameRail .game-btn{position:relative}
   #mobileFlowHeader #mobileSummaryLogo[role="button"]{cursor:pointer;touch-action:manipulation}
   #mobileFlowHeader #mobileSummaryLogo[role="button"]:focus-visible{outline:2px solid #3787ea;outline-offset:2px}
@@ -7100,9 +7097,26 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   const bingoSelect=document.createElement('select');bingoSelect.id='aiBingoStarSelect';bingoSelect.setAttribute('aria-label','選擇BINGO星數');
   for(let i=1;i<=10;i++){const opt=document.createElement('option');opt.value=String(i);opt.textContent=i+'星';bingoSelect.appendChild(opt)}
   bingoRow.prepend(bingoSelect);
+  // Update the BINGO model directly. Clicking hidden DOM buttons is not reliable
+  // in iOS Safari and may leave the native select showing a stale value.
   bingoSelect.addEventListener('change',()=>{
-    const btn=document.querySelector('#bingoStarGroup [data-bingo-star="'+bingoSelect.value+'"]');
-    if(btn&&bingoCurrentMode()==='star')btn.click();
+    if(currentGame!=='bingo')return;
+    if(bingoCurrentMode()!=='star'){
+      bingoSelect.value=String(bingoCurrentStar());
+      return;
+    }
+    const star=Math.max(1,Math.min(10,Number(bingoSelect.value)||1));
+    if(star===bingoCurrentStar())return;
+    bingoStarSelections[currentBetIndex]=star;
+    manualPicked=new Set();
+    betSelections[currentBetIndex]=new Set();
+    lastResult=null;
+    renderBalls(document.getElementById('resultBalls'),[],new Set());
+    renderBingoControls();
+    renderNumberBoard();
+    updateQuickPickUI();
+    renderMachineTotal();
+    bingoSelect.value=String(bingoCurrentStar());
   });
   function refreshPack(){
     const isCombo=currentGame==='39combo'||currentGame==='49combo';
@@ -7161,7 +7175,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
       for(const el of [clear,allClear])if(el&&el.parentNode!==row)row.appendChild(el);
     }
     if(dock&&dock.parentNode!==tools)tools.appendChild(dock);
-    if(bingo){try{bingoSelect.value=String(bingoCurrentStar())}catch{}}
+    if(bingo){try{bingoSelect.value=String(bingoCurrentStar());bingoSelect.disabled=bingoCurrentMode()!=='star'}catch{}}
     comboPack.setAttribute('aria-pressed',String(isCombo&&!!packStates[currentGame]));
   }
   let pending=false;
@@ -7185,5 +7199,90 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickTools #bingoTopRow #mobileClearAll{min-width:0!important;padding:7px 4px!important;font-size:11px!important}
 }
 </style>
+
+<style id="v14aj-phone-bingo-date-fixes">
+@media screen and (max-width:600px){
+  /* Never show a text badge over the selected game, only its original glow. */
+  body[data-mobile-stage="games"] #lottoMachine #gameRail .game-btn.ai-last-game::after{
+    content:none!important;display:none!important;
+  }
+  /* Keep BINGO's 80-number grid and its tool strip entirely within the phone. */
+  html:has(body.ai-mobile-bingo[data-mobile-stage="numbers"]),
+  body.ai-mobile-bingo[data-mobile-stage="numbers"]{
+    overflow-x:clip!important;max-width:100%!important;
+  }
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine,
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine .machine-main,
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine #powerFirstZone,
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine #numberBoard,
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickTools,
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine #bingoTopRow{
+    box-sizing:border-box!important;max-width:100%!important;min-width:0!important;
+  }
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine #numberBoard,
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine #powerFirstZone{
+    touch-action:pan-y!important;overscroll-behavior-x:none!important;
+  }
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine #bingoTopRow{
+    overflow-x:clip!important;touch-action:pan-y!important;
+  }
+  body.ai-mobile-bingo[data-mobile-stage="numbers"] #lottoMachine #aiBingoStarSelect{
+    touch-action:manipulation!important;cursor:pointer!important;
+  }
+  /* Period and preorder controls have exactly the same label-over-field layout. */
+  body[data-mobile-stage="numbers"] #lottoMachine #periodBox{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    align-items:start!important;gap:10px!important;
+    padding:10px 2px 3px!important;
+    max-width:100%!important;min-width:0!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #periodBox > .period-single-row,
+  body[data-mobile-stage="numbers"] #lottoMachine #periodBox > #preorderBox{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    justify-content:flex-start!important;gap:6px!important;
+    width:100%!important;min-width:0!important;max-width:100%!important;
+    margin:0!important;padding:0!important;border:0!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #periodBox > #preorderBox.hidden{
+    display:none!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #periodBox .period-single-row > .period-title,
+  body[data-mobile-stage="numbers"] #lottoMachine #periodBox > #preorderBox > label{
+    display:block!important;width:100%!important;min-height:17px!important;
+    line-height:17px!important;margin:0!important;padding:0!important;
+    font-size:12px!important;font-weight:850!important;white-space:nowrap!important;
+    text-align:left!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #periodBox .period-row{
+    display:block!important;width:100%!important;margin:0!important;padding:0!important;
+  }
+  body[data-mobile-stage="numbers"] #lottoMachine #periodBox select{
+    display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;
+    height:44px!important;box-sizing:border-box!important;margin:0!important;
+    font-size:13px!important;text-overflow:ellipsis!important;
+  }
+}
+</style>
+<script id="v14aj-bingo-horizontal-touch-guard">
+(function(){
+  'use strict';
+  let gesture=null;
+  const bingoGrid=e=>document.body.matches('.ai-mobile-bingo[data-mobile-stage="numbers"]') &&
+    window.matchMedia('(max-width:600px)').matches &&
+    !!e.target?.closest?.('#lottoMachine #numberBoard');
+  document.addEventListener('touchstart',e=>{
+    gesture=e.touches.length===1&&bingoGrid(e)?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!gesture||e.touches.length!==1)return;
+    const dx=e.touches[0].clientX-gesture.x;
+    const dy=e.touches[0].clientY-gesture.y;
+    // Only stop accidental horizontal drags; vertical scrolling stays native.
+    if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.35&&e.cancelable)e.preventDefault();
+  },{passive:false});
+  for(const eventName of ['touchend','touchcancel'])document.addEventListener(eventName,()=>{gesture=null},{passive:true});
+})();
+</script>
+
 </body>
 </html>
