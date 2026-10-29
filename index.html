@@ -593,7 +593,7 @@ header #headerStatus{margin-left:auto}
 .convenience-grid button.active{background:linear-gradient(140deg,#80b8ff,#1a61db)!important;color:#fff!important;border-color:#1a61db!important}
 .convenience-grid button.active span{color:#fff}
 .convenience-selected{padding:10px 12px;border-radius:10px;background:#fff;color:#245b3c;font-weight:850}
-body.convenience-mode #lottoMachine .machine-main > :not(#conveniencePanel){display:none!important}
+body.convenience-mode #lottoMachine .machine-main > :not(#conveniencePanel):not(#aqWeightPanel){display:none!important}
 body.convenience-mode #lottoMachine .machine-main #conveniencePanel{display:block!important}
 body.convenience-mode #lottoMachine #comboAddonSwitches{display:none!important}
 #lottoMachine:has(#generalModeBtn:not(.active)) #comboAddonSwitches{display:none!important}
@@ -4146,7 +4146,11 @@ function bingoCurrentStar(index=currentBetIndex){return Math.max(1,Math.min(10,N
 function bingoCurrentMode(index=currentBetIndex){return bingoModeSelections[index]==='super'?'super':'star'}
 function bingoClearAllStars(){for(let i=0;i<10;i++){bingoStarSelections[i]=1;bingoModeSelections[i]='star';bingoSystemSelections[i]=false}bingoSizeChoices=new Set();bingoSizeMultiplier=1;bingoParityChoices=new Set();bingoParityMultiplier=1}
 function bingoUniformPick(count){const out=new Set();while(out.size<count)out.add(1+cryptoInt(80));return [...out].sort((a,b)=>a-b)}
-function bingoQuickPick(){const mode=bingoCurrentMode(),count=mode==='super'?Math.max(1,Math.min(20,Number(document.getElementById('quickPickCount')?.value)||1)):(bingoSystemSelections[currentBetIndex]?Math.max(bingoCurrentStar(),Math.min(80,Number(document.getElementById('quickPickCount')?.value)||bingoCurrentStar())):bingoCurrentStar()),nums=bingoUniformPick(count),res={nums,logs:[mode==='super'?`BINGO快選｜超級獎號｜${nums.map(pad).join(' ')}`:`BINGO快選｜${count}星｜${nums.map(pad).join(' ')}`],rolls:count,dup:0,sup:0,lastIssue:'',lastNums:[]};manualPicked=new Set(nums);powerSecondPicked=new Set();lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set());renderNumberBoard();return res}
+function bingoSelectedPick(count,mode='star'){
+ if(window.AQ_WEIGHT_ON&&typeof window.AQ_BINGO_DRAW==='function')return window.AQ_BINGO_DRAW(count,mode);
+ return bingoUniformPick(count);
+}
+function bingoQuickPick(){const mode=bingoCurrentMode(),count=mode==='super'?Math.max(1,Math.min(20,Number(document.getElementById('quickPickCount')?.value)||1)):(bingoSystemSelections[currentBetIndex]?Math.max(bingoCurrentStar(),Math.min(80,Number(document.getElementById('quickPickCount')?.value)||bingoCurrentStar())):bingoCurrentStar()),nums=bingoSelectedPick(count,mode),res={nums,logs:[mode==='super'?`BINGO快選｜超級獎號｜${nums.map(pad).join(' ')}`:`BINGO快選｜${count}星｜${nums.map(pad).join(' ')}`],rolls:count,dup:0,sup:0,lastIssue:'',lastNums:[]};manualPicked=new Set(nums);powerSecondPicked=new Set();lastResult=res;renderBalls(document.getElementById('resultBalls'),nums,new Set());renderNumberBoard();return res}
 function bingoExtraUnits(){return bingoSizeChoices.size*bingoSizeMultiplier+bingoParityChoices.size*bingoParityMultiplier}
 function renderBingoControls(){const box=document.getElementById('bingoControls'),grp=document.getElementById('bingoStarGroup');if(!box)return;const on=currentGame==='bingo',mt0=document.getElementById('bingoSuperPageToggle'),mw0=document.getElementById('modelInfoWrap'),topRow=document.getElementById('bingoTopRow'),currentLabel=document.getElementById('currentBetLabel'),bingoLabel=document.getElementById('bingoCurrentBetLabel');if(topRow)topRow.classList.toggle('hidden',!on);if(currentLabel)currentLabel.classList.toggle('hidden',on);if(bingoLabel)bingoLabel.textContent=`第 ${pad(currentBetIndex+1)} 注`;box.classList.toggle('open',on);box.setAttribute('aria-hidden',on?'false':'true');if(!on){if(mt0)mt0.classList.add('hidden');grp?.classList.add('hidden');if(mw0)mw0.classList.remove('hidden');return;}const star=bingoCurrentStar(),mode=bingoCurrentMode();
 const sideSys=document.getElementById('bingoSystemSideBtn'),generalSide=document.getElementById('generalModeBtn');
@@ -4283,7 +4287,7 @@ const GAME_MODULES={
   bingo:{
     id:'bingo',
     config:GAME_CONFIGS.bingo,
-    d100:{version:'BINGO均等快選 V1',rules:{base:'01～80均等無放回亂數；歷史權重模型待後續研究'},ensureModel(){return true},draw(){return bingoQuickPick()},status(){return{text:`BINGO：${bingoCurrentMode()==='super'?'超級獎號':bingoCurrentStar()+'星'}｜猜大小／猜單雙可獨立投注｜每日07:05～23:55每5分鐘一期｜最多12期｜QR測試版（15筆樣本）`,className:'pill ok'}}},
+    d100:{version:'BINGO歷史加權快選 V1',rules:{base:'近36期歷史頻率／尾數／同開與連號限制；關閉加權快選時使用均等亂數'},ensureModel(){return true},draw(){return bingoQuickPick()},status(){return{text:`BINGO：${bingoCurrentMode()==='super'?'超級獎號':bingoCurrentStar()+'星'}｜猜大小／猜單雙可獨立投注｜每日07:05～23:55每5分鐘一期｜最多12期｜QR測試版（15筆樣本）`,className:'pill ok'}}},
     ensureModel(){return true},
     quickPick(){return bingoQuickPick()},
     status(){return this.d100.status()},
@@ -4397,7 +4401,7 @@ function fmtDateTW(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(
 function buildPreorderDates(count=gameCfg().preorderCount||10){const out=[],d=new Date(),days=new Set(gameCfg().drawDays||[2,5]);d.setHours(12,0,0,0);d.setDate(d.getDate()+1);for(let guard=0;guard<120&&out.length<count;guard++){if(days.has(d.getDay()))out.push(new Date(d));d.setDate(d.getDate()+1)}return out}
 function isoLocalDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function preorderOffsetForDate(v){const count=gameCfg().preorderCount||10,dates=buildPreorderDates(count),idx=dates.findIndex(d=>isoLocalDate(d)===v);if(idx<0)throw new Error(`指定預購日期不在目前可選的${count}個開獎日內。`);return idx}
-function renderPurchaseMode(){const sel=document.getElementById('preorderDate');if(!sel)return;if(currentGame==='bingo'){preorderDate='';purchaseMode='consecutive';sel.innerHTML='<option value="">BINGO 不使用日期預購</option>';sel.value='';renderMachineTotal();return}const dates=buildPreorderDates(gameCfg().preorderCount||10);sel.innerHTML='<option value="">不指定預購日期</option>'+dates.map(d=>{const v=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;return `<option value="${v}">${fmtDateTW(d)}</option>`}).join('');if(preorderDate&&!dates.some(d=>isoLocalDate(d)===preorderDate))preorderDate='';sel.value=preorderDate||'';purchaseMode=preorderDate?'preorder':'consecutive';renderMachineTotal()}
+function renderPurchaseMode(){const sel=document.getElementById('preorderDate');if(!sel)return;if(currentGame==='bingo'){preorderDate='';purchaseMode='consecutive';sel.innerHTML='<option value="">—</option>';sel.value='';sel.disabled=true;renderMachineTotal();return}sel.disabled=false;const dates=buildPreorderDates(gameCfg().preorderCount||10);sel.innerHTML='<option value="">不指定預購日期</option>'+dates.map(d=>{const v=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;return `<option value="${v}">${fmtDateTW(d)}</option>`}).join('');if(preorderDate&&!dates.some(d=>isoLocalDate(d)===preorderDate))preorderDate='';sel.value=preorderDate||'';purchaseMode=preorderDate?'preorder':'consecutive';renderMachineTotal()}
 let manualPicked=new Set(),powerSecondPicked=new Set(),periods=1,currentBetIndex=0;
 const combo39PlaySelections=Array(10).fill(2),combo39MultiplierSelections=Array(10).fill(1);
 const combo39MultiPlaySelections=Array.from({length:10},()=>new Set([2]));
@@ -4637,8 +4641,8 @@ function buildConvenienceBingoPages(){
  const b=convenienceBingo;
  if(!convenienceBingoConfigured())throw new Error('請先設定至少一項 BINGO 投注。');
  if(!bingoV003SelfTest())throw new Error('BINGO 既有 QR 樣本測試未通過。');
- const starRows=Array.from({length:b.starCount},()=>({mode:'star',stars:b.stars,nums:bingoUniformPick(b.stars),multiplier:b.starMultiplier}));
- const superAll=b.superCount?bingoUniformPick(b.superCount):[];
+ const starRows=Array.from({length:b.starCount},()=>({mode:'star',stars:b.stars,nums:bingoSelectedPick(b.stars,'star'),multiplier:b.starMultiplier}));
+ const superAll=b.superCount?bingoSelectedPick(b.superCount,'super'):[];
  const superRows=[];
  for(let i=0;i<superAll.length;i+=20)superRows.push({mode:'super',nums:superAll.slice(i,i+20),multiplier:b.superMultiplier});
  const groups=[];
@@ -4671,7 +4675,7 @@ function buildConvenienceBingoPages(){
 function aeBingoHot3x4x10(){
  try{
    if(currentGame!=='bingo'||!bingoV003SelfTest())throw Error('請先選擇 BINGO，或確認 QR 內建驗證。');
-   const rows=[{mode:'star',stars:3,nums:bingoUniformPick(3),multiplier:4}];
+   const rows=[{mode:'star',stars:3,nums:bingoSelectedPick(3,'star'),multiplier:4}];
    const payload=buildV003PayloadFromBingoBets(rows,{periodCount:10});
    const decoded=parseBingoV003Payload(payload);
    if(decoded.total!==1000||decoded.periodCount!==10||decoded.rows.length!==1)throw Error('熱門快選 QR 回讀驗證失敗。');
@@ -7469,157 +7473,261 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
 </style>
 
 <!-- V14-AP: progressive mobile bet tabs. Desktop retains its original 10 tabs. -->
-<style id="v14ap-mobile-bet-count-style">
-@media (max-width:600px){
+
+
+<style id="v14aq-weight-and-progressive-tabs">
+body.convenience-mode #aqWeightPanel{display:flex!important}
+#aqWeightPanel{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 11px;margin:5px 0 9px;background:#fff8e9;border:1px solid #ead8b4;border-radius:12px;font-size:13px;color:#715327}
+#aqWeightPanel .aq-weight-label{display:inline-flex;align-items:center;gap:11px;font-weight:900;white-space:nowrap;cursor:pointer}
+#aqWeightPanel .aq-weight-switch{width:43px;height:25px;position:relative;display:inline-block}
+#aqWeightSwitch{position:absolute;opacity:0;width:43px;height:25px;z-index:2;cursor:pointer;margin:0}
+#aqWeightPanel .aq-weight-switch i{display:block;border-radius:20px;background:#c7c0cf;width:43px;height:25px;transition:background .18s}
+#aqWeightPanel .aq-weight-switch i:before{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;background:white;border-radius:50%;box-shadow:0 1px 4px #0002;transition:transform .18s}
+#aqWeightSwitch:checked+i{background:#2f7df6}
+#aqWeightSwitch:checked+i:before{transform:translateX(18px)}
+#aqWeightSwitch:focus-visible+i{outline:3px solid #ffd36c;outline-offset:2px}
+#aqWeightHint{color:#846f53;font-size:11px}
+#aqBingoData{flex-basis:100%;font-size:11px;color:#806b51}
+#aqBingoData[hidden]{display:none!important}
+#aqBingoData summary{cursor:pointer}
+#aqBingoData textarea{width:100%;height:82px;border:1px solid #d2c6b2;border-radius:8px;display:block;margin:8px 0;font:12px monospace}
+#aqBingoData button{padding:6px 10px;border:1px solid #dabd82;border-radius:8px;background:white;color:#5c4429;font-weight:750}
+body.aq-bingo-game #preorderBox select{background:#e6e5e9!important;color:#a1a1a7!important;pointer-events:none!important;opacity:.68!important}
+body.aq-bingo-game #preorderBox .sub{display:none!important}
+@media(max-width:600px){
   body[data-mobile-stage="numbers"] #lottoMachine #betTabs{
-    grid-template-columns:repeat(5,minmax(0,1fr))!important;
-    column-gap:5px!important;row-gap:5px!important;
-    padding:6px!important;
+    display:flex!important;flex-flow:row wrap!important;justify-content:flex-start!important;align-items:center!important;
+    gap:6px!important;padding:7px!important;grid-template-columns:none!important;
   }
-  #lottoMachine #betTabs .ap-bet-toolbar{
-    display:grid!important;grid-column:1/-1!important;
-    grid-template-columns:minmax(0,1fr) 38px 38px minmax(79px,auto);
-    gap:5px;align-items:center;min-height:34px;
-    margin:0 0 1px;padding:0 1px;
-  }
-  #lottoMachine #betTabs .ap-bet-label{
-    white-space:nowrap;overflow:hidden;font-size:12px;
-    color:#5b573f;font-weight:750;line-height:1.2;
-  }
-  #lottoMachine #betTabs .ap-bet-label strong{font-size:15px;color:#263850;font-variant-numeric:tabular-nums}
-  #lottoMachine #betTabs .ap-bet-tool{
-    border:1px solid #d2bea4!important;border-radius:9px!important;
-    background:linear-gradient(180deg,#ffffff,#fff9e9)!important;
-    box-shadow:0 1px 2px rgba(94,73,22,.08)!important;
-    color:#543f27!important;font-weight:850!important;
-    height:34px;min-width:0;min-height:34px!important;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;touch-action:manipulation;
-    padding:0 5px!important;
-  }
-  #lottoMachine #betTabs .ap-bet-tool.ap-bet-add{
-    color:#1b65c9!important;border-color:#91b9f1!important;
-    background:#ecf4ff!important;font-size:22px;
-  }
-  #lottoMachine #betTabs .ap-bet-tool.ap-bet-subtract{font-size:22px}
-  #lottoMachine #betTabs .ap-bet-tool.ap-bet-expand{font-size:11px;letter-spacing:-.15px}
-  #lottoMachine #betTabs .ap-bet-tool:disabled{opacity:.4!important;cursor:default!important;box-shadow:none!important}
-  #lottoMachine #betTabs .bet-tab.ap-bet-hidden{display:none!important}
-  #lottoMachine #betTabs .bet-tab:not(.ap-bet-hidden){min-width:0!important;min-height:38px!important}
+  #lottoMachine #betTabs .bet-tab.aq-hidden{display:none!important}
+  #lottoMachine #betTabs .bet-tab:not(.aq-hidden){flex:0 0 44px!important;width:44px!important;min-width:44px!important;min-height:42px!important;margin:0!important}
+  #lottoMachine #betTabs .aq-plus-tab{display:grid!important;place-items:center!important;flex:0 0 44px!important;width:44px!important;height:42px!important;
+    border:1px solid #8db4ef;border-radius:11px;background:#edf5ff;color:#236bc3;font-size:25px;font-weight:800;touch-action:manipulation}
+  #lottoMachine #betTabs .ap-bet-toolbar{display:none!important}
+  #aqWeightPanel{margin:5px 0;padding:7px 9px}
 }
-@media (max-width:359px){
-  #lottoMachine #betTabs .ap-bet-toolbar{grid-template-columns:minmax(0,1fr) 35px 35px 83px;gap:4px}
-  #lottoMachine #betTabs .ap-bet-tool{height:33px;min-height:33px!important}
-  #lottoMachine #betTabs .ap-bet-label{font-size:11px}
-  #lottoMachine #betTabs .ap-bet-tool.ap-bet-expand{font-size:10px}
-}
+@media(min-width:601px){#lottoMachine #betTabs .aq-plus-tab{display:none!important}}
 </style>
-<script id="v14ap-progressive-mobile-bets">
+<script id="v14aq-weighted-bingo">
 (function(){
-  'use strict';
-  const tabs=document.getElementById('betTabs');
-  if(!tabs || typeof renderBetTabs!=='function' || typeof loadBet!=='function')return;
-  const isMobile=()=>window.matchMedia('(max-width:600px)').matches;
-  let visibleCount=1;
-  let lastGame=currentGame;
-  const originalRender=renderBetTabs;
-  function canEditMultiple(){
-    // Convenience and pack screens have different, dedicated bet-count controls.
-    return typeof getActivePlayMode==='function' && getActivePlayMode()==='general';
-  }
-  function alreadyHasPicks(index){
-    if(currentGame==='3star')return star3Selections[index].some(s=>s.size>0);
-    if(currentGame==='4star')return star4Selections[index].some(s=>s.size>0);
-    // The current bet may not yet have been saved to the array.
-    if(index===currentBetIndex && (manualPicked.size>0||powerSecondPicked.size>0))return true;
-    return (betSelections[index]?.size||0)>0 || (powerSecondSelections[index]?.size||0)>0;
-  }
-  function emptySlot(index){
-    if(currentGame==='3star'){star3ClearBet(index);return}
-    if(currentGame==='4star'){star4ClearBet(index);return}
-    betSelections[index]=new Set();
-    powerSecondSelections[index]=new Set();
-    // Reset per-tab mode/parameters, not the global BINGO size/parity extras.
-    if(currentGame==='bingo'){
-      bingoStarSelections[index]=1;
-      bingoModeSelections[index]='star';
-      bingoSystemSelections[index]=false;
-    }
-    if(currentGame==='39combo'||currentGame==='49combo'){
-      combo39PlaySelections[index]=2;
-      combo39MultiplierSelections[index]=1;
-      combo39MultiPlaySelections[index]=new Set([2]);
-    }
-  }
-  function updateMobileDisplay(){
-    if(currentGame!==lastGame){lastGame=currentGame;visibleCount=1;}
-    const mobile=isMobile();
-    if(mobile && currentBetIndex>=visibleCount && canEditMultiple())visibleCount=Math.min(10,currentBetIndex+1);
-    const allow=mobile&&canEditMultiple();
-    const show=allow?visibleCount:1;
-    const buttons=tabs.querySelectorAll('.bet-tab');
-    buttons.forEach((b,i)=>{
-      const hide=mobile&&i>=show;
-      b.classList.toggle('ap-bet-hidden',hide);
-      if(hide){b.setAttribute('aria-hidden','true');b.tabIndex=-1;}
-      else{b.removeAttribute('aria-hidden');b.removeAttribute('tabindex');}
-    });
-    tabs.querySelector('.ap-bet-toolbar')?.remove();
-    if(!allow)return;
-    const bar=document.createElement('div');
-    bar.className='ap-bet-toolbar';
-    bar.setAttribute('role','group');
-    bar.setAttribute('aria-label','手機投注注數管理');
-    bar.innerHTML=`<span class="ap-bet-label" aria-live="polite">目前 <strong>${visibleCount}</strong> 注</span>
-      <button class="ap-bet-tool ap-bet-subtract" data-ap-action="subtract" type="button" aria-label="減少最後一注" title="減少最後一注" ${visibleCount<=1?'disabled':''}>−</button>
-      <button class="ap-bet-tool ap-bet-add" data-ap-action="add" type="button" aria-label="新增一注並切換" title="新增一注並切換" ${visibleCount>=10?'disabled':''}>＋</button>
-      <button class="ap-bet-tool ap-bet-expand" data-ap-action="expand" type="button" ${visibleCount>=10?'disabled':''}>${visibleCount>=10?'已展開10注':'展開10注'}</button>`;
-    tabs.prepend(bar);
-  }
-  // Preserve the application's original per-game tab labels and state colors;
-  // only the count of visible tabs changes on mobile.
-  renderBetTabs=function(){
-    const result=originalRender.apply(this,arguments);
-    updateMobileDisplay();
-    return result;
-  };
-  tabs.addEventListener('click',function(event){
-    const button=event.target.closest('button[data-ap-action]');
-    if(!button || !isMobile() || !canEditMultiple() || button.disabled)return;
-    const action=button.dataset.apAction;
-    if(action==='add'){
-      if(visibleCount>=10)return;
-      visibleCount++;
-      loadBet(visibleCount-1); // Original bet is saved by loadBet().
-      return;
-    }
-    if(action==='expand'){
-      if(visibleCount>=10)return;
-      visibleCount=10;
-      updateMobileDisplay();
-      return;
-    }
-    if(action==='subtract'){
-      if(visibleCount<=1)return;
-      const last=visibleCount-1;
-      if(alreadyHasPicks(last) && !window.confirm(`第 ${String(last+1).padStart(2,'0')} 注已有選號，確定刪除這一注嗎？`))return;
-      if(currentBetIndex===last){
-        // Switch first to avoid syncCurrentBet() writing the deleted bet back.
-        loadBet(last-1);
-      }else if(currentGame!=='3star'&&currentGame!=='4star')syncCurrentBet();
-      emptySlot(last);
-      visibleCount--;
-      lastResult=null;
-      qrResultState=null;
-      renderNumberBoard();
-      renderMachineTotal();
-    }
-  });
-  // Restoring desktop width must reveal the original ten tabs without
-  // modifying their stored numbers or the QR generation core.
-  window.addEventListener('resize',function(){updateMobileDisplay()},{passive:true});
-  updateMobileDisplay();
+ 'use strict';
+ const BINGO_SEED="115061199 03 04 05 10 12 15 16 21 25 26 34 40 41 45 49 54 59 61 66 73\n115061198 05 06 07 14 16 18 22 23 26 28 30 34 38 42 52 53 55 57 60 80\n115061197 01 06 09 10 13 14 20 29 38 39 40 42 43 51 52 57 61 67 68 74\n115061196 01 09 12 17 18 19 21 29 38 45 46 51 52 56 58 62 70 72 75 80\n115061195 04 07 12 21 28 31 36 39 40 47 52 57 60 66 67 68 72 74 75 76\n115061194 06 07 10 14 15 22 32 33 34 39 44 46 49 51 56 63 64 69 71 73\n115061193 02 12 19 20 21 26 27 31 34 37 38 40 43 46 56 59 62 67 69 74\n115061192 05 10 12 16 17 20 26 27 28 32 35 39 41 48 52 62 72 73 74 79\n115061191 07 15 19 22 32 42 46 47 48 49 52 57 61 62 63 65 66 73 76 79\n115061190 06 07 13 16 21 24 32 38 41 43 44 45 48 57 58 61 62 64 69 72\n115061189 04 07 08 09 16 21 24 25 28 31 38 49 50 59 64 65 66 73 76 78\n115061188 01 03 04 12 15 17 19 23 26 27 31 33 52 53 54 55 57 58 61 72\n115061187 01 06 11 12 16 19 20 28 29 30 32 38 48 51 52 60 63 67 69 72\n115061186 08 14 15 21 22 32 33 45 51 55 58 59 62 64 67 69 72 73 78 80\n115061185 10 13 14 21 24 32 34 38 42 43 46 48 55 61 64 65 73 77 78 80\n115061184 01 05 07 11 14 18 21 22 34 37 44 49 56 58 59 60 65 67 74 75\n115061183 02 05 08 12 13 15 21 22 33 38 40 42 45 49 50 58 61 73 78 79\n115061182 01 09 27 30 31 33 46 49 50 51 56 58 62 66 68 69 70 71 74 80\n115061181 03 08 09 14 17 18 22 26 27 34 42 45 49 54 55 59 62 66 70 75\n115061180 02 03 05 07 15 19 31 33 35 36 39 42 50 56 59 64 69 72 74 77\n115061179 05 07 09 11 17 29 33 35 41 44 50 51 57 60 64 65 66 73 76 77\n115061178 01 08 10 12 19 25 27 28 31 46 56 57 59 62 63 67 71 72 76 79\n115061177 13 15 22 23 29 30 31 33 34 40 41 44 46 50 59 69 73 74 75 79\n115061176 02 11 13 17 24 36 38 39 40 43 48 50 52 53 54 58 73 74 78 80\n115061175 01 02 03 11 14 16 20 23 25 27 33 36 47 48 53 56 61 67 69 74\n115061174 08 13 15 16 17 18 28 38 43 44 45 46 49 54 55 59 60 73 74 77\n115061173 02 05 11 12 19 26 32 35 37 39 44 45 49 54 58 63 72 75 77 78\n115061172 04 06 07 14 17 20 33 37 38 52 57 60 61 62 63 69 72 74 77 80\n115061171 07 10 20 22 28 33 45 47 50 51 53 54 55 56 59 60 62 66 70 72\n115061170 11 12 15 20 26 28 37 40 43 44 45 46 49 60 61 62 70 74 77 80\n115061169 02 04 05 09 17 27 28 29 31 39 40 45 48 49 58 63 64 66 73 76\n115061168 08 21 25 27 30 31 38 41 46 48 49 50 53 61 62 69 71 72 74 79\n115061167 02 05 10 14 20 21 25 27 32 46 54 58 63 65 66 70 72 74 75 78\n115061166 04 05 09 18 19 25 29 30 44 48 51 52 59 61 63 73 74 75 76 79\n115061165 11 12 14 24 33 39 40 43 49 50 61 66 67 71 72 74 75 78 79 80\n115061164 03 04 05 08 10 14 24 26 27 29 36 38 50 52 57 66 69 72 76 79";
+ const BINGO_SUPERS=[{issue:'115061143',n:18},{issue:'115061142',n:36},{issue:'115061141',n:17},{issue:'115061140',n:66},{issue:'115061139',n:33}];
+ const STORE='OurLotto_BingoDraws_V1';const TOGGLE='OurLotto_WeightedQuick_V1';
+ let enabled=true;try{enabled=localStorage.getItem(TOGGLE)!=='false'}catch(e){}
+ window.AQ_WEIGHT_ON=enabled;
+ function parseRows(input){
+   let value=input;
+   if(typeof value==='string'&&value.trim().startsWith('[')){try{value=JSON.parse(value)}catch(e){}}
+   if(typeof value==='string'&&value.trim().startsWith('{')){try{value=JSON.parse(value)}catch(e){}}
+   if(!Array.isArray(value))value=String(value).trim().split(/\r?\n/).filter(Boolean).map(line=>{
+     const parts=line.trim().split(/[\s,，;；]+/).filter(Boolean);
+     return {issue:parts[0],nums:parts.slice(1,21).map(Number),super:parts.length>21?Number(parts[21]):null};
+   });
+   return value.map(row=>{const issue=String(row.issue||row.period||row.id||'');let nums=row.nums||row.numbers||row.drawNumbers;
+     if(typeof nums==='string')nums=nums.split(/[\s,，;；]+/).map(Number);
+     const superNumber=Number(row.super||row.superNumber||row.special||0);
+     return {issue,nums:Array.isArray(nums)?nums.map(Number):[],super:Number.isInteger(superNumber)&&superNumber>=1&&superNumber<=80?superNumber:null};
+   }).filter(row=>/^\d{7,12}$/.test(row.issue)&&row.nums.length===20&&new Set(row.nums).size===20&&row.nums.every(n=>Number.isInteger(n)&&n>=1&&n<=80))
+    .sort((a,b)=>b.issue.localeCompare(a.issue)).filter((row,i,arr)=>arr.findIndex(x=>x.issue===row.issue)===i).slice(0,203);
+ }
+ let draws=parseRows(BINGO_SEED);
+ try{const cached=parseRows(localStorage.getItem(STORE)||'[]');if(cached.length>=36&&cached[0].issue>draws[0].issue)draws=cached;}catch(e){}
+ const panel=document.createElement('div');panel.id='aqWeightPanel';panel.innerHTML=`<label class="aq-weight-label" for="aqWeightSwitch"><span>加權快選</span><span class="aq-weight-switch"><input type="checkbox" id="aqWeightSwitch" ${enabled?'checked':''}/><i></i></span></label><span id="aqWeightHint" aria-live="polite"></span><details id="aqBingoData"><summary>更新 BINGO 歷史資料</summary><textarea id="aqBingoDataText" placeholder="每行：期數＋20個號碼＋可選的超級獎號（最後一碼）"></textarea><button id="aqBingoImport" type="button">匯入最近開獎資料</button></details>`;
+ const anchor=document.getElementById('betTabs');anchor?.parentNode?.insertBefore(panel,anchor);
+ function updateHint(){
+   const hint=document.getElementById('aqWeightHint'),details=document.getElementById('aqBingoData');
+   if(details)details.hidden=currentGame!=='bingo';
+   if(!hint)return;
+   if(!window.AQ_WEIGHT_ON)hint.textContent='所有快選：均等亂數';
+   else if(currentGame==='bingo')hint.textContent=`BINGO加權樣本：${draws.length}期｜樣本截至 ${draws[0]?.issue||'—'}`;
+   else if(currentGame==='3star'||currentGame==='4star')hint.textContent='星彩目前使用各位數均等亂數';
+   else hint.textContent='依所選彩種的歷史權重選號';
+ }
+ document.getElementById('aqWeightSwitch')?.addEventListener('change',e=>{
+   enabled=!!e.target.checked;window.AQ_WEIGHT_ON=enabled;try{localStorage.setItem(TOGGLE,String(enabled))}catch(e){}updateHint();
+ });
+ document.getElementById('aqBingoImport')?.addEventListener('click',()=>{
+   const raw=document.getElementById('aqBingoDataText').value;
+   let incoming=[];try{incoming=parseRows(raw)}catch(e){}
+   if(incoming.length<36)return alert('請匯入至少36期有效資料，每期需20個不重複的01～80號碼。');
+   if(!confirm(`確認匯入 ${incoming.length} 期 BINGO 開獎資料？`))return;
+   draws=incoming;try{localStorage.setItem(STORE,JSON.stringify(draws))}catch(e){alert('資料已載入，但瀏覽器儲存空間不足，重開後可能遺失。')}
+   updateHint();alert(`已匯入 ${draws.length} 期開獎資料。`);
+ });
+ // Candidate model. All provisional multipliers are kept in one adjustable configuration.
+ const PARAM={hot:.30,hotBoost:1.2,tailHot:.90,tailBoost:1.08,pairHot:.25,pairBoost:1.1,run4:.35,run5:.30,run6:.01,tail4:.50,tail5:.25,tail6:.01};
+ function drawWeighted(count,mode){
+   if(!window.AQ_WEIGHT_ON||draws.length<36)return bingoUniformPick(count);
+   const recent=draws.slice(0,36),occ=Array(81).fill(0),miss=Array(81).fill(0),tails=Array(10).fill(0),pair=Array.from({length:81},()=>Array(81).fill(0));
+   recent.forEach((row,i)=>{const tailSeen=new Set();row.nums.forEach(n=>{occ[n]++;tailSeen.add(n%10);if(i<10)miss[n]++;});
+     for(const t of tailSeen)tails[t]++;for(let a=0;a<20;a++)for(let b=a+1;b<20;b++){pair[row.nums[a]][row.nums[b]]++;pair[row.nums[b]][row.nums[a]]++;}
+   });
+   const supers=draws.filter(row=>row.super).slice(0,36);
+   // The separate super-number model can use explicitly marked super draws only.
+   const superSamples=supers.length>=16?supers: BINGO_SUPERS;
+   const sf=Array(81).fill(0);superSamples.forEach(row=>{const n=Number(row.super||row.n);if(n>=1&&n<=80)sf[n]++});
+   const weights=Array(81).fill(0);
+   for(let n=1;n<=80;n++){
+     const base=(.4/80)+(.6*occ[n]/(20*recent.length));
+     weights[n]=mode==='super'?(.45/80)+(.35*occ[n]/(20*recent.length)) + (.20*sf[n]/Math.max(1,superSamples.length)):base;
+     if(occ[n]/recent.length>PARAM.hot)weights[n]*=PARAM.hotBoost;
+     if(tails[n%10]/recent.length>PARAM.tailHot)weights[n]*=PARAM.tailBoost;
+     // 10 consecutive draws without appearance: excluded, unless drawing nearly all 80 balls.
+     if(count<=75&&miss[n]===0)weights[n]=0;
+   }
+   const chosen=[];
+   for(let k=0;k<Math.min(80,Math.max(1,Number(count)||1));k++){
+     const ws=[];let total=0;
+     for(let n=1;n<=80;n++){
+       if(chosen.includes(n)){ws[n]=0;continue}
+       let w=weights[n];
+       if(chosen.some(m=>pair[n][m]/recent.length>PARAM.pairHot))w*=PARAM.pairBoost;
+       const sameTail=chosen.filter(m=>m%10===n%10).length;
+       if(sameTail===3)w*=PARAM.tail4;else if(sameTail===4)w*=PARAM.tail5;else if(sameTail>=5)w*=PARAM.tail6;
+       const contiguous=new Set([...chosen,n]);let lo=n,hi=n;
+       while(contiguous.has(lo-1))lo--;while(contiguous.has(hi+1))hi++;
+       const run=hi-lo+1;if(run===4)w*=PARAM.run4;else if(run===5)w*=PARAM.run5;else if(run>=6)w*=PARAM.run6;
+       ws[n]=w;total+=w;
+     }
+     if(total<=0){for(let n=1;n<=80;n++)if(!chosen.includes(n)){ws[n]=1;total++}}
+     // D100 dice-face quantization, then crypto-secure random roll. For small weights,
+     // stochastic face allocation avoids starving numbers with fewer than 1 face.
+     const faceWeights=ws.map((w,n)=>n===0?0:w*100/total);
+     const faces=faceWeights.map((w,n)=>n===0?0:Math.floor(w));
+     let remaining=100-faces.reduce((a,b)=>a+b,0);
+     const rank=[];for(let n=1;n<=80;n++)if(ws[n]>0)rank.push({n,frac:faceWeights[n]-faces[n]});
+     // Largest remainders; tie resolved with random jitter so 80 numbers don't always favour low IDs.
+     rank.forEach(r=>r.frac+=cryptoInt(1000)/10000000);
+     rank.sort((a,b)=>b.frac-a.frac);
+     for(let t=0;t<remaining&&t<rank.length;t++)faces[rank[t].n]++;
+     let rolled=cryptoInt(100)+1,next=null;
+     for(let n=1;n<=80;n++){rolled-=faces[n];if(rolled<=0){next=n;break}}
+     if(next===null)next=rank[0]?.n||Array.from({length:80},(_,i)=>i+1).find(n=>!chosen.includes(n));
+     chosen.push(next);
+   }
+   return chosen.sort((a,b)=>a-b);
+ }
+ window.AQ_BINGO_DRAW=drawWeighted;
+ // Replace all game-module d100 random draws only when the user turns weighting OFF.
+ function uniformResult(n,max,label){const list=Array.from({length:max},(_,i)=>i+1),out=[];for(let k=0;k<Math.min(n,max);k++){const j=cryptoInt(list.length);out.push(list.splice(j,1)[0])}out.sort((a,b)=>a-b);
+   return {nums:out,logs:[`均等快選｜${label}｜${out.map(pad).join(' ')}`],rolls:n,dup:0,sup:0,lastIssue:'',lastNums:[]};
+ }
+ for(const game of ['lotto649','539','39combo','49combo']){
+   const mod=GAME_MODULES[game].d100,old=mod.draw.bind(mod);
+   mod.draw=function(n){return window.AQ_WEIGHT_ON?old(n):uniformResult(n,game==='lotto649'||game==='49combo'?49:39,game)};
+ }
+ const power=GAME_MODULES.power.d100,first=power.drawFirst.bind(power),second=power.drawSecond.bind(power);
+ power.drawFirst=function(n){return window.AQ_WEIGHT_ON?first(n):uniformResult(n,38,'威力彩第一區')};
+ power.drawSecond=function(){if(window.AQ_WEIGHT_ON)return second();const num=1+cryptoInt(8);return {num,log:'威力彩第二區｜均等 '+pad(num)}};
+ const oldUpdate=updateGameUI;
+ updateGameUI=function(){const result=oldUpdate.apply(this,arguments);document.body.classList.toggle('aq-bingo-game',currentGame==='bingo');updateHint();return result};
+ const oldSwitch=switchGame;
+ switchGame=function(){const result=oldSwitch.apply(this,arguments);updateHint();return result};
+ document.body.classList.toggle('aq-bingo-game',currentGame==='bingo');updateHint();
 })();
-</script>
-</body>
+</script><script id="v14aq-progressive-mobile-tabs">
+(function(){
+ 'use strict';
+ const tabs=document.getElementById('betTabs');
+ if(!tabs)return;
+ const mobile=()=>window.matchMedia('(max-width:600px)').matches;
+ let count=1,game=currentGame,mode='',everFilled=new Set(),suppress=false;
+ const originalRender=renderBetTabs;
+ const canUse=()=>getActivePlayMode()==='general';
+ function filled(i){
+   if(currentGame==='3star')return star3UnitCount(i)>0;
+   if(currentGame==='4star')return star4UnitCount(i)>0;
+   if(i===currentBetIndex&&currentGame!=='3star'&&currentGame!=='4star')syncCurrentBet();
+   return betUnitCount(betSelections[i],i)>0;
+ }
+ function hasAny(i){
+   if(currentGame==='3star')return star3Sets(i).some(s=>s.size>0);
+   if(currentGame==='4star')return star4Sets(i).some(s=>s.size>0);
+   if(i===currentBetIndex)syncCurrentBet();
+   return betSelections[i].size>0||powerSecondSelections[i].size>0;
+ }
+ function clearRow(i){
+   if(currentGame==='3star'){star3ClearBet(i);return}
+   if(currentGame==='4star'){star4ClearBet(i);return}
+   betSelections[i]=new Set();powerSecondSelections[i]=new Set();
+   if(currentGame==='bingo'){bingoStarSelections[i]=1;bingoModeSelections[i]='star';bingoSystemSelections[i]=false}
+   if(isLottoComboGame()){combo39PlaySelections[i]=2;combo39MultiPlaySelections[i]=new Set([2]);combo39MultiplierSelections[i]=1;}
+ }
+ function syncLayout(){
+   if(game!==currentGame||mode!==getActivePlayMode()){
+     game=currentGame;mode=getActivePlayMode();count=1;everFilled.clear();
+   }
+   if(!mobile()||!canUse()){
+     tabs.querySelectorAll('.bet-tab').forEach(b=>{b.classList.remove('aq-hidden');b.removeAttribute('aria-hidden');});
+     return;
+   }
+   const nodes=[...tabs.querySelectorAll('.bet-tab')];
+   for(let i=0;i<count;i++)if(filled(i)||hasAny(i))everFilled.add(i);
+   nodes.forEach((b,i)=>{
+     const hidden=i>=count;b.classList.toggle('aq-hidden',hidden);
+     if(hidden){b.setAttribute('aria-hidden','true');b.tabIndex=-1;}
+     else{b.removeAttribute('aria-hidden');b.removeAttribute('tabindex')}
+   });
+   tabs.querySelector('.aq-plus-tab')?.remove();
+   if(count<10){
+     const plus=document.createElement('button');plus.className='aq-plus-tab';plus.type='button';
+     plus.textContent='＋';plus.title='完成一組選號後新增一注';plus.setAttribute('aria-label','新增一注');
+     plus.addEventListener('click',e=>{
+       e.preventDefault();e.stopPropagation();
+       if(!filled(count-1)){alert('請完成一組選號');return}
+       if(count>=10)return;
+       suppress=true;clearRow(count);count++;
+       loadBet(count-1);suppress=false;
+       renderBetTabs();
+     });
+     const last=nodes[count-1];last?.after(plus);
+   }
+ }
+ renderBetTabs=function(){
+   const r=originalRender.apply(this,arguments);
+   tabs.querySelector('.ap-bet-toolbar')?.remove();
+   syncLayout();return r;
+ };
+ function shrinkIfEmpty(){
+   if(suppress||!mobile()||!canUse()||count<=1)return;
+   const index=currentBetIndex;
+   if(index===0||index>=count||!everFilled.has(index)||hasAny(index))return;
+   suppress=true;
+   // Only collapse rows after their contents were explicitly cleared.
+   if(currentGame==='3star'||currentGame==='4star'){
+     const arr=currentGame==='3star'?star3Selections:star4Selections;
+     const groups=currentGame==='3star'?star3GroupSelections:star4GroupSelections;
+     const multipliers=currentGame==='3star'?star3MultiplierSelections:star4MultiplierSelections;
+     arr.splice(index,1);arr.push(Array.from({length:currentGame==='3star'?3:4},()=>new Set()));
+     groups.splice(index,1);groups.push(false);
+     multipliers.splice(index,1);multipliers.push(1);
+   }else{
+     syncCurrentBet();
+     for(const arr of [betSelections,powerSecondSelections]){arr.splice(index,1);arr.push(new Set())}
+     if(currentGame==='bingo')for(const [arr,def] of [[bingoStarSelections,1],[bingoModeSelections,'star'],[bingoSystemSelections,false]]){arr.splice(index,1);arr.push(def)}
+     if(isLottoComboGame())for(const [arr,def] of [[combo39PlaySelections,2],[combo39MultiplierSelections,1],[combo39MultiPlaySelections,new Set([2])]]){arr.splice(index,1);arr.push(def instanceof Set?new Set(def):def)}
+   }
+   const updated=new Set();for(const i of everFilled){if(i<index)updated.add(i);else if(i>index)updated.add(i-1)}everFilled=updated;
+   count--;
+   // After compaction load the next existing row; if last was removed, return to prior.
+   currentBetIndex=Math.min(index,count-1);
+   if(currentGame!=='3star'&&currentGame!=='4star'){
+     manualPicked=new Set(betSelections[currentBetIndex]);powerSecondPicked=new Set(powerSecondSelections[currentBetIndex]);
+   }
+   lastResult=null;qrResultState=null;
+   suppress=false;
+   renderNumberBoard();renderBetTabs();renderMachineTotal();
+ }
+ document.addEventListener('click',e=>{
+   if(!mobile()||!canUse())return;
+   if(e.target.closest('[data-picknum],[data-star3-digit],[data-star4-digit],#machineClear'))setTimeout(shrinkIfEmpty,0);
+   if(e.target.closest('#machineClearAll,#mobileClearAll'))setTimeout(()=>{count=1;everFilled.clear();renderBetTabs()},0);
+ });
+ const oldSwitch=switchGame;
+ switchGame=function(){const result=oldSwitch.apply(this,arguments);count=1;everFilled.clear();renderBetTabs();return result};
+ window.addEventListener('resize',()=>renderBetTabs(),{passive:true});
+ renderBetTabs();
+})();
+</script></body>
 </html>
