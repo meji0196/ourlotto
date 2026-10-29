@@ -7467,5 +7467,159 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
   }
 }
 </style>
+
+<!-- V14-AP: progressive mobile bet tabs. Desktop retains its original 10 tabs. -->
+<style id="v14ap-mobile-bet-count-style">
+@media (max-width:600px){
+  body[data-mobile-stage="numbers"] #lottoMachine #betTabs{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    column-gap:5px!important;row-gap:5px!important;
+    padding:6px!important;
+  }
+  #lottoMachine #betTabs .ap-bet-toolbar{
+    display:grid!important;grid-column:1/-1!important;
+    grid-template-columns:minmax(0,1fr) 38px 38px minmax(79px,auto);
+    gap:5px;align-items:center;min-height:34px;
+    margin:0 0 1px;padding:0 1px;
+  }
+  #lottoMachine #betTabs .ap-bet-label{
+    white-space:nowrap;overflow:hidden;font-size:12px;
+    color:#5b573f;font-weight:750;line-height:1.2;
+  }
+  #lottoMachine #betTabs .ap-bet-label strong{font-size:15px;color:#263850;font-variant-numeric:tabular-nums}
+  #lottoMachine #betTabs .ap-bet-tool{
+    border:1px solid #d2bea4!important;border-radius:9px!important;
+    background:linear-gradient(180deg,#ffffff,#fff9e9)!important;
+    box-shadow:0 1px 2px rgba(94,73,22,.08)!important;
+    color:#543f27!important;font-weight:850!important;
+    height:34px;min-width:0;min-height:34px!important;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;touch-action:manipulation;
+    padding:0 5px!important;
+  }
+  #lottoMachine #betTabs .ap-bet-tool.ap-bet-add{
+    color:#1b65c9!important;border-color:#91b9f1!important;
+    background:#ecf4ff!important;font-size:22px;
+  }
+  #lottoMachine #betTabs .ap-bet-tool.ap-bet-subtract{font-size:22px}
+  #lottoMachine #betTabs .ap-bet-tool.ap-bet-expand{font-size:11px;letter-spacing:-.15px}
+  #lottoMachine #betTabs .ap-bet-tool:disabled{opacity:.4!important;cursor:default!important;box-shadow:none!important}
+  #lottoMachine #betTabs .bet-tab.ap-bet-hidden{display:none!important}
+  #lottoMachine #betTabs .bet-tab:not(.ap-bet-hidden){min-width:0!important;min-height:38px!important}
+}
+@media (max-width:359px){
+  #lottoMachine #betTabs .ap-bet-toolbar{grid-template-columns:minmax(0,1fr) 35px 35px 83px;gap:4px}
+  #lottoMachine #betTabs .ap-bet-tool{height:33px;min-height:33px!important}
+  #lottoMachine #betTabs .ap-bet-label{font-size:11px}
+  #lottoMachine #betTabs .ap-bet-tool.ap-bet-expand{font-size:10px}
+}
+</style>
+<script id="v14ap-progressive-mobile-bets">
+(function(){
+  'use strict';
+  const tabs=document.getElementById('betTabs');
+  if(!tabs || typeof renderBetTabs!=='function' || typeof loadBet!=='function')return;
+  const isMobile=()=>window.matchMedia('(max-width:600px)').matches;
+  let visibleCount=1;
+  let lastGame=currentGame;
+  const originalRender=renderBetTabs;
+  function canEditMultiple(){
+    // Convenience and pack screens have different, dedicated bet-count controls.
+    return typeof getActivePlayMode==='function' && getActivePlayMode()==='general';
+  }
+  function alreadyHasPicks(index){
+    if(currentGame==='3star')return star3Selections[index].some(s=>s.size>0);
+    if(currentGame==='4star')return star4Selections[index].some(s=>s.size>0);
+    // The current bet may not yet have been saved to the array.
+    if(index===currentBetIndex && (manualPicked.size>0||powerSecondPicked.size>0))return true;
+    return (betSelections[index]?.size||0)>0 || (powerSecondSelections[index]?.size||0)>0;
+  }
+  function emptySlot(index){
+    if(currentGame==='3star'){star3ClearBet(index);return}
+    if(currentGame==='4star'){star4ClearBet(index);return}
+    betSelections[index]=new Set();
+    powerSecondSelections[index]=new Set();
+    // Reset per-tab mode/parameters, not the global BINGO size/parity extras.
+    if(currentGame==='bingo'){
+      bingoStarSelections[index]=1;
+      bingoModeSelections[index]='star';
+      bingoSystemSelections[index]=false;
+    }
+    if(currentGame==='39combo'||currentGame==='49combo'){
+      combo39PlaySelections[index]=2;
+      combo39MultiplierSelections[index]=1;
+      combo39MultiPlaySelections[index]=new Set([2]);
+    }
+  }
+  function updateMobileDisplay(){
+    if(currentGame!==lastGame){lastGame=currentGame;visibleCount=1;}
+    const mobile=isMobile();
+    if(mobile && currentBetIndex>=visibleCount && canEditMultiple())visibleCount=Math.min(10,currentBetIndex+1);
+    const allow=mobile&&canEditMultiple();
+    const show=allow?visibleCount:1;
+    const buttons=tabs.querySelectorAll('.bet-tab');
+    buttons.forEach((b,i)=>{
+      const hide=mobile&&i>=show;
+      b.classList.toggle('ap-bet-hidden',hide);
+      if(hide){b.setAttribute('aria-hidden','true');b.tabIndex=-1;}
+      else{b.removeAttribute('aria-hidden');b.removeAttribute('tabindex');}
+    });
+    tabs.querySelector('.ap-bet-toolbar')?.remove();
+    if(!allow)return;
+    const bar=document.createElement('div');
+    bar.className='ap-bet-toolbar';
+    bar.setAttribute('role','group');
+    bar.setAttribute('aria-label','手機投注注數管理');
+    bar.innerHTML=`<span class="ap-bet-label" aria-live="polite">目前 <strong>${visibleCount}</strong> 注</span>
+      <button class="ap-bet-tool ap-bet-subtract" data-ap-action="subtract" type="button" aria-label="減少最後一注" title="減少最後一注" ${visibleCount<=1?'disabled':''}>−</button>
+      <button class="ap-bet-tool ap-bet-add" data-ap-action="add" type="button" aria-label="新增一注並切換" title="新增一注並切換" ${visibleCount>=10?'disabled':''}>＋</button>
+      <button class="ap-bet-tool ap-bet-expand" data-ap-action="expand" type="button" ${visibleCount>=10?'disabled':''}>${visibleCount>=10?'已展開10注':'展開10注'}</button>`;
+    tabs.prepend(bar);
+  }
+  // Preserve the application's original per-game tab labels and state colors;
+  // only the count of visible tabs changes on mobile.
+  renderBetTabs=function(){
+    const result=originalRender.apply(this,arguments);
+    updateMobileDisplay();
+    return result;
+  };
+  tabs.addEventListener('click',function(event){
+    const button=event.target.closest('button[data-ap-action]');
+    if(!button || !isMobile() || !canEditMultiple() || button.disabled)return;
+    const action=button.dataset.apAction;
+    if(action==='add'){
+      if(visibleCount>=10)return;
+      visibleCount++;
+      loadBet(visibleCount-1); // Original bet is saved by loadBet().
+      return;
+    }
+    if(action==='expand'){
+      if(visibleCount>=10)return;
+      visibleCount=10;
+      updateMobileDisplay();
+      return;
+    }
+    if(action==='subtract'){
+      if(visibleCount<=1)return;
+      const last=visibleCount-1;
+      if(alreadyHasPicks(last) && !window.confirm(`第 ${String(last+1).padStart(2,'0')} 注已有選號，確定刪除這一注嗎？`))return;
+      if(currentBetIndex===last){
+        // Switch first to avoid syncCurrentBet() writing the deleted bet back.
+        loadBet(last-1);
+      }else if(currentGame!=='3star'&&currentGame!=='4star')syncCurrentBet();
+      emptySlot(last);
+      visibleCount--;
+      lastResult=null;
+      qrResultState=null;
+      renderNumberBoard();
+      renderMachineTotal();
+    }
+  });
+  // Restoring desktop width must reveal the original ten tabs without
+  // modifying their stored numbers or the QR generation core.
+  window.addEventListener('resize',function(){updateMobileDisplay()},{passive:true});
+  updateMobileDisplay();
+})();
+</script>
 </body>
 </html>
