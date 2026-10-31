@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號｜V14-AS</title>
+<title>奧爾樂透選號｜V14-AT</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -1014,6 +1014,66 @@ body>header .brand.brand-with-logo .our-brand-name{display:block;white-space:now
   body>header .brand.brand-with-logo{font-size:15px!important}
   body>header .brand.brand-with-logo .our-brand-logo{width:30px;height:30px}
   body>header .draw-date-badge{font-size:9px!important}
+}
+</style>
+
+<style id="v14at-ui-foundations">
+/* V14-AT Design Foundation — conservative visual-only layer.
+   Does not change draw engines, QR encoding, state, IDs or business rules. */
+:root{
+ --our-bg:#FFFBF2; --our-surface:#FFFDF8; --our-ink:#293342;
+ --our-muted:#606B78; --our-line:#DDD4BE; --our-blue:#2868C9;
+ --our-gold:#D7AA42; --our-radius:12px; --our-focus:#2868C9;
+ --our-step-1:4px; --our-step-2:8px; --our-step-3:12px;
+ --our-step-4:16px; --our-step-6:24px;
+ font-size:16px; -webkit-text-size-adjust:100%; text-size-adjust:100%;
+}
+body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.5}
+button, input, select, textarea{font-family:inherit;letter-spacing:normal}
+button{touch-action:manipulation}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible,[role="button"]:focus-visible{
+ outline:3px solid var(--our-focus)!important;outline-offset:3px!important;
+}
+/* Keep existing theme and semantic colors: smooth typography and geometry only. */
+#lottoMachine .machine-main{border-radius:14px}
+#lottoMachine .game-rail,#lottoMachine .machine-side{border-radius:13px}
+#lottoMachine .side-btn,#lottoMachine .machine-action,#lottoMachine .machine-clear,
+#lottoMachine .machine-print,#lottoMachine .bet-tab,
+#lottoMachine .num-btn,#lottoMachine .period-select,
+#lottoMachine .preorder-select,#lottoMachine .quick-pick-count{
+ line-height:1.3;letter-spacing:0;}
+#lottoMachine .side-btn{font-weight:800}
+#lottoMachine .machine-action,#lottoMachine .machine-print,
+#lottoMachine .machine-clear{font-weight:800}
+#lottoMachine .num-btn{font-variant-numeric:tabular-nums}
+#lottoMachine .bet-tab{font-variant-numeric:tabular-nums}
+/* Preserve fixed QR and highly compact special steppers; normalize other action targets. */
+#lottoMachine .machine-action,#lottoMachine .machine-clear,
+#lottoMachine .machine-print,#lottoMachine .side-btn,
+#lottoMachine .period-select,#lottoMachine .preorder-select,
+#lottoMachine .quick-pick-count{min-height:44px}
+#lottoMachine .num-btn{min-height:44px}
+#lottoMachine .bet-tab{min-height:44px}
+/* Accessible state distinction in addition to color. */
+#lottoMachine .bet-tab.active{font-weight:900}
+#lottoMachine .side-btn.mode-btn.active{font-weight:900}
+#lottoMachine button:disabled{cursor:not-allowed!important}
+@media(max-width:600px){
+ body{font-size:16px}
+ #lottoMachine .side-btn{font-size:15px!important;line-height:1.35!important}
+ #lottoMachine .machine-action{font-size:15px;line-height:1.35}
+ #lottoMachine #betTabs .bet-tab{font-size:16px!important;min-height:44px!important}
+ #lottoMachine #numberBoard .num-btn{font-size:18px!important;min-height:48px!important}
+ #lottoMachine #powerSecondBoard button{font-size:18px!important;min-height:48px!important}
+ #lottoMachine #machineQr{font-size:17px!important;min-height:54px!important}
+ #lottoMachine #periodBox label{font-size:14px!important;line-height:1.4}
+ #lottoMachine #periodBox select{font-size:16px!important;min-height:44px!important}
+ #mobileStepNav .mobile-step-item{min-height:44px;line-height:1.35}
+ /* Avoid forcing 44px into the dense betting configuration steppers. */
+ #quickModeExtras .smart-stepper button,#quickModeExtras .self-countbox button{min-height:32px}
+}
+@media(prefers-reduced-motion:reduce){
+ button, .bet-tab, .num-btn, .side-btn {transition-duration:0.01ms!important;animation-duration:0.01ms!important}
 }
 </style>
 </head>
