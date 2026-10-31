@@ -7513,7 +7513,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  'use strict';
  const BINGO_SEED="115061199 03 04 05 10 12 15 16 21 25 26 34 40 41 45 49 54 59 61 66 73\n115061198 05 06 07 14 16 18 22 23 26 28 30 34 38 42 52 53 55 57 60 80\n115061197 01 06 09 10 13 14 20 29 38 39 40 42 43 51 52 57 61 67 68 74\n115061196 01 09 12 17 18 19 21 29 38 45 46 51 52 56 58 62 70 72 75 80\n115061195 04 07 12 21 28 31 36 39 40 47 52 57 60 66 67 68 72 74 75 76\n115061194 06 07 10 14 15 22 32 33 34 39 44 46 49 51 56 63 64 69 71 73\n115061193 02 12 19 20 21 26 27 31 34 37 38 40 43 46 56 59 62 67 69 74\n115061192 05 10 12 16 17 20 26 27 28 32 35 39 41 48 52 62 72 73 74 79\n115061191 07 15 19 22 32 42 46 47 48 49 52 57 61 62 63 65 66 73 76 79\n115061190 06 07 13 16 21 24 32 38 41 43 44 45 48 57 58 61 62 64 69 72\n115061189 04 07 08 09 16 21 24 25 28 31 38 49 50 59 64 65 66 73 76 78\n115061188 01 03 04 12 15 17 19 23 26 27 31 33 52 53 54 55 57 58 61 72\n115061187 01 06 11 12 16 19 20 28 29 30 32 38 48 51 52 60 63 67 69 72\n115061186 08 14 15 21 22 32 33 45 51 55 58 59 62 64 67 69 72 73 78 80\n115061185 10 13 14 21 24 32 34 38 42 43 46 48 55 61 64 65 73 77 78 80\n115061184 01 05 07 11 14 18 21 22 34 37 44 49 56 58 59 60 65 67 74 75\n115061183 02 05 08 12 13 15 21 22 33 38 40 42 45 49 50 58 61 73 78 79\n115061182 01 09 27 30 31 33 46 49 50 51 56 58 62 66 68 69 70 71 74 80\n115061181 03 08 09 14 17 18 22 26 27 34 42 45 49 54 55 59 62 66 70 75\n115061180 02 03 05 07 15 19 31 33 35 36 39 42 50 56 59 64 69 72 74 77\n115061179 05 07 09 11 17 29 33 35 41 44 50 51 57 60 64 65 66 73 76 77\n115061178 01 08 10 12 19 25 27 28 31 46 56 57 59 62 63 67 71 72 76 79\n115061177 13 15 22 23 29 30 31 33 34 40 41 44 46 50 59 69 73 74 75 79\n115061176 02 11 13 17 24 36 38 39 40 43 48 50 52 53 54 58 73 74 78 80\n115061175 01 02 03 11 14 16 20 23 25 27 33 36 47 48 53 56 61 67 69 74\n115061174 08 13 15 16 17 18 28 38 43 44 45 46 49 54 55 59 60 73 74 77\n115061173 02 05 11 12 19 26 32 35 37 39 44 45 49 54 58 63 72 75 77 78\n115061172 04 06 07 14 17 20 33 37 38 52 57 60 61 62 63 69 72 74 77 80\n115061171 07 10 20 22 28 33 45 47 50 51 53 54 55 56 59 60 62 66 70 72\n115061170 11 12 15 20 26 28 37 40 43 44 45 46 49 60 61 62 70 74 77 80\n115061169 02 04 05 09 17 27 28 29 31 39 40 45 48 49 58 63 64 66 73 76\n115061168 08 21 25 27 30 31 38 41 46 48 49 50 53 61 62 69 71 72 74 79\n115061167 02 05 10 14 20 21 25 27 32 46 54 58 63 65 66 70 72 74 75 78\n115061166 04 05 09 18 19 25 29 30 44 48 51 52 59 61 63 73 74 75 76 79\n115061165 11 12 14 24 33 39 40 43 49 50 61 66 67 71 72 74 75 78 79 80\n115061164 03 04 05 08 10 14 24 26 27 29 36 38 50 52 57 66 69 72 76 79";
  const BINGO_SUPERS=[{issue:'115061143',n:18},{issue:'115061142',n:36},{issue:'115061141',n:17},{issue:'115061140',n:66},{issue:'115061139',n:33}];
- const STORE='OurLotto_BingoDraws_V1';const TOGGLE='OurLotto_WeightedQuick_V1';
+ const STORE='OurLotto_BingoDraws_V2_24';const TOGGLE='OurLotto_WeightedQuick_V1';
  let enabled=true;try{enabled=localStorage.getItem(TOGGLE)!=='false'}catch(e){}
  window.AQ_WEIGHT_ON=enabled;
  function parseRows(input){
@@ -7524,15 +7524,15 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
      const parts=line.trim().split(/[\s,，;；]+/).filter(Boolean);
      return {issue:parts[0],nums:parts.slice(1,21).map(Number),super:parts.length>21?Number(parts[21]):null};
    });
-   return value.map(row=>{const issue=String(row.issue||row.period||row.id||'');let nums=row.nums||row.numbers||row.drawNumbers;
+   return value.map(row=>{const issue=String(row.issue||row.period||row.id||row.drawTerm||'');let nums=row.nums||row.numbers||row.drawNumbers||row.bigShowOrder||row.openShowOrder;
      if(typeof nums==='string')nums=nums.split(/[\s,，;；]+/).map(Number);
-     const superNumber=Number(row.super||row.superNumber||row.special||0);
+     const superNumber=Number(row.super??row.superNumber??row.special??row.prizeNum?.bullEye??0);
      return {issue,nums:Array.isArray(nums)?nums.map(Number):[],super:Number.isInteger(superNumber)&&superNumber>=1&&superNumber<=80?superNumber:null};
    }).filter(row=>/^\d{7,12}$/.test(row.issue)&&row.nums.length===20&&new Set(row.nums).size===20&&row.nums.every(n=>Number.isInteger(n)&&n>=1&&n<=80))
     .sort((a,b)=>b.issue.localeCompare(a.issue)).filter((row,i,arr)=>arr.findIndex(x=>x.issue===row.issue)===i).slice(0,203);
  }
- let draws=parseRows(BINGO_SEED);
- try{const cached=parseRows(localStorage.getItem(STORE)||'[]');if(cached.length>=36&&cached[0].issue>draws[0].issue)draws=cached;}catch(e){}
+ let draws=parseRows(BINGO_SEED).slice(0,24);
+ try{const cached=parseRows(localStorage.getItem(STORE)||'[]');if(cached.length>=24&&cached[0].issue>draws[0].issue)draws=cached.slice(0,24);}catch(e){}
  const panel=document.createElement('div');panel.id='aqWeightPanel';panel.innerHTML=`<label class="aq-weight-label" for="aqWeightSwitch"><span>加權快選</span><span class="aq-weight-switch"><input type="checkbox" id="aqWeightSwitch" ${enabled?'checked':''}/><i></i></span></label><span id="aqWeightHint" aria-live="polite"></span><details id="aqBingoData"><summary>更新 BINGO 歷史資料</summary><textarea id="aqBingoDataText" placeholder="每行：期數＋20個號碼＋可選的超級獎號（最後一碼）"></textarea><button id="aqBingoImport" type="button">匯入最近開獎資料</button></details>`;
  const anchor=document.getElementById('betTabs');anchor?.parentNode?.insertBefore(panel,anchor);
  function updateHint(){
@@ -7540,7 +7540,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
    if(details)details.hidden=currentGame!=='bingo';
    if(!hint)return;
    if(!window.AQ_WEIGHT_ON)hint.textContent='所有快選：均等亂數';
-   else if(currentGame==='bingo')hint.textContent=`BINGO加權樣本：${draws.length}期｜樣本截至 ${draws[0]?.issue||'—'}`;
+   else if(currentGame==='bingo')hint.textContent=`BINGO加權樣本：${Math.min(draws.length,24)}期｜截至 ${draws[0]?.issue||'—'}`;
    else if(currentGame==='3star'||currentGame==='4star')hint.textContent='星彩目前使用各位數均等亂數';
    else hint.textContent='依所選彩種的歷史權重選號';
  }
@@ -7550,20 +7550,20 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  document.getElementById('aqBingoImport')?.addEventListener('click',()=>{
    const raw=document.getElementById('aqBingoDataText').value;
    let incoming=[];try{incoming=parseRows(raw)}catch(e){}
-   if(incoming.length<36)return alert('請匯入至少36期有效資料，每期需20個不重複的01～80號碼。');
+   if(incoming.length<24)return alert('請匯入至少24期有效資料，每期需20個不重複的01～80號碼。');
    if(!confirm(`確認匯入 ${incoming.length} 期 BINGO 開獎資料？`))return;
-   draws=incoming;try{localStorage.setItem(STORE,JSON.stringify(draws))}catch(e){alert('資料已載入，但瀏覽器儲存空間不足，重開後可能遺失。')}
+   draws=incoming.slice(0,24);try{localStorage.setItem(STORE,JSON.stringify(draws))}catch(e){alert('資料已載入，但瀏覽器儲存空間不足，重開後可能遺失。')}
    updateHint();alert(`已匯入 ${draws.length} 期開獎資料。`);
  });
  // Candidate model. All provisional multipliers are kept in one adjustable configuration.
  const PARAM={hot:.30,hotBoost:1.2,tailHot:.90,tailBoost:1.08,pairHot:.25,pairBoost:1.1,run4:.35,run5:.30,run6:.01,tail4:.50,tail5:.25,tail6:.01};
  function drawWeighted(count,mode){
-   if(!window.AQ_WEIGHT_ON||draws.length<36)return bingoUniformPick(count);
-   const recent=draws.slice(0,36),occ=Array(81).fill(0),miss=Array(81).fill(0),tails=Array(10).fill(0),pair=Array.from({length:81},()=>Array(81).fill(0));
+   if(!window.AQ_WEIGHT_ON||draws.length<24)return bingoUniformPick(count);
+   const recent=draws.slice(0,24),occ=Array(81).fill(0),miss=Array(81).fill(0),tails=Array(10).fill(0),pair=Array.from({length:81},()=>Array(81).fill(0));
    recent.forEach((row,i)=>{const tailSeen=new Set();row.nums.forEach(n=>{occ[n]++;tailSeen.add(n%10);if(i<10)miss[n]++;});
      for(const t of tailSeen)tails[t]++;for(let a=0;a<20;a++)for(let b=a+1;b<20;b++){pair[row.nums[a]][row.nums[b]]++;pair[row.nums[b]][row.nums[a]]++;}
    });
-   const supers=draws.filter(row=>row.super).slice(0,36);
+   const supers=draws.filter(row=>row.super).slice(0,24);
    // The separate super-number model can use explicitly marked super draws only.
    const superSamples=supers.length>=16?supers: BINGO_SUPERS;
    const sf=Array(81).fill(0);superSamples.forEach(row=>{const n=Number(row.super||row.n);if(n>=1&&n<=80)sf[n]++});
@@ -7620,11 +7620,89 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  const power=GAME_MODULES.power.d100,first=power.drawFirst.bind(power),second=power.drawSecond.bind(power);
  power.drawFirst=function(n){return window.AQ_WEIGHT_ON?first(n):uniformResult(n,38,'威力彩第一區')};
  power.drawSecond=function(){if(window.AQ_WEIGHT_ON)return second();const num=1+cryptoInt(8);return {num,log:'威力彩第二區｜均等 '+pad(num)}};
+ // Check for new official BINGO draws only while the BINGO game is selected.
+ // Never mix nonconsecutive historic seed draws with a recent live period.
+ const LIVE_API='https://api.taiwanlottery.com/TLCAPIWeB/Lottery/';
+ let syncTimer=null, syncBusy=false, syncAbort=null, syncStatus='尚未檢查', syncSource='內建／已保存的歷史資料';
+ function setSyncStatus(message){syncStatus=message;const el=document.getElementById('arBingoSyncStatus');if(el)el.textContent=`資料：${syncSource}｜${message}｜最近 ${Math.min(24,draws.length)} 期，最新 ${draws[0]?.issue||'—'}`;}
+ function validRow(obj){
+   if(!obj||typeof obj!=='object')return null;
+   const issue=String(obj.issue??obj.drawTerm??obj.period??obj.id??'');
+   const raw=obj.nums??obj.bigShowOrder??obj.openShowOrder??obj.drawNumbers??obj.numbers;
+   let nums=Array.isArray(raw)?raw:(typeof raw==='string'?raw.trim().split(/[\s,，;；]+/):null);
+   if(!/^\d{7,12}$/.test(issue)||!nums||nums.length!==20)return null;
+   nums=nums.map(Number);
+   if(nums.some(n=>!Number.isInteger(n)||n<1||n>80)||new Set(nums).size!==20)return null;
+   const superVal=obj.super??obj.superNumber??obj.prizeNum?.bullEye??obj.special;
+   const sp=Number(superVal);
+   return {issue,nums,super:Number.isInteger(sp)&&sp>=1&&sp<=80?sp:null};
+ }
+ function collectRows(json){
+   const out=[],visited=new Set();let nodes=0;
+   function scan(node,depth){if(!node||depth>9||nodes++>4500)return;
+     if(Array.isArray(node)){for(const el of node.slice(0,1200))scan(el,depth+1);return}
+     if(typeof node!=='object'||visited.has(node))return;visited.add(node);
+     const row=validRow(node);if(row)out.push(row);
+     for(const [key,value] of Object.entries(node))if(key!=='prizeNum'&&key!=='bigShowOrder'&&key!=='openShowOrder')scan(value,depth+1);
+   }
+   scan(json,0);
+   const unique=new Map();out.forEach(r=>unique.set(r.issue,r));
+   return [...unique.values()].sort((a,b)=>BigInt(a.issue)>BigInt(b.issue)?-1:1);
+ }
+ function contiguous(rows){
+   return rows.length===24&&rows.every((r,i)=>i===0||(BigInt(rows[i-1].issue)-BigInt(r.issue)===1n));
+ }
+ async function getJson(url,signal){const res=await fetch(url,{cache:'no-store',signal,headers:{Accept:'application/json'}});if(!res.ok)throw new Error(`HTTP ${res.status}`);const j=await res.json();if(j.rtCode!==undefined&&Number(j.rtCode)!==0)throw new Error('API狀態異常');return j}
+ async function checkBingo(){
+   if(currentGame!=='bingo'||syncBusy||document.visibilityState==='hidden')return;
+   syncBusy=true;const ctrl=new AbortController();syncAbort=ctrl;
+   const timeout=setTimeout(()=>ctrl.abort(),6500);
+   try{
+     const latestJson=await getJson(LIVE_API+'LatestBingoResult',ctrl.signal);
+     const latest=collectRows(latestJson)[0];
+     if(!latest)throw new Error('最新一期資料不完整');
+     if(BigInt(latest.issue)<=BigInt(draws[0]?.issue||'0')){syncSource=syncSource==='內建／已保存的歷史資料'?'既有已驗證資料':syncSource;setSyncStatus('已檢查，沒有較新的完整期數');return}
+     // If immediately following the last verified period, append safely.
+     let candidate=[latest,...draws.filter(x=>x.issue!==latest.issue)].slice(0,24);
+     if(!contiguous(candidate)){
+       // A missed draw or stale seed requires a full historical refresh.
+       // Different versions of the official API may require different query keys.
+       const today=new Date();const date=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+       const queryList=[
+         `BingoResult?pageNum=1&pageSize=50&date=${date}`,
+         `BingoResult?date=${date}&pageNum=1&pageSize=50`,
+         `BingoResult?drawDate=${date}&pageNum=1&pageSize=50`,
+         `BingoResult?pageNum=1&pageSize=50`
+       ];
+       let rebuilt=null;
+       for(const q of queryList){
+         try{const j=await getJson(LIVE_API+q,ctrl.signal);const rows=collectRows(j);const c=rows.slice(0,24);if(contiguous(c)&&BigInt(c[0].issue)>=BigInt(latest.issue)){rebuilt=c;break}}
+         catch(e){if(ctrl.signal.aborted)throw e}
+       }
+       if(!rebuilt)throw new Error('尚未取得連續24期；保留既有資料');
+       candidate=rebuilt;
+     }
+     if(!contiguous(candidate))throw new Error('期別不連續，拒絕更新');
+     draws=candidate;syncSource='台彩官方 API（已驗證24期）';
+     try{localStorage.setItem(STORE,JSON.stringify(draws))}catch(e){}
+     setSyncStatus('新期數已驗證，權重於下次快選自動重算');updateHint();
+   }catch(e){if(currentGame==='bingo')setSyncStatus('更新未成功，沿用上次有效資料');}
+   finally{clearTimeout(timeout);syncBusy=false;syncAbort=null}
+ }
+ function startBingoPolling(){
+   if(syncTimer||currentGame!=='bingo')return;
+   checkBingo();syncTimer=setInterval(checkBingo,10000);
+ }
+ function stopBingoPolling(){if(syncTimer){clearInterval(syncTimer);syncTimer=null}if(syncAbort)syncAbort.abort()}
+ const statusBox=document.createElement('div');statusBox.id='arBingoSyncStatus';statusBox.style.cssText='font-size:12px;line-height:1.5;color:#725b35;margin:4px 0 7px;';
+ document.getElementById('aqBingoData')?.appendChild(statusBox);
+ setSyncStatus(syncStatus);
+ document.addEventListener('visibilitychange',()=>{if(currentGame==='bingo'&&document.visibilityState==='visible')checkBingo()});
  const oldUpdate=updateGameUI;
- updateGameUI=function(){const result=oldUpdate.apply(this,arguments);document.body.classList.toggle('aq-bingo-game',currentGame==='bingo');updateHint();return result};
+ updateGameUI=function(){const result=oldUpdate.apply(this,arguments);document.body.classList.toggle('aq-bingo-game',currentGame==='bingo');updateHint();if(currentGame==='bingo')startBingoPolling();return result};
  const oldSwitch=switchGame;
- switchGame=function(){const result=oldSwitch.apply(this,arguments);updateHint();return result};
- document.body.classList.toggle('aq-bingo-game',currentGame==='bingo');updateHint();
+ switchGame=function(){const result=oldSwitch.apply(this,arguments);updateHint();if(currentGame==='bingo')startBingoPolling();else stopBingoPolling();return result};
+ document.body.classList.toggle('aq-bingo-game',currentGame==='bingo');updateHint();if(currentGame==='bingo')startBingoPolling();
 })();
 </script><script id="v14aq-progressive-mobile-tabs">
 (function(){
