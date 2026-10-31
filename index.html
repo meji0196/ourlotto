@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號｜V14-AT</title>
+<title>奧爾樂透選號｜V14-AS</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -1014,66 +1014,6 @@ body>header .brand.brand-with-logo .our-brand-name{display:block;white-space:now
   body>header .brand.brand-with-logo{font-size:15px!important}
   body>header .brand.brand-with-logo .our-brand-logo{width:30px;height:30px}
   body>header .draw-date-badge{font-size:9px!important}
-}
-</style>
-
-<style id="v14at-ui-foundations">
-/* V14-AT Design Foundation — conservative visual-only layer.
-   Does not change draw engines, QR encoding, state, IDs or business rules. */
-:root{
- --our-bg:#FFFBF2; --our-surface:#FFFDF8; --our-ink:#293342;
- --our-muted:#606B78; --our-line:#DDD4BE; --our-blue:#2868C9;
- --our-gold:#D7AA42; --our-radius:12px; --our-focus:#2868C9;
- --our-step-1:4px; --our-step-2:8px; --our-step-3:12px;
- --our-step-4:16px; --our-step-6:24px;
- font-size:16px; -webkit-text-size-adjust:100%; text-size-adjust:100%;
-}
-body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.5}
-button, input, select, textarea{font-family:inherit;letter-spacing:normal}
-button{touch-action:manipulation}
-button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible,[role="button"]:focus-visible{
- outline:3px solid var(--our-focus)!important;outline-offset:3px!important;
-}
-/* Keep existing theme and semantic colors: smooth typography and geometry only. */
-#lottoMachine .machine-main{border-radius:14px}
-#lottoMachine .game-rail,#lottoMachine .machine-side{border-radius:13px}
-#lottoMachine .side-btn,#lottoMachine .machine-action,#lottoMachine .machine-clear,
-#lottoMachine .machine-print,#lottoMachine .bet-tab,
-#lottoMachine .num-btn,#lottoMachine .period-select,
-#lottoMachine .preorder-select,#lottoMachine .quick-pick-count{
- line-height:1.3;letter-spacing:0;}
-#lottoMachine .side-btn{font-weight:800}
-#lottoMachine .machine-action,#lottoMachine .machine-print,
-#lottoMachine .machine-clear{font-weight:800}
-#lottoMachine .num-btn{font-variant-numeric:tabular-nums}
-#lottoMachine .bet-tab{font-variant-numeric:tabular-nums}
-/* Preserve fixed QR and highly compact special steppers; normalize other action targets. */
-#lottoMachine .machine-action,#lottoMachine .machine-clear,
-#lottoMachine .machine-print,#lottoMachine .side-btn,
-#lottoMachine .period-select,#lottoMachine .preorder-select,
-#lottoMachine .quick-pick-count{min-height:44px}
-#lottoMachine .num-btn{min-height:44px}
-#lottoMachine .bet-tab{min-height:44px}
-/* Accessible state distinction in addition to color. */
-#lottoMachine .bet-tab.active{font-weight:900}
-#lottoMachine .side-btn.mode-btn.active{font-weight:900}
-#lottoMachine button:disabled{cursor:not-allowed!important}
-@media(max-width:600px){
- body{font-size:16px}
- #lottoMachine .side-btn{font-size:15px!important;line-height:1.35!important}
- #lottoMachine .machine-action{font-size:15px;line-height:1.35}
- #lottoMachine #betTabs .bet-tab{font-size:16px!important;min-height:44px!important}
- #lottoMachine #numberBoard .num-btn{font-size:18px!important;min-height:48px!important}
- #lottoMachine #powerSecondBoard button{font-size:18px!important;min-height:48px!important}
- #lottoMachine #machineQr{font-size:17px!important;min-height:54px!important}
- #lottoMachine #periodBox label{font-size:14px!important;line-height:1.4}
- #lottoMachine #periodBox select{font-size:16px!important;min-height:44px!important}
- #mobileStepNav .mobile-step-item{min-height:44px;line-height:1.35}
- /* Avoid forcing 44px into the dense betting configuration steppers. */
- #quickModeExtras .smart-stepper button,#quickModeExtras .self-countbox button{min-height:32px}
-}
-@media(prefers-reduced-motion:reduce){
- button, .bet-tab, .num-btn, .side-btn {transition-duration:0.01ms!important;animation-duration:0.01ms!important}
 }
 </style>
 </head>
@@ -6277,6 +6217,13 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
  function storeCart(arr){try{return put(sessionStorage,cartKey,arr)}catch(e){memoryCart=arr;return true}}
  function storeFav(arr){try{return put(localStorage,favKey,arr)}catch(e){memoryFav=arr;alert('目前預覽環境禁止長期儲存，我的最愛只能暫存於這次開啟的頁面。請下載後以一般瀏覽器使用，才能長期保存。');return true}}
  let quickOnly=false, viewing='cart', archiveBrowsing=null;
+ let batchMode=false;const selectedIds=new Set();
+ const batchBtn=document.createElement('button');batchBtn.type='button';batchBtn.id='archiveBatchToggle';batchBtn.className='archive-batch-btn';batchBtn.textContent='複選';deleteAll.before(batchBtn);
+ const batchDelete=document.createElement('button');batchDelete.type='button';batchDelete.id='archiveBatchDelete';batchDelete.className='archive-batch-btn';batchDelete.hidden=true;batchDelete.textContent='刪除所選';deleteAll.before(batchDelete);
+ function batchUI(){batchBtn.textContent=batchMode?'取消複選':'複選';batchDelete.hidden=!batchMode;batchDelete.disabled=!selectedIds.size;batchDelete.textContent=`刪除所選（${selectedIds.size}）`;deleteAll.hidden=batchMode;}
+ batchBtn.addEventListener('click',()=>{batchMode=!batchMode;selectedIds.clear();renderSheet()});
+ batchDelete.addEventListener('click',()=>{if(!selectedIds.size)return;const label=viewing==='cart'?'購物車':'我的最愛';if(!confirm(`確定刪除${label}所選 ${selectedIds.size} 筆？`))return;const list=(viewing==='cart'?carts():favs()).filter(x=>!selectedIds.has(x.id));if(viewing==='cart'?storeCart(list):storeFav(list)){selectedIds.clear();renderSheet();updateUI()}});
+
  window.__lottoArchiveAdvance=function(delta){
    if(!archiveBrowsing)return false;
    const list=archiveBrowsing.type==='cart'?carts():favs();
@@ -6344,22 +6291,24 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
  function renderSheet(){
    const list=viewing==='cart'?carts():favs();
    title.textContent=viewing==='cart'?`購物車（${list.length}/20）`:`我的最愛（${list.length}）`;
-   hint.textContent=viewing==='cart'?'關閉目前瀏覽器分頁後，購物車資料將清除。向右滑動記錄可顯示刪除鍵。':'我的最愛會儲存在本裝置的瀏覽器中。向右滑動記錄可顯示刪除鍵。';
-   deleteAll.disabled=list.length===0;
+   hint.textContent=viewing==='cart'?'關閉目前瀏覽器分頁後，購物車資料將清除。向左滑動記錄可顯示刪除鍵。':'我的最愛會儲存在本裝置的瀏覽器中。向左滑動記錄可顯示刪除鍵。';
+   deleteAll.disabled=list.length===0;batchUI();
    entries.innerHTML=list.length?list.map(item=>{
       const logo=logoMap[item.gameId]||'';
-      return `<div class="archive-entry" data-id="${escapeHtml(item.id)}"><button type="button" class="archive-entry-delete" aria-label="刪除這筆記錄">Ⓧ</button><button type="button" class="archive-entry-button"><img class="archive-entry-logo" src="${logo}" alt="${escapeHtml(gameNames[item.gameId]||'彩種')}"/><span class="archive-entry-body"><strong>${escapeHtml(item.first)}</strong><span>${escapeHtml(gameNames[item.gameId]||'彩種')}　${Number(item.total||0).toLocaleString('zh-TW')}元</span></span></button></div>`;
+      return `<div class="archive-entry ${batchMode?'selecting':''}" data-id="${escapeHtml(item.id)}">${batchMode?`<input type="checkbox" class="archive-batch-check" aria-label="選取記錄" ${selectedIds.has(item.id)?'checked':''}/>`:''}<button type="button" class="archive-entry-delete" aria-label="刪除這筆記錄">Ⓧ</button><button type="button" class="archive-entry-button"><img class="archive-entry-logo" src="${logo}" alt="${escapeHtml(gameNames[item.gameId]||'彩種')}"/><span class="archive-entry-body"><strong>${escapeHtml(item.first)}</strong><span>${escapeHtml(gameNames[item.gameId]||'彩種')}　${Number(item.total||0).toLocaleString('zh-TW')}元</span></span></button></div>`;
    }).join(''):'<p class="archive-empty">目前沒有記錄</p>';
  }
- function showSheet(mode){viewing=mode;renderSheet();sheet.hidden=false;document.body.style.overflow='hidden'}
+ function showSheet(mode){viewing=mode;batchMode=false;selectedIds.clear();renderSheet();sheet.hidden=false;document.body.style.overflow='hidden'}
  window.__aoerOpenCart=()=>showSheet('cart');
  function hideSheet(){sheet.hidden=true;document.body.style.overflow=''}
  function deleteItem(id){const list=(viewing==='cart'?carts():favs()).filter(x=>x.id!==id);if(viewing==='cart'?storeCart(list):storeFav(list)){renderSheet();updateUI()}}
  sheet.addEventListener('click',e=>{
    const row=e.target.closest('.archive-entry');
+   if(e.target.closest('.archive-batch-check')){if(row){if(e.target.checked)selectedIds.add(row.dataset.id);else selectedIds.delete(row.dataset.id);batchUI();}return}
    if(e.target.closest('.archive-entry-delete')){if(row)deleteItem(row.dataset.id);return}
    if(e.target.closest('.archive-entry-button')){
      if(!row)return;
+     if(batchMode){if(selectedIds.has(row.dataset.id))selectedIds.delete(row.dataset.id);else selectedIds.add(row.dataset.id);renderSheet();return}
      if(row.classList.contains('reveal')){row.classList.remove('reveal');return}
      const item=(viewing==='cart'?carts():favs()).find(x=>x.id===row.dataset.id);
      if(!item)return;
@@ -6372,7 +6321,7 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
  // Touch swipe-right reveals a red delete target; also allow reversing gesture to close.
  let touch=null;
  entries.addEventListener('touchstart',e=>{const row=e.target.closest('.archive-entry');if(!row)return;touch={x:e.touches[0].clientX,y:e.touches[0].clientY,row};},{passive:true});
- entries.addEventListener('touchend',e=>{if(!touch)return;const dx=e.changedTouches[0].clientX-touch.x,dy=e.changedTouches[0].clientY-touch.y;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.2){touch.row.classList.toggle('reveal',dx>0)}touch=null},{passive:true});
+ entries.addEventListener('touchend',e=>{if(!touch)return;const dx=e.changedTouches[0].clientX-touch.x,dy=e.changedTouches[0].clientY-touch.y;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.2){touch.row.classList.toggle('reveal',dx<0)}touch=null},{passive:true});
  document.getElementById('archiveClose').addEventListener('click',hideSheet);
  sheet.addEventListener('click',e=>{if(e.target===sheet)hideSheet()});
  deleteAll.addEventListener('click',()=>{
@@ -7602,7 +7551,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  'use strict';
  const BINGO_SEED="115061199 03 04 05 10 12 15 16 21 25 26 34 40 41 45 49 54 59 61 66 73\n115061198 05 06 07 14 16 18 22 23 26 28 30 34 38 42 52 53 55 57 60 80\n115061197 01 06 09 10 13 14 20 29 38 39 40 42 43 51 52 57 61 67 68 74\n115061196 01 09 12 17 18 19 21 29 38 45 46 51 52 56 58 62 70 72 75 80\n115061195 04 07 12 21 28 31 36 39 40 47 52 57 60 66 67 68 72 74 75 76\n115061194 06 07 10 14 15 22 32 33 34 39 44 46 49 51 56 63 64 69 71 73\n115061193 02 12 19 20 21 26 27 31 34 37 38 40 43 46 56 59 62 67 69 74\n115061192 05 10 12 16 17 20 26 27 28 32 35 39 41 48 52 62 72 73 74 79\n115061191 07 15 19 22 32 42 46 47 48 49 52 57 61 62 63 65 66 73 76 79\n115061190 06 07 13 16 21 24 32 38 41 43 44 45 48 57 58 61 62 64 69 72\n115061189 04 07 08 09 16 21 24 25 28 31 38 49 50 59 64 65 66 73 76 78\n115061188 01 03 04 12 15 17 19 23 26 27 31 33 52 53 54 55 57 58 61 72\n115061187 01 06 11 12 16 19 20 28 29 30 32 38 48 51 52 60 63 67 69 72\n115061186 08 14 15 21 22 32 33 45 51 55 58 59 62 64 67 69 72 73 78 80\n115061185 10 13 14 21 24 32 34 38 42 43 46 48 55 61 64 65 73 77 78 80\n115061184 01 05 07 11 14 18 21 22 34 37 44 49 56 58 59 60 65 67 74 75\n115061183 02 05 08 12 13 15 21 22 33 38 40 42 45 49 50 58 61 73 78 79\n115061182 01 09 27 30 31 33 46 49 50 51 56 58 62 66 68 69 70 71 74 80\n115061181 03 08 09 14 17 18 22 26 27 34 42 45 49 54 55 59 62 66 70 75\n115061180 02 03 05 07 15 19 31 33 35 36 39 42 50 56 59 64 69 72 74 77\n115061179 05 07 09 11 17 29 33 35 41 44 50 51 57 60 64 65 66 73 76 77\n115061178 01 08 10 12 19 25 27 28 31 46 56 57 59 62 63 67 71 72 76 79\n115061177 13 15 22 23 29 30 31 33 34 40 41 44 46 50 59 69 73 74 75 79\n115061176 02 11 13 17 24 36 38 39 40 43 48 50 52 53 54 58 73 74 78 80\n115061175 01 02 03 11 14 16 20 23 25 27 33 36 47 48 53 56 61 67 69 74\n115061174 08 13 15 16 17 18 28 38 43 44 45 46 49 54 55 59 60 73 74 77\n115061173 02 05 11 12 19 26 32 35 37 39 44 45 49 54 58 63 72 75 77 78\n115061172 04 06 07 14 17 20 33 37 38 52 57 60 61 62 63 69 72 74 77 80\n115061171 07 10 20 22 28 33 45 47 50 51 53 54 55 56 59 60 62 66 70 72\n115061170 11 12 15 20 26 28 37 40 43 44 45 46 49 60 61 62 70 74 77 80\n115061169 02 04 05 09 17 27 28 29 31 39 40 45 48 49 58 63 64 66 73 76\n115061168 08 21 25 27 30 31 38 41 46 48 49 50 53 61 62 69 71 72 74 79\n115061167 02 05 10 14 20 21 25 27 32 46 54 58 63 65 66 70 72 74 75 78\n115061166 04 05 09 18 19 25 29 30 44 48 51 52 59 61 63 73 74 75 76 79\n115061165 11 12 14 24 33 39 40 43 49 50 61 66 67 71 72 74 75 78 79 80\n115061164 03 04 05 08 10 14 24 26 27 29 36 38 50 52 57 66 69 72 76 79";
  const BINGO_SUPERS=[{issue:'115061143',n:18},{issue:'115061142',n:36},{issue:'115061141',n:17},{issue:'115061140',n:66},{issue:'115061139',n:33}];
- const STORE='OurLotto_BingoDraws_V2_24';const TOGGLE='OurLotto_WeightedQuick_V1';
+ const STORE='OurLotto_BingoDraws_V3_36';const TOGGLE='OurLotto_WeightedQuick_V1';
  let enabled=true;try{enabled=localStorage.getItem(TOGGLE)!=='false'}catch(e){}
  window.AQ_WEIGHT_ON=enabled;
  function parseRows(input){
@@ -7620,8 +7569,8 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
    }).filter(row=>/^\d{7,12}$/.test(row.issue)&&row.nums.length===20&&new Set(row.nums).size===20&&row.nums.every(n=>Number.isInteger(n)&&n>=1&&n<=80))
     .sort((a,b)=>b.issue.localeCompare(a.issue)).filter((row,i,arr)=>arr.findIndex(x=>x.issue===row.issue)===i).slice(0,203);
  }
- let draws=parseRows(BINGO_SEED).slice(0,24);
- try{const cached=parseRows(localStorage.getItem(STORE)||'[]');if(cached.length>=24&&cached[0].issue>draws[0].issue)draws=cached.slice(0,24);}catch(e){}
+ let draws=parseRows(BINGO_SEED).slice(0,36);
+ try{const cached=parseRows(localStorage.getItem(STORE)||'[]');if(cached.length>=36&&cached[0].issue>draws[0].issue)draws=cached.slice(0,36);}catch(e){}
  const panel=document.createElement('div');panel.id='aqWeightPanel';panel.innerHTML=`<label class="aq-weight-label" for="aqWeightSwitch"><span>加權快選</span><span class="aq-weight-switch"><input type="checkbox" id="aqWeightSwitch" ${enabled?'checked':''}/><i></i></span></label><span id="aqWeightHint" aria-live="polite"></span><details id="aqBingoData"><summary>更新 BINGO 歷史資料</summary><textarea id="aqBingoDataText" placeholder="每行：期數＋20個號碼＋可選的超級獎號（最後一碼）"></textarea><button id="aqBingoImport" type="button">匯入最近開獎資料</button></details>`;
  const anchor=document.getElementById('betTabs');anchor?.parentNode?.insertBefore(panel,anchor);
  function updateHint(){
@@ -7629,7 +7578,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
    if(details)details.hidden=currentGame!=='bingo';
    if(!hint)return;
    if(!window.AQ_WEIGHT_ON)hint.textContent='所有快選：均等亂數';
-   else if(currentGame==='bingo')hint.textContent=`BINGO加權樣本：${Math.min(draws.length,24)}期｜截至 ${draws[0]?.issue||'—'}`;
+   else if(currentGame==='bingo')hint.textContent=`BINGO加權樣本：${Math.min(draws.length,36)}期｜截至 ${draws[0]?.issue||'—'}`;
    else if(currentGame==='3star'||currentGame==='4star')hint.textContent='星彩目前使用各位數均等亂數';
    else hint.textContent='依所選彩種的歷史權重選號';
  }
@@ -7639,20 +7588,20 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  document.getElementById('aqBingoImport')?.addEventListener('click',()=>{
    const raw=document.getElementById('aqBingoDataText').value;
    let incoming=[];try{incoming=parseRows(raw)}catch(e){}
-   if(incoming.length<24)return alert('請匯入至少24期有效資料，每期需20個不重複的01～80號碼。');
+   if(incoming.length<36)return alert('請匯入至少36期有效資料，每期需20個不重複的01～80號碼。');
    if(!confirm(`確認匯入 ${incoming.length} 期 BINGO 開獎資料？`))return;
-   draws=incoming.slice(0,24);try{localStorage.setItem(STORE,JSON.stringify(draws))}catch(e){alert('資料已載入，但瀏覽器儲存空間不足，重開後可能遺失。')}
+   draws=incoming.slice(0,36);try{localStorage.setItem(STORE,JSON.stringify(draws))}catch(e){alert('資料已載入，但瀏覽器儲存空間不足，重開後可能遺失。')}
    updateHint();alert(`已匯入 ${draws.length} 期開獎資料。`);
  });
  // Candidate model. All provisional multipliers are kept in one adjustable configuration.
  const PARAM={hot:.30,hotBoost:1.2,tailHot:.90,tailBoost:1.08,pairHot:.25,pairBoost:1.1,run4:.35,run5:.30,run6:.01,tail4:.50,tail5:.25,tail6:.01};
  function drawWeighted(count,mode){
-   if(!window.AQ_WEIGHT_ON||draws.length<24)return bingoUniformPick(count);
-   const recent=draws.slice(0,24),occ=Array(81).fill(0),miss=Array(81).fill(0),tails=Array(10).fill(0),pair=Array.from({length:81},()=>Array(81).fill(0));
+   if(!window.AQ_WEIGHT_ON||draws.length<36)return bingoUniformPick(count);
+   const recent=draws.slice(0,36),occ=Array(81).fill(0),miss=Array(81).fill(0),tails=Array(10).fill(0),pair=Array.from({length:81},()=>Array(81).fill(0));
    recent.forEach((row,i)=>{const tailSeen=new Set();row.nums.forEach(n=>{occ[n]++;tailSeen.add(n%10);if(i<10)miss[n]++;});
      for(const t of tailSeen)tails[t]++;for(let a=0;a<20;a++)for(let b=a+1;b<20;b++){pair[row.nums[a]][row.nums[b]]++;pair[row.nums[b]][row.nums[a]]++;}
    });
-   const supers=draws.filter(row=>row.super).slice(0,24);
+   const supers=draws.filter(row=>row.super).slice(0,36);
    // The separate super-number model can use explicitly marked super draws only.
    const superSamples=supers.length>=16?supers: BINGO_SUPERS;
    const sf=Array(81).fill(0);superSamples.forEach(row=>{const n=Number(row.super||row.n);if(n>=1&&n<=80)sf[n]++});
@@ -7713,7 +7662,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  // Never mix nonconsecutive historic seed draws with a recent live period.
  const LIVE_API='https://api.taiwanlottery.com/TLCAPIWeB/Lottery/';
  let syncTimer=null, syncBusy=false, syncAbort=null, syncStatus='尚未檢查', syncSource='內建／已保存的歷史資料',syncError='',lastCheckAt=null;
- function setSyncStatus(message){syncStatus=message;const el=document.getElementById('arBingoSyncStatus');if(el)el.textContent=`資料：${syncSource}｜${message}｜最近 ${Math.min(24,draws.length)} 期，最新 ${draws[0]?.issue||'—'}`;}
+ function setSyncStatus(message){syncStatus=message;const el=document.getElementById('arBingoSyncStatus');if(el)el.textContent=`資料：${syncSource}｜${message}｜最近 ${Math.min(36,draws.length)} 期，最新 ${draws[0]?.issue||'—'}`;}
  function validRow(obj){
    if(!obj||typeof obj!=='object')return null;
    const issue=String(obj.issue??obj.drawTerm??obj.period??obj.id??'');
@@ -7777,26 +7726,26 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
      const latestJson=await getJson(LIVE_API+'LatestBingoResult',ctrl.signal);
      const latest=collectRows(latestJson)[0];
      if(!latest||!latest.super)throw new Error('官方最新一期資料不完整');
-     if(BigInt(latest.issue)<=BigInt(draws[0]?.issue||'0')){
+     if(draws.length>=36&&BigInt(latest.issue)<=BigInt(draws[0]?.issue||'0')){
        syncError='';setSyncStatus('已確認最新一期，尚無新期數');return;
      }
      const today=latestDate(latestJson);
      let rows=await dailyBingoRows(today,ctrl.signal);
      // Before roughly 09:00 only 1-23 draws exist today; fetch the preceding day.
-     if(rows.length<24)rows=rows.concat(await dailyBingoRows(priorDate(today),ctrl.signal));
+     if(rows.length<36)rows=rows.concat(await dailyBingoRows(priorDate(today),ctrl.signal));
      const unique=new Map();for(const row of [latest,...rows]){
        if(!unique.has(row.issue))unique.set(row.issue,row);
      }
      const merged=[...unique.values()].sort((a,b)=>BigInt(a.issue)>BigInt(b.issue)?-1:BigInt(a.issue)<BigInt(b.issue)?1:0);
-     const candidate=contiguous(merged.slice(0,24))?merged.slice(0,24):rows.slice(0,24);
-     if(!contiguous(candidate))throw new Error('官方最近24期有缺期，保留既有資料');
+     const candidate=contiguous(merged.slice(0,36))?merged.slice(0,36):rows.slice(0,36);
+     if(!contiguous(candidate))throw new Error('官方最近36期有缺期，保留既有資料');
      if(candidate.some(row=>!row.super))throw new Error('超級獎號資料不完整，保留既有資料');
-     if(BigInt(candidate[0].issue)<=BigInt(draws[0]?.issue||'0')){
+     if(draws.length>=36&&BigInt(candidate[0].issue)<=BigInt(draws[0]?.issue||'0')){
        syncError='';setSyncStatus('歷史資料尚未同步最新一期，等待下一次檢查');return;
      }
-     draws=candidate;syncError='';syncSource='台彩官方 API（已驗證24期）';
+     draws=candidate;syncError='';syncSource='台彩官方 API（已驗證36期）';
      try{localStorage.setItem(STORE,JSON.stringify(draws))}catch(e){}
-     setSyncStatus('最新24期已更新，一般與超級獎號權重已生效');updateHint();
+     setSyncStatus('最新36期已更新，一般與超級獎號權重已生效');updateHint();
    }catch(e){
      syncError=ctrl.signal.aborted?'資料請求逾時或已取消':String(e?.message||e);
      if(currentGame==='bingo')setSyncStatus('更新未成功，沿用上次有效資料（'+syncError+'）');
@@ -8010,5 +7959,39 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  }
  #lottoMachine #betTabs .aq-plus-tab:not(:disabled){background:#edf5ff!important;color:#1c65b8!important;border-color:#8db4ef!important;opacity:1!important}
 }
-</style></body>
+</style><style id="v14au-unified-ui">
+#aqWeightPanel{background:transparent!important;border:0!important;box-shadow:none!important;padding:5px 0!important;border-radius:0!important}
+#aqBingoData{display:none!important}
+@media(max-width:600px){
+ body[data-mobile-stage="numbers"] #comboAddonSwitches:not([hidden]){margin-top:19px!important;padding-top:13px!important;border-top:1px solid #eadfcb!important;column-gap:9px!important;row-gap:10px!important}
+ body[data-mobile-stage="numbers"] #comboAddonSwitches button{min-height:42px!important;padding:8px 11px!important}
+ #lottoMachine #betTabs{gap:0!important;justify-content:flex-start!important}
+ #lottoMachine #betTabs .bet-tab:not(.aq-hidden),#lottoMachine #betTabs .aq-plus-tab{flex:0 0 43px!important;width:43px!important;min-width:43px!important;height:44px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#3f5368!important;position:relative}
+ #lottoMachine #betTabs .bet-tab:not(.aq-hidden)::before,#lottoMachine #betTabs .aq-plus-tab::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:1px;background:#bda96b}
+ #lottoMachine #betTabs .bet-tab.active{color:#155cbd!important;font-weight:950!important;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:6px}
+ #lottoMachine #betTabs .aq-plus-tab:not(:disabled){color:#155cbd!important;background:transparent!important;border:0!important;box-shadow:none!important}
+ #lottoMachine #betTabs .aq-plus-tab:disabled{color:#999!important;background:transparent!important;border:0!important;box-shadow:none!important}
+ #mobileSummaryPlay.has-play{cursor:pointer!important;text-decoration:underline;text-underline-offset:4px;touch-action:manipulation}
+ .archive-entry.reveal .archive-entry-button{transform:translateX(-67px)!important}
+ .archive-entry-delete{left:auto!important;right:0!important}
+ .archive-entry.selecting .archive-entry-button{padding-left:45px!important}
+ .archive-batch-check{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:22px;height:22px;z-index:4;accent-color:#2868c9}
+ .archive-batch-btn{min-height:40px;padding:6px 10px;border:1px solid #a9c0df;border-radius:10px;background:#fff;color:#2459a8;font-weight:850}
+}
+</style><script id="v14au-nav-and-clear">
+(function(){
+ const play=document.getElementById('mobileSummaryPlay');
+ if(play){play.tabIndex=0;play.setAttribute('role','button');play.setAttribute('aria-label','返回玩法選擇');const go=()=>{if(document.body.dataset.mobileStage!=='numbers')return;window.__lottoMobileFlow?.setStage('plays');const active=[...document.querySelectorAll('.side-actions-grid .mode-btn')].find(b=>b.classList.contains('active'));document.querySelectorAll('.side-actions-grid .mode-btn').forEach(b=>b.classList.toggle('au-return-active',b===active));};play.addEventListener('click',go);play.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})}
+ document.getElementById('machineClear')?.addEventListener('click',function(){
+   if(window.matchMedia('(min-width:601px)').matches||getActivePlayMode()==='general')return;
+   const mode=getActivePlayMode(),b=window.AoerPackBridges?.[mode];
+   if(!b)return;
+   // Clear current package state without touching other tab states.
+   b.import(null);lastResult=null;qrResultState=null;
+   manualPicked=new Set();powerSecondPicked=new Set();
+   betSelections[currentBetIndex]=new Set();powerSecondSelections[currentBetIndex]=new Set();
+   renderNumberBoard();renderBetTabs();renderMachineTotal();refreshMachineQrEnabled();
+ },true);
+})();
+</script><style id="v14au-return-active">@media(max-width:600px){body[data-mobile-stage="plays"] #lottoMachine .side-actions-grid .mode-btn.au-return-active{background:linear-gradient(145deg,#d8efff,#83beff)!important;border:2px solid #387bd8!important;box-shadow:0 0 0 3px rgba(47,125,246,.20)!important;color:#16529b!important}}</style></body>
 </html>
