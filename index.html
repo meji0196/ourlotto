@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號｜V14-AR</title>
+<title>奧爾樂透選號｜V14-AS</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -4421,7 +4421,7 @@ function betUnitCount(set,index=currentBetIndex){const cfg=gameCfg();if(currentG
 function betLabel(set,index=currentBetIndex){const cfg=gameCfg();if(currentGame==='bingo'){const mode=bingoCurrentMode(index);if(mode==='super')return set.size?`超級獎號｜${set.size}碼｜${set.size}注`:'超級獎號｜未選號';const star=bingoCurrentStar(index);if(bingoSystemSelections[index])return `系統包牌｜${star}星｜${set.size}/80碼｜${bingoSystemUnitCount(set,index)}組`;return set.size===star?`${star}星｜一般單注`:set.size?`${star}星｜未完成 ${set.size}/${star}`:`${star}星｜未選號`}if(isLottoComboGame()){const choices=combo39SelectedPlays(index),valid=combo39ValidPlays(set,index),mul=combo39CurrentMultiplier(index),u=betUnitCount(set,index);if(set.size>10)return '最多10碼';if(!valid.length)return `${choices.map(combo39PlayName).join('＋')}｜未完成｜已選${set.size}碼`;return `${valid.map(p=>`${combo39PlayName(p)}${set.size===p-1?'配號':set.size===p?'自選':'系統'}`).join('＋')}｜×${mul}｜${u.toLocaleString('zh-TW')}注`;}if(currentGame==='power'){const s2=powerSecondSelections[index]?.size||0,u=betUnitCount(set,index);if(u>0)return set.size===6&&s2===1?'一般單注｜第一區6碼＋第二區1碼':`系統選號｜第一區${set.size}碼 × 第二區${s2}碼｜${u.toLocaleString('zh-TW')}注`;return `未完成｜第一區 ${set.size}/6～16｜第二區 ${s2}/1～8`}if(set.size<cfg.pickCount)return set.size?`未完成 ${set.size}/${cfg.pickCount}`:'未選號';if(set.size===cfg.pickCount)return '一般單注';return `系統${set.size}碼｜${betUnitCount(set,index).toLocaleString('zh-TW')}組`}
 function syncCurrentBet(){betSelections[currentBetIndex]=new Set(manualPicked);powerSecondSelections[currentBetIndex]=new Set(powerSecondPicked)}
 function loadBet(index){if(currentGame==='3star'||currentGame==='4star'){currentBetIndex=Math.max(0,Math.min(9,index));lastResult=null;renderBetTabs();renderNumberBoard();return}syncCurrentBet();currentBetIndex=Math.max(0,Math.min(9,index));manualPicked=new Set(betSelections[currentBetIndex]);powerSecondPicked=new Set(powerSecondSelections[currentBetIndex]);lastResult=null;renderBetTabs();renderNumberBoard();if(isLottoComboGame()){const sel=document.getElementById('quickPickCount');if(sel){sel.value=String(combo39CurrentPlay());updateQuickPickUI()}}}
-function renderBetTabs(){const el=document.getElementById('betTabs');if(!el)return;if(currentGame==='bingo'){el.innerHTML=betSelections.map((set,i)=>{const mode=bingoCurrentMode(i),complete=betUnitCount(set,i)>0,partial=set.size>0;return `<button class="bet-tab ${i===currentBetIndex?'active':''} ${complete?'filled':partial?'partial':''} ${mode==='super'?'bingo-super':''}" data-bet-index="${i}" title="第 ${pad(i+1)} 注｜${mode==='super'?'超級獎號':bingoCurrentStar(i)+'星'}｜${betLabel(set,i)}">${pad(i+1)}</button>`}).join('');const lab=document.getElementById('currentBetLabel');if(lab)lab.textContent=`第 ${pad(currentBetIndex+1)} 注`;renderBingoControls();return}if(currentGame==='3star'){el.innerHTML=star3Selections.map((sets,i)=>{const units=star3UnitCount(i),partial=sets.some(x=>x.size>0);return `<button class="bet-tab ${i===currentBetIndex?'active':''} ${units?'filled':partial?'partial':''}" data-bet-index="${i}" title="第 ${pad(i+1)} 注｜${star3Label(i)}">${pad(i+1)}</button>`}).join('');const lab=document.getElementById('currentBetLabel');if(lab)lab.textContent=`第 ${pad(currentBetIndex+1)} 注`;renderStar3Controls();return}if(currentGame==='4star'){el.innerHTML=star4Selections.map((sets,i)=>{const units=star4UnitCount(i),partial=sets.some(x=>x.size>0);return `<button class="bet-tab ${i===currentBetIndex?'active':''} ${units?'filled':partial?'partial':''}" data-bet-index="${i}" title="第 ${pad(i+1)} 注｜${star4Label(i)}">${pad(i+1)}</button>`}).join('');const lab=document.getElementById('currentBetLabel');if(lab)lab.textContent=`第 ${pad(currentBetIndex+1)} 注`;renderStar4Controls();return}const packMode=getActivePlayMode()!=='general';if(packMode&&currentBetIndex!==0){currentBetIndex=0;manualPicked=new Set(betSelections[0]);powerSecondPicked=new Set(powerSecondSelections[0])}el.innerHTML=betSelections.map((set,i)=>{const disabled=packMode&&i>0,complete=betUnitCount(set,i)>0,partial=set.size>0||(currentGame==='power'&&(powerSecondSelections[i]?.size||0)>0);return `<button class="bet-tab ${i===currentBetIndex?'active':''} ${complete?'filled':partial?'partial':''}" data-bet-index="${i}" ${disabled?'disabled aria-disabled="true"':''} title="${disabled?'包牌模式僅使用第01注':`第 ${pad(i+1)} 注｜${betLabel(set,i)}`}">${pad(i+1)}</button>`}).join('');const lab=document.getElementById('currentBetLabel');if(lab)lab.textContent=`第 ${pad(currentBetIndex+1)} 注`;renderBingoControls();render39ComboControls()}
+function renderBetTabs(){const el=document.getElementById('betTabs');if(!el)return;if(currentGame==='bingo'){el.innerHTML=betSelections.map((set,i)=>{const mode=bingoCurrentMode(i),complete=betUnitCount(set,i)>0,partial=set.size>0;return `<button class="bet-tab ${i===currentBetIndex?'active':''} ${complete?'filled':partial?'partial':''} ${mode==='super'?'bingo-super':''}" data-bet-index="${i}" title="第 ${pad(i+1)} 注｜${mode==='super'?'超級獎號':bingoCurrentStar(i)+'星'}｜${betLabel(set,i)}">${pad(i+1)}</button>`}).join('');const lab=document.getElementById('currentBetLabel');if(lab)lab.textContent=`第 ${pad(currentBetIndex+1)} 注`;renderBingoControls();return}if(currentGame==='3star'){el.innerHTML=star3Selections.map((sets,i)=>{const units=star3UnitCount(i),partial=sets.some(x=>x.size>0);return `<button class="bet-tab ${i===currentBetIndex?'active':''} ${units?'filled':partial?'partial':''}" data-bet-index="${i}" title="第 ${pad(i+1)} 注｜${star3Label(i)}">${pad(i+1)}</button>`}).join('');const lab=document.getElementById('currentBetLabel');if(lab)lab.textContent=`第 ${pad(currentBetIndex+1)} 注`;renderStar3Controls();return}if(currentGame==='4star'){el.innerHTML=star4Selections.map((sets,i)=>{const units=star4UnitCount(i),partial=sets.some(x=>x.size>0);return `<button class="bet-tab ${i===currentBetIndex?'active':''} ${units?'filled':partial?'partial':''}" data-bet-index="${i}" title="第 ${pad(i+1)} 注｜${star4Label(i)}">${pad(i+1)}</button>`}).join('');const lab=document.getElementById('currentBetLabel');if(lab)lab.textContent=`第 ${pad(currentBetIndex+1)} 注`;renderStar4Controls();return}const packMode=getActivePlayMode()!=='general'&&!window.matchMedia('(max-width:600px)').matches;if(packMode&&currentBetIndex!==0){currentBetIndex=0;manualPicked=new Set(betSelections[0]);powerSecondPicked=new Set(powerSecondSelections[0])}el.innerHTML=betSelections.map((set,i)=>{const disabled=packMode&&i>0,complete=betUnitCount(set,i)>0,partial=set.size>0||(currentGame==='power'&&(powerSecondSelections[i]?.size||0)>0);return `<button class="bet-tab ${i===currentBetIndex?'active':''} ${complete?'filled':partial?'partial':''}" data-bet-index="${i}" ${disabled?'disabled aria-disabled="true"':''} title="${disabled?'包牌模式僅使用第01注':`第 ${pad(i+1)} 注｜${betLabel(set,i)}`}">${pad(i+1)}</button>`}).join('');const lab=document.getElementById('currentBetLabel');if(lab)lab.textContent=`第 ${pad(currentBetIndex+1)} 注`;renderBingoControls();render39ComboControls()}
 function renderPowerSecondBoard(){const zone=document.getElementById('powerSecondZone'),board=document.getElementById('powerSecondBoard');if(!zone||!board)return;const on=currentGame==='power';zone.classList.toggle('open',on);zone.setAttribute('aria-hidden',on?'false':'true');if(!on){board.innerHTML='';return}board.innerHTML=Array.from({length:8},(_,i)=>{const n=i+1;return `<button class="power-second-num ${powerSecondPicked.has(n)?'selected':''}" data-power-second="${n}">${pad(n)}</button>`}).join('')}
 function renderNumberBoard(){const board=document.getElementById('numberBoard');if(!board)return;if(currentGame==='3star'||currentGame==='4star'){board.innerHTML='';renderPowerSecondBoard();renderBingoControls();renderStar3Controls();renderStar4Controls();renderBetTabs();renderMachineTotal();updateQuickPickUI();return}const pf=document.getElementById('powerFirstZone'),isPower=currentGame==='power';if(pf){pf.classList.toggle('open',isPower);pf.setAttribute('aria-hidden',isPower?'false':'true')}const cfg=gameCfg(),drawn=new Set(lastResult?.nums||[]);board.innerHTML=Array.from({length:cfg.maxNumber},(_,i)=>{const n=i+1;return `<button class="num-btn ${manualPicked.has(n)?'selected':''} ${drawn.has(n)?'drawn':''}" data-picknum="${n}">${pad(n)}</button>`}).join('');renderPowerSecondBoard();const c=document.getElementById('machineSelectedCount');if(c){if(currentGame==='power'){c.textContent=`第${pad(currentBetIndex+1)}注｜第一區 ${manualPicked.size}/16｜第二區 ${powerSecondPicked.size}/8${betUnitCount(manualPicked,currentBetIndex)>0?`｜${betUnitCount(manualPicked,currentBetIndex).toLocaleString('zh-TW')}注`:''}`}else if(currentGame==='bingo'){const mode=bingoCurrentMode(),star=bingoCurrentStar();c.textContent=mode==='super'?`第${pad(currentBetIndex+1)}注｜超級獎號｜已選 ${manualPicked.size}/20｜${manualPicked.size}注`:`第${pad(currentBetIndex+1)}注｜${star}星｜已選 ${manualPicked.size}/${bingoSystemSelections[currentBetIndex]?80:star}${bingoSystemSelections[currentBetIndex]?`｜${bingoSystemUnitCount(manualPicked,currentBetIndex)}組`:''}`}else if(isLottoComboGame()){const play=combo39CurrentPlay(),mul=combo39CurrentMultiplier(),u=betUnitCount(manualPicked,currentBetIndex),meal=combo39InlineMainMealActive(manualPicked,currentBetIndex);c.textContent=meal?`第${pad(currentBetIndex+1)}注｜${combo39PlayName(play)}主支全餐｜${manualPicked.size}主支｜${combo39InlineMainMealBaseCount(manualPicked,currentBetIndex)}組 ×${mul}｜${u.toLocaleString('zh-TW')}注`:`第${pad(currentBetIndex+1)}注｜${combo39PlayName(play)}｜已選 ${manualPicked.size}/10｜倍數 ×${mul}${u>0?`｜${u.toLocaleString('zh-TW')}注`:''}`}else{const units=betUnitCount(manualPicked,currentBetIndex),extra=manualPicked.size>cfg.pickCount?`｜系統${manualPicked.size}碼 ${units.toLocaleString('zh-TW')}組`:'';c.textContent=`第${pad(currentBetIndex+1)}注｜已選 ${manualPicked.size} 個${extra}`;}}syncCurrentBet();renderBingoControls();renderBetTabs();renderMachineTotal();if(window.mainMealDecorateMainBoard)window.mainMealDecorateMainBoard();if(window.selfPackDecorateMainBoard)window.selfPackDecorateMainBoard();if(window.smartDecorateMainBoard)window.smartDecorateMainBoard();if(window.columnDecorateMainBoard)window.columnDecorateMainBoard();if(window.updateQuickPickUI)window.updateQuickPickUI();renderComboAddonSwitches()}
 function refreshMachineQrEnabled(){
@@ -4794,6 +4794,7 @@ document.getElementById('generalModeBtn')?.addEventListener('click',()=>{
   renderBalls(document.getElementById('resultBalls'),[],new Set());renderNumberBoard();updateQuickPickUI();
 });const bingoSuperToggle=document.getElementById('bingoSuperPageToggle');if(bingoSuperToggle)bingoSuperToggle.addEventListener('click',()=>{if(currentGame!=='bingo')return;const next=bingoCurrentMode()==='super'?'star':'super';if(next==='super'&&bingoModeSelections.some((m,i)=>i!==currentBetIndex&&m==='super'))return alert('10注投注中只能設定一注超級獎號。');bingoModeSelections[currentBetIndex]=next;bingoSystemSelections[currentBetIndex]=false;manualPicked=new Set();betSelections[currentBetIndex]=new Set();lastResult=null;renderBalls(document.getElementById('resultBalls'),[],new Set());renderBingoControls();renderNumberBoard();renderBetTabs();renderMachineTotal();updateQuickPickUI()});const combo39=document.getElementById('combo39Controls');if(combo39)combo39.addEventListener('click',e=>{const b=e.target.closest('[data-combo39-play]');if(!b||!isLottoComboGame())return;const play=Math.max(2,Math.min(4,Number(b.dataset.combo39Play)||2)),set=combo39MultiPlaySelections[currentBetIndex];if(set.has(play)){if(set.size===1)return alert('請至少保留一種樂合彩玩法。');set.delete(play);if(combo39CurrentPlay()===play)combo39PlaySelections[currentBetIndex]=Math.min(...set);}else{set.add(play);combo39PlaySelections[currentBetIndex]=play;}lastResult=null;render39ComboControls();renderBetTabs();renderNumberBoard();renderMachineTotal();updateQuickPickUI();const sel=document.getElementById('quickPickCount');if(sel&&getActivePlayMode()==='general'){sel.value=String(combo39CurrentPlay());sel.dispatchEvent(new Event('change'));}});const combo39Mult=document.getElementById('combo39Multiplier');if(combo39Mult)combo39Mult.addEventListener('change',e=>{if(!isLottoComboGame())return;combo39MultiplierSelections[currentBetIndex]=Math.max(1,Math.min(10,Number(e.target.value)||1));render39ComboControls();if(window.columnModeActive&&window.columnRefresh)window.columnRefresh();if(window.smartModeActive&&window.smartRefresh)window.smartRefresh();if(window.selfPackModeActive&&window.selfPackRefresh)window.selfPackRefresh();renderBetTabs();renderNumberBoard();renderMachineTotal()});const rail=document.getElementById('gameRail');if(rail)rail.onclick=e=>{const b=e.target.closest('[data-game]');if(!b)return;const id=b.dataset.game;if(id==='lotto649'||id==='539'||id==='39combo'||id==='49combo'||id==='bingo'||id==='power'||id==='3star'||id==='4star'){switchGame(id);return}alert(`${b.textContent.replace(' 保留','')}目前尚未啟用遊戲規則。`)};document.getElementById('machineClear')?.addEventListener('click',clearMachine);const clearAllBtn=document.getElementById('machineClearAll');if(clearAllBtn)clearAllBtn.onclick=()=>{if(window.confirm('確定清除目前模式的全部選號？')){if(window.clearActivePlayMode)window.clearActivePlayMode();else clearAllBets();renderMachineTotal()}};document.getElementById('machineUseSelection')?.addEventListener('click',useManualSelection);document.getElementById('periodSelect')?.addEventListener('change',e=>{periods=Math.max(1,Math.min(gameCfg().periodMax||10,Number(e.target.value)||1));renderMachineTotal()});renderPeriodOptions();document.getElementById('preorderDate')?.addEventListener('change',e=>{preorderDate=e.target.value||'';purchaseMode=preorderDate?'preorder':'consecutive';renderMachineTotal()});renderPurchaseMode();document.getElementById('machineQr')?.addEventListener('click',()=>{
   if(convenienceActive){generateConvenienceQr();return;}
+  if(window.AoerPackageTabs?.generateCombined?.())return;
 
   // 所有玩法共用右側唯一的「製作QR」入口。先判斷包牌模式，再走各遊戲的一般選號。
   if(currentGame==='bingo'){showBingoV003QrResultPage();return;}
@@ -5182,6 +5183,13 @@ init();
      }
    }catch(e){alert('聰明包牌QR產生失敗：'+String(e.message||e))}finally{if(btn)btn.textContent=old;render()}},20);
  }
+ window.AoerPackBridges=window.AoerPackBridges||{};
+ window.AoerPackBridges.smart={
+   export:()=>({nums:[...selected],hit,guarantee}),
+   import:state=>{selected=new Set(state?.nums||[]);hit=state?.hit??defaultHit();guarantee=state?.guarantee??ticketSize();lastWheel=[];render();},
+   ready:()=>!!document.getElementById('smartApply')&&!document.getElementById('smartApply').disabled,
+   rows:()=>{const nums=[...selected].sort((a,b)=>a-b);if(!window.AoerPackBridges.smart.ready())throw Error('聰明包牌條件未完成');return buildWheel(nums).map(r=>r.slice());}
+ };
  window.smartGenerateQr=generateSmartQr;
  window.smartGetUnitCount=()=>{const firstCount=lastWheel.length||lookupCount(currentGame,selected.size,hit,guarantee)||0;if(currentGame==='power')return powerSecondPicked.size>=1?firstCount*powerSecondPicked.size:0;if(isLottoComboGame())return firstCount*combo39CurrentMultiplier();return firstCount};
  window.smartNeedsDeferredCalc=()=>false;
@@ -5291,6 +5299,13 @@ init();
  function open(){if(window.closeMainMealMode)window.closeMainMealMode(false);if(window.smartModeActive&&window.closeSmartMode)window.closeSmartMode(false);if(window.columnModeActive&&window.setNumberMode)window.setNumberMode('general');panel.classList.add('open');panel.setAttribute('aria-hidden','false');window.selfPackModeActive=true;paint('self');render();window.updateQuickPickUI?.();setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),20)}
  function close(repaint=true){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');window.selfPackModeActive=false;const st=document.getElementById('selfPackReadyStatus');if(st)st.hidden=true;if(repaint)paint('general');renderNumberBoard();window.updateQuickPickUI?.()}
  function setSelf(){const current=window.selfPackModeActive?'self':(window.mainMealModeActive?'mainmeal':(window.smartModeActive?'smart':(window.columnModeActive?'column':'general')));if(current==='self')return;clearAllBets();if(window.closeMainMealMode)window.closeMainMealMode(false);if(window.smartModeActive&&window.closeSmartMode)window.closeSmartMode(false);if(window.columnModeActive&&window.setNumberMode)window.setNumberMode('general');reset();open()}
+ window.AoerPackBridges=window.AoerPackBridges||{};
+ window.AoerPackBridges.self={
+   export:()=>({nums:[...selected],strategy,groupCount,lastRows:lastRows.map(r=>r.slice()),countChosen,paired}),
+   import:state=>{selected=new Set(state?.nums||[]);strategy=state?.strategy||'balanced';groupCount=state?.groupCount||10;lastRows=(state?.lastRows||[]).map(r=>r.slice());countChosen=!!state?.countChosen;paired=!!state?.paired;pairing=false;const inp=document.getElementById('selfCountInput');if(inp)inp.value=groupCount;render();},
+   ready:()=>!!document.getElementById('selfApply')&&!document.getElementById('selfApply').disabled,
+   rows:()=>{if(!window.AoerPackBridges.self.ready())throw Error('自選包牌尚未完成配牌');return lastRows.map(r=>r.slice());}
+ };
  window.selfPackModeActive=false;window.closeSelfPackMode=close;window.clearSelfPackMode=reset;
  window.selfPackGetUnitCount=()=>{const k=ticketSizeSelf(),minMother=minMotherSelf(),max=selected.size>=k?combCount(selected.size,k):0;if(!(selected.size>=minMother&&groupCount<=max&&paired&&!pairing&&lastRows.length===groupCount))return 0;if(currentGame==='power')return powerSecondPicked.size>=1?groupCount*powerSecondPicked.size:0;if(isLottoComboGame())return groupCount*combo39CurrentMultiplier();return groupCount};
  document.getElementById('machineSelfPick')?.addEventListener('click',setSelf);
@@ -5438,6 +5453,13 @@ init();
    if(window.closeSelfPackMode)window.closeSelfPackMode(false);if(window.closeSmartMode)window.closeSmartMode(false);
    if(window.columnModeActive&&window.setNumberMode)window.setNumberMode('general');reset();open()
  }
+ window.AoerPackBridges=window.AoerPackBridges||{};
+ window.AoerPackBridges.mainmeal={
+   export:()=>({nums:[...selected]}),
+   import:state=>{selected.clear();(state?.nums||[]).forEach(n=>selected.add(n));lastRows=[];render();},
+   ready:()=>!!document.getElementById('mainMealApply')&&!document.getElementById('mainMealApply').disabled,
+   rows:()=>{if(!window.AoerPackBridges.mainmeal.ready())throw Error('主支全餐尚未完成');return buildRows().map(r=>r.slice());}
+ };
  window.mainMealModeActive=false;window.closeMainMealMode=close;window.clearMainMealMode=reset;window.mainMealRefresh=render;
  window.mainMealGetUnitCount=()=>{const firstCount=buildRows().length;if(currentGame==='power')return powerSecondPicked.size>=1?firstCount*powerSecondPicked.size:0;return firstCount};
  document.getElementById('mainMealBtn')?.addEventListener('click',setMainMeal);
@@ -5632,6 +5654,13 @@ init();
    decorateMainBoard();renderMachineTotal();updateMobileColumn();schedulePickerDock();
  }
  function resetColumns(){cols=Array.from({length:8},(_,i)=>({id:i+1,take:1,nums:new Set()}));active=0;patternKey='';star=columnPickSize()}
+ window.AoerPackBridges=window.AoerPackBridges||{};
+ window.AoerPackBridges.column={
+   export:()=>({active,cols:cols.map(c=>[...c.nums])}),
+   import:state=>{star=columnPickSize();cols=Array.from({length:8},(_,i)=>({id:i+1,take:1,nums:new Set(state?.cols?.[i]||[])}));active=Math.max(0,Math.min(7,state?.active??0));patternKey='';render();},
+   ready:()=>!!document.getElementById('columnApply')&&!document.getElementById('columnApply').disabled,
+   rows:()=>{if(!window.AoerPackBridges.column.ready())throw Error('立柱包牌條件未完成');return expandedRows().map(r=>r.slice());}
+ };
  window.columnResetAll=()=>{resetColumns();render()};
  window.columnRefresh=render;
  window.columnGetUnitCount=()=>{const first=bets(),mul=columnMultiplier();return currentGame==='power'?first*powerSecondPicked.size:(is39Column()?first*mul:first)};
@@ -7526,7 +7555,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
    });
    return value.map(row=>{const issue=String(row.issue||row.period||row.id||row.drawTerm||'');let nums=row.nums||row.numbers||row.drawNumbers||row.bigShowOrder||row.openShowOrder;
      if(typeof nums==='string')nums=nums.split(/[\s,，;；]+/).map(Number);
-     const superNumber=Number(row.super??row.superNumber??row.special??row.prizeNum?.bullEye??0);
+     const superNumber=Number(row.super??row.superNumber??row.bullEyeTop??row.special??row.prizeNum?.bullEye??(Array.isArray(row.openShowOrder)?row.openShowOrder[19]:0));
      return {issue,nums:Array.isArray(nums)?nums.map(Number):[],super:Number.isInteger(superNumber)&&superNumber>=1&&superNumber<=80?superNumber:null};
    }).filter(row=>/^\d{7,12}$/.test(row.issue)&&row.nums.length===20&&new Set(row.nums).size===20&&row.nums.every(n=>Number.isInteger(n)&&n>=1&&n<=80))
     .sort((a,b)=>b.issue.localeCompare(a.issue)).filter((row,i,arr)=>arr.findIndex(x=>x.issue===row.issue)===i).slice(0,203);
@@ -7628,14 +7657,16 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  function validRow(obj){
    if(!obj||typeof obj!=='object')return null;
    const issue=String(obj.issue??obj.drawTerm??obj.period??obj.id??'');
-   const raw=obj.nums??obj.bigShowOrder??obj.openShowOrder??obj.drawNumbers??obj.numbers;
-   let nums=Array.isArray(raw)?raw:(typeof raw==='string'?raw.trim().split(/[\s,，;；]+/):null);
-   if(!/^\d{7,12}$/.test(issue)||!nums||nums.length!==20)return null;
-   nums=nums.map(Number);
-   if(nums.some(n=>!Number.isInteger(n)||n<1||n>80)||new Set(nums).size!==20)return null;
-   const superVal=obj.super??obj.superNumber??obj.prizeNum?.bullEye??obj.special;
-   const sp=Number(superVal);
-   return {issue,nums,super:Number.isInteger(sp)&&sp>=1&&sp<=80?sp:null};
+   const raw=obj.nums??obj.bigShowOrder??obj.drawNumbers??obj.numbers;
+   const nums=Array.isArray(raw)?raw.map(Number):(typeof raw==='string'?raw.trim().split(/[\s,，;；]+/).map(Number):null);
+   if(!/^\d{7,12}$/.test(issue)||!nums||nums.length!==20||new Set(nums).size!==20||nums.some(n=>!Number.isInteger(n)||n<1||n>80))return null;
+   const order=Array.isArray(obj.openShowOrder)?obj.openShowOrder.map(Number):null;
+   if(order&&(order.length!==20||new Set(order).size!==20||order.some(n=>!nums.includes(n))))return null;
+   const rawSuper=obj.super??obj.bullEyeTop??obj.superNumber??obj.prizeNum?.bullEye??obj.special;
+   let sp=rawSuper===undefined||rawSuper===null||rawSuper===''?null:Number(rawSuper);
+   if(sp!==null&&(!Number.isInteger(sp)||sp<1||sp>80||!nums.includes(sp)))return null;
+   if(order){if(sp!==null&&sp!==order[19])return null;sp=order[19]}
+   return {issue,nums,super:sp};
  }
  function collectRows(json){
    const out=[],visited=new Set();let nodes=0;
@@ -7652,42 +7683,64 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  function contiguous(rows){
    return rows.length===24&&rows.every((r,i)=>i===0||(BigInt(rows[i-1].issue)-BigInt(r.issue)===1n));
  }
- async function getJson(url,signal){const res=await fetch(url,{cache:'no-store',signal,headers:{Accept:'application/json'}});if(!res.ok)throw new Error(`HTTP ${res.status}`);const j=await res.json();if(j.rtCode!==undefined&&Number(j.rtCode)!==0)throw new Error('API狀態異常');return j}
+ async function getJson(url,signal){
+   const res=await fetch(url,{cache:'no-store',credentials:'omit',signal,headers:{Accept:'application/json'}});
+   if(!res.ok)throw new Error(`官方 API HTTP ${res.status}`);
+   const j=await res.json();
+   if(j.rtCode!==undefined&&Number(j.rtCode)!==0)throw new Error('官方 API 狀態異常 '+String(j.rtCode));
+   return j;
+ }
+ function dateTW(date=new Date()){
+   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);
+   const fields=Object.fromEntries(parts.map(p=>[p.type,p.value]));return `${fields.year}-${fields.month}-${fields.day}`;
+ }
+ function priorDate(date){const d=new Date(date+'T12:00:00+08:00');d.setTime(d.getTime()-86400000);return dateTW(d)}
+ async function dailyBingoRows(date,signal){
+   // 台彩官方：BingoResult?openDate=YYYY-MM-DD&pageNum=1&pageSize=250
+   const url=LIVE_API+`BingoResult?openDate=${encodeURIComponent(date)}&pageNum=1&pageSize=250`;
+   const json=await getJson(url,signal);
+   if(!Array.isArray(json?.content?.bingoQueryResult))throw new Error(`${date} 歷史資料格式錯誤`);
+   const records=json.content.bingoQueryResult;
+   // A malformed row must not silently disappear from a purportedly complete history.
+   const parsed=records.map(validRow);
+   if(parsed.some(r=>r===null))throw new Error(`${date} 歷史開獎號碼或超級獎號驗證失敗`);
+   return collectRows(json);
+ }
+ function latestDate(json){const value=json?.content?.lotteryBingoLatestPost?.dDate;
+   return typeof value==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(value)?value.slice(0,10):dateTW();}
  async function checkBingo(){
    if(currentGame!=='bingo'||syncBusy||document.visibilityState==='hidden')return;
-   syncBusy=true;lastCheckAt=new Date().toISOString();setSyncStatus('正在檢查最新開獎資料');const ctrl=new AbortController();syncAbort=ctrl;
-   const timeout=setTimeout(()=>ctrl.abort(),6500);
+   syncBusy=true;lastCheckAt=new Date().toISOString();setSyncStatus('正在檢查最新開獎資料');
+   const ctrl=new AbortController();syncAbort=ctrl;
+   const timeout=setTimeout(()=>ctrl.abort(),16000);
    try{
      const latestJson=await getJson(LIVE_API+'LatestBingoResult',ctrl.signal);
      const latest=collectRows(latestJson)[0];
-     if(!latest)throw new Error('最新一期資料不完整');
-     if(BigInt(latest.issue)<=BigInt(draws[0]?.issue||'0')){syncSource=syncSource==='內建／已保存的歷史資料'?'既有已驗證資料':syncSource;setSyncStatus('已檢查，沒有較新的完整期數');return}
-     // If immediately following the last verified period, append safely.
-     let candidate=[latest,...draws.filter(x=>x.issue!==latest.issue)].slice(0,24);
-     if(!contiguous(candidate)){
-       // A missed draw or stale seed requires a full historical refresh.
-       // Different versions of the official API may require different query keys.
-       const today=new Date();const date=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-       const queryList=[
-         `BingoResult?pageNum=1&pageSize=50&date=${date}`,
-         `BingoResult?date=${date}&pageNum=1&pageSize=50`,
-         `BingoResult?drawDate=${date}&pageNum=1&pageSize=50`,
-         `BingoResult?pageNum=1&pageSize=50`
-       ];
-       let rebuilt=null;
-       for(const q of queryList){
-         try{const j=await getJson(LIVE_API+q,ctrl.signal);const rows=collectRows(j);const c=rows.slice(0,24);if(contiguous(c)&&BigInt(c[0].issue)>=BigInt(latest.issue)){rebuilt=c;break}}
-         catch(e){if(ctrl.signal.aborted)throw e}
-       }
-       if(!rebuilt)throw new Error('尚未取得連續24期；保留既有資料');
-       candidate=rebuilt;
+     if(!latest||!latest.super)throw new Error('官方最新一期資料不完整');
+     if(BigInt(latest.issue)<=BigInt(draws[0]?.issue||'0')){
+       syncError='';setSyncStatus('已確認最新一期，尚無新期數');return;
      }
-     if(!contiguous(candidate))throw new Error('期別不連續，拒絕更新');
+     const today=latestDate(latestJson);
+     let rows=await dailyBingoRows(today,ctrl.signal);
+     // Before roughly 09:00 only 1-23 draws exist today; fetch the preceding day.
+     if(rows.length<24)rows=rows.concat(await dailyBingoRows(priorDate(today),ctrl.signal));
+     const unique=new Map();for(const row of [latest,...rows]){
+       if(!unique.has(row.issue))unique.set(row.issue,row);
+     }
+     const merged=[...unique.values()].sort((a,b)=>BigInt(a.issue)>BigInt(b.issue)?-1:BigInt(a.issue)<BigInt(b.issue)?1:0);
+     const candidate=contiguous(merged.slice(0,24))?merged.slice(0,24):rows.slice(0,24);
+     if(!contiguous(candidate))throw new Error('官方最近24期有缺期，保留既有資料');
+     if(candidate.some(row=>!row.super))throw new Error('超級獎號資料不完整，保留既有資料');
+     if(BigInt(candidate[0].issue)<=BigInt(draws[0]?.issue||'0')){
+       syncError='';setSyncStatus('歷史資料尚未同步最新一期，等待下一次檢查');return;
+     }
      draws=candidate;syncError='';syncSource='台彩官方 API（已驗證24期）';
      try{localStorage.setItem(STORE,JSON.stringify(draws))}catch(e){}
-     setSyncStatus('新期數已驗證，最新權重已生效');updateHint();
-   }catch(e){syncError=String(e?.message||e);if(currentGame==='bingo')setSyncStatus('更新未成功，沿用上次有效資料（'+syncError+'）');}
-   finally{clearTimeout(timeout);syncBusy=false;syncAbort=null}
+     setSyncStatus('最新24期已更新，一般與超級獎號權重已生效');updateHint();
+   }catch(e){
+     syncError=ctrl.signal.aborted?'資料請求逾時或已取消':String(e?.message||e);
+     if(currentGame==='bingo')setSyncStatus('更新未成功，沿用上次有效資料（'+syncError+'）');
+   }finally{clearTimeout(timeout);syncBusy=false;syncAbort=null;}
  }
  function startBingoPolling(){
    if(syncTimer||currentGame!=='bingo')return;
@@ -7707,27 +7760,41 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  switchGame=function(){const result=oldSwitch.apply(this,arguments);updateHint();if(currentGame==='bingo')startBingoPolling();else stopBingoPolling();return result};
  document.body.classList.toggle('aq-bingo-game',currentGame==='bingo');updateHint();if(currentGame==='bingo')startBingoPolling();
 })();
-</script><script id="v14aq-progressive-mobile-tabs">
+</script><script id="v14as-progressive-mobile-package-tabs">
 (function(){
  'use strict';
- const tabs=document.getElementById('betTabs');
- if(!tabs)return;
+ const tabs=document.getElementById('betTabs'),qr=document.getElementById('machineQr');
+ if(!tabs||!qr)return;
  const mobile=()=>window.matchMedia('(max-width:600px)').matches;
- let count=1,game=currentGame,mode='',everFilled=new Set(),suppress=false;
- const originalRender=renderBetTabs;
  const canUse=()=>['general','column','smart','self','mainmeal'].includes(getActivePlayMode());
- function filled(i){
-   if(currentGame==='3star')return star3UnitCount(i)>0;
-   if(currentGame==='4star')return star4UnitCount(i)>0;
-   if(i===currentBetIndex&&currentGame!=='3star'&&currentGame!=='4star')syncCurrentBet();
-   return betUnitCount(betSelections[i],i)>0;
- }
+ let count=1,game=currentGame,mode=getActivePlayMode(),states=Array(10).fill(null),everFilled=new Set(),suppress=false;
+ const originalRender=renderBetTabs;
+ const bridge=()=>window.AoerPackBridges?.[getActivePlayMode()];
+ const pack=()=>getActivePlayMode()!=='general'&&canUse();
+ function resetProgress(){count=1;states=Array(10).fill(null);everFilled.clear()}
+ function syncMode(){const newMode=getActivePlayMode();if(game!==currentGame||mode!==newMode){game=currentGame;mode=newMode;resetProgress()}}
  function hasAny(i){
+   if(pack()){
+     const state=i===currentBetIndex?bridge()?.export():states[i];
+     return !!state&&(Array.isArray(state.nums)&&state.nums.length>0||Array.isArray(state.cols)&&state.cols.some(nums=>nums.length));
+   }
    if(currentGame==='3star')return star3Sets(i).some(s=>s.size>0);
    if(currentGame==='4star')return star4Sets(i).some(s=>s.size>0);
    if(i===currentBetIndex)syncCurrentBet();
-   return betSelections[i].size>0||powerSecondSelections[i].size>0;
+   return !!(betSelections[i]?.size||powerSecondSelections[i]?.size);
  }
+ function filled(i){
+   if(pack()){
+     if(i===currentBetIndex)return !!bridge()?.ready()&&!qr.disabled;
+     return !!states[i]?.ready;
+   }
+   if(currentGame==='3star')return star3UnitCount(i)>0;
+   if(currentGame==='4star')return star4UnitCount(i)>0;
+   if(i===currentBetIndex)syncCurrentBet();
+   return betUnitCount(betSelections[i],i)>0;
+ }
+ function saveActive(){if(!pack())return;const b=bridge();if(!b)return;states[currentBetIndex]={...b.export(),ready:!!b.ready()&&!qr.disabled};}
+ function restore(index){if(pack())bridge()?.import(states[index]||null);refreshMachineQrEnabled();}
  function clearRow(i){
    if(currentGame==='3star'){star3ClearBet(i);return}
    if(currentGame==='4star'){star4ClearBet(i);return}
@@ -7735,10 +7802,15 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
    if(currentGame==='bingo'){bingoStarSelections[i]=1;bingoModeSelections[i]='star';bingoSystemSelections[i]=false}
    if(isLottoComboGame()){combo39PlaySelections[i]=2;combo39MultiPlaySelections[i]=new Set([2]);combo39MultiplierSelections[i]=1;}
  }
+ function isLastReady(){return currentBetIndex===count-1&&filled(count-1)&&!qr.disabled}
+ function updateAdd(){
+   const plus=tabs.querySelector('.aq-plus-tab');if(!plus)return;
+   const ok=isLastReady();plus.disabled=!ok;
+   plus.setAttribute('aria-disabled',String(!ok));
+   plus.title=ok?'新增一注':'目前這注可製作 QR Code 後，才能新增下一注';
+ }
  function syncLayout(){
-   if(game!==currentGame||mode!==getActivePlayMode()){
-     game=currentGame;mode=getActivePlayMode();count=1;everFilled.clear();
-   }
+   syncMode();
    if(!mobile()||!canUse()){
      tabs.querySelector('.aq-plus-tab')?.remove();
      tabs.querySelectorAll('.bet-tab').forEach(b=>{b.classList.remove('aq-hidden');b.removeAttribute('aria-hidden');});
@@ -7749,41 +7821,54 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
    nodes.forEach((b,i)=>{
      const hidden=i>=count;b.classList.toggle('aq-hidden',hidden);
      if(hidden){b.setAttribute('aria-hidden','true');b.tabIndex=-1;}
-     else{b.removeAttribute('aria-hidden');b.removeAttribute('tabindex')}
+     else{b.removeAttribute('aria-hidden');b.removeAttribute('tabindex');if(pack()){
+       b.classList.toggle('filled',filled(i));b.classList.toggle('partial',!filled(i)&&hasAny(i));
+     }}
    });
    tabs.querySelector('.aq-plus-tab')?.remove();
    if(count<10){
-     const plus=document.createElement('button');plus.className='aq-plus-tab';plus.type='button';
-     plus.textContent='＋';plus.title='完成一組選號後新增一注';plus.setAttribute('aria-label','新增一注');
+     const plus=document.createElement('button');plus.className='aq-plus-tab';plus.type='button';plus.textContent='＋';
+     plus.setAttribute('aria-label','新增一注');
      plus.addEventListener('click',e=>{
        e.preventDefault();e.stopPropagation();
-       if(!filled(count-1)&&!hasAny(count-1)){alert('請先完成目前分頁的選號');return}
+       syncMode();if(!isLastReady())return;
        if(count>=10)return;
-       suppress=true;clearRow(count);count++;
-       loadBet(count-1);suppress=false;
-       renderBetTabs();
+       suppress=true;
+       if(pack())saveActive();
+       clearRow(count);count++;
+       loadBet(count-1);
+       if(pack())restore(count-1);
+       suppress=false;
+       renderBetTabs();refreshMachineQrEnabled();updateAdd();
+       plus.scrollIntoView({block:'nearest',inline:'nearest'});
      });
-     const last=nodes[count-1];last?.after(plus);
+     nodes[count-1]?.after(plus);updateAdd();
    }
  }
- renderBetTabs=function(){
-   const r=originalRender.apply(this,arguments);
-   tabs.querySelector('.ap-bet-toolbar')?.remove();
-   syncLayout();return r;
- };
+ renderBetTabs=function(){const r=originalRender.apply(this,arguments);tabs.querySelector('.ap-bet-toolbar')?.remove();syncLayout();return r};
+ tabs.addEventListener('click',e=>{
+   if(!mobile()||!pack())return;
+   const btn=e.target.closest('[data-bet-index]');if(!btn||btn.disabled)return;
+   const index=Number(btn.dataset.betIndex);if(index<0||index>=count)return;
+   e.preventDefault();e.stopImmediatePropagation();
+   if(index===currentBetIndex)return;
+   saveActive();suppress=true;
+   loadBet(index);restore(index);
+   suppress=false;renderBetTabs();updateAdd();
+ },true);
  function shrinkIfEmpty(){
    if(suppress||!mobile()||!canUse()||count<=1)return;
    const index=currentBetIndex;
    if(index===0||index>=count||!everFilled.has(index)||hasAny(index))return;
    suppress=true;
-   // Only collapse rows after their contents were explicitly cleared.
-   if(currentGame==='3star'||currentGame==='4star'){
+   if(pack()){
+     states.splice(index,1);states.push(null);
+   }else if(currentGame==='3star'||currentGame==='4star'){
      const arr=currentGame==='3star'?star3Selections:star4Selections;
      const groups=currentGame==='3star'?star3GroupSelections:star4GroupSelections;
      const multipliers=currentGame==='3star'?star3MultiplierSelections:star4MultiplierSelections;
      arr.splice(index,1);arr.push(Array.from({length:currentGame==='3star'?3:4},()=>new Set()));
-     groups.splice(index,1);groups.push(false);
-     multipliers.splice(index,1);multipliers.push(1);
+     groups.splice(index,1);groups.push(false);multipliers.splice(index,1);multipliers.push(1);
    }else{
      syncCurrentBet();
      for(const arr of [betSelections,powerSecondSelections]){arr.splice(index,1);arr.push(new Set())}
@@ -7791,23 +7876,63 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
      if(isLottoComboGame())for(const [arr,def] of [[combo39PlaySelections,2],[combo39MultiplierSelections,1],[combo39MultiPlaySelections,new Set([2])]]){arr.splice(index,1);arr.push(def instanceof Set?new Set(def):def)}
    }
    const updated=new Set();for(const i of everFilled){if(i<index)updated.add(i);else if(i>index)updated.add(i-1)}everFilled=updated;
-   count--;
-   // After compaction load the next existing row; if last was removed, return to prior.
-   currentBetIndex=Math.min(index,count-1);
-   if(currentGame!=='3star'&&currentGame!=='4star'){
+   count--;currentBetIndex=Math.min(index,count-1);
+   if(pack())bridge()?.import(states[currentBetIndex]||null);
+   else if(currentGame!=='3star'&&currentGame!=='4star'){
      manualPicked=new Set(betSelections[currentBetIndex]);powerSecondPicked=new Set(powerSecondSelections[currentBetIndex]);
    }
-   lastResult=null;qrResultState=null;
-   suppress=false;
-   renderNumberBoard();renderBetTabs();renderMachineTotal();
+   lastResult=null;qrResultState=null;suppress=false;
+   renderNumberBoard();renderBetTabs();renderMachineTotal();refreshMachineQrEnabled();
  }
  document.addEventListener('click',e=>{
    if(!mobile()||!canUse())return;
-   if(e.target.closest('[data-picknum],[data-star3-digit],[data-star4-digit],#machineClear'))setTimeout(shrinkIfEmpty,0);
-   if(e.target.closest('#machineClearAll,#mobileClearAll'))setTimeout(()=>{count=1;everFilled.clear();renderBetTabs()},0);
+   if(e.target.closest('[data-picknum],[data-star3-digit],[data-star4-digit],#machineClear,#mobileColumnClear'))setTimeout(shrinkIfEmpty,0);
+   if(e.target.closest('#machineClearAll,#mobileClearAll'))setTimeout(()=>{resetProgress();renderBetTabs();},0);
  });
+ new MutationObserver(()=>updateAdd()).observe(qr,{attributes:true,attributeFilter:['disabled']});
+ function generateCombined(){
+   syncMode();if(!mobile()||!pack()||count<2)return false;
+   saveActive();
+   const selectedIndex=currentBetIndex,gameId=currentGame,b=bridge(),rows=[];
+   suppress=true;
+   try{
+     for(let i=0;i<count;i++){
+       loadBet(i);b.import(states[i]||null);refreshMachineQrEnabled();
+       if(!b.ready()){
+         if(hasAny(i))throw Error(`第 ${String(i+1).padStart(2,'0')} 注尚未符合製作 QR Code 條件`);
+         continue;
+       }
+       const part=b.rows();
+       if(!part.length)throw Error(`第 ${String(i+1).padStart(2,'0')} 注沒有可投注組合`);
+       const second=[...powerSecondPicked].sort((a,b)=>a-b),play=isLottoComboGame()?combo39CurrentPlay():null,mult=isLottoComboGame()?combo39CurrentMultiplier():1;
+       if(gameId==='power'&&second.length<1)throw Error(`第 ${String(i+1).padStart(2,'0')} 注威力彩第二區未完成`);
+       for(const numbers of part){
+         const nums=numbers.slice();
+         if(gameId==='power')rows.push({first:nums,second:second.slice()});
+         else if(isLottoComboGame())rows.push({play,nums,multiplier:mult});
+         else rows.push(nums);
+       }
+     }
+   }catch(e){alert('包牌分頁尚未完成：'+String(e.message||e));return true;}
+   finally{
+     loadBet(selectedIndex);b.import(states[selectedIndex]||null);
+     suppress=false;renderBetTabs();renderMachineTotal();refreshMachineQrEnabled();
+   }
+   try{
+     if(!rows.length)throw Error('目前沒有可投注的包牌注數');
+     if(gameId==='lotto649'&&!v003SelfTest())throw Error('大樂透 QR 內建驗證失敗');
+     if(gameId==='power'&&!powerV003SelfTest())throw Error('威力彩 QR 內建驗證失敗');
+     if(gameId==='49combo'&&!combo49V003SelfTest())throw Error('49樂合彩 QR 內建驗證失敗');
+     if(gameId==='39combo'&&!combo39V003SelfTest())throw Error('39樂合彩 QR 內建驗證失敗');
+     const opts={gameId,autoSplit10:true};
+     if(purchaseMode==='preorder'){opts.startOffset=preorderOffsetForDate(preorderDate);opts.preorderDate=preorderDate;}
+     showV003QrResultPage(rows,periods,opts);
+   }catch(e){alert('包牌 QR 產生失敗：'+String(e.message||e));}
+   return true;
+ }
+ window.AoerPackageTabs={generateCombined,status:()=>({count,index:currentBetIndex,game:currentGame,mode:getActivePlayMode(),ready:isLastReady(),saved:states.map(x=>!!x)})};
  const oldSwitch=switchGame;
- switchGame=function(){const result=oldSwitch.apply(this,arguments);count=1;everFilled.clear();renderBetTabs();return result};
+ switchGame=function(){const result=oldSwitch.apply(this,arguments);resetProgress();game=currentGame;mode=getActivePlayMode();renderBetTabs();return result};
  window.addEventListener('resize',()=>renderBetTabs(),{passive:true});
  renderBetTabs();
 })();
@@ -7816,6 +7941,14 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  body[data-mobile-stage="numbers"] #lottoMachine #betTabs{flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:thin;max-width:100%!important;overscroll-behavior-x:contain}
  body[data-mobile-stage="numbers"] #lottoMachine #betTabs .bet-tab{flex-shrink:0!important}
  body[data-mobile-stage="numbers"] #lottoMachine #betTabs .aq-plus-tab{flex-shrink:0!important;position:relative!important}
+}
+</style><style id="v14as-pack-add-locked">
+@media(max-width:600px){
+ #lottoMachine #betTabs .aq-plus-tab:disabled{
+   background:#e4e4e4!important;color:#929292!important;border-color:#c9c9c9!important;
+   box-shadow:none!important;opacity:1!important;cursor:not-allowed!important;transform:none!important;
+ }
+ #lottoMachine #betTabs .aq-plus-tab:not(:disabled){background:#edf5ff!important;color:#1c65b8!important;border-color:#8db4ef!important;opacity:1!important}
 }
 </style></body>
 </html>
