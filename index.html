@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號｜V14-AO</title>
+<title>奧爾樂透選號｜V14-AR</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -7623,7 +7623,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  // Check for new official BINGO draws only while the BINGO game is selected.
  // Never mix nonconsecutive historic seed draws with a recent live period.
  const LIVE_API='https://api.taiwanlottery.com/TLCAPIWeB/Lottery/';
- let syncTimer=null, syncBusy=false, syncAbort=null, syncStatus='尚未檢查', syncSource='內建／已保存的歷史資料';
+ let syncTimer=null, syncBusy=false, syncAbort=null, syncStatus='尚未檢查', syncSource='內建／已保存的歷史資料',syncError='',lastCheckAt=null;
  function setSyncStatus(message){syncStatus=message;const el=document.getElementById('arBingoSyncStatus');if(el)el.textContent=`資料：${syncSource}｜${message}｜最近 ${Math.min(24,draws.length)} 期，最新 ${draws[0]?.issue||'—'}`;}
  function validRow(obj){
    if(!obj||typeof obj!=='object')return null;
@@ -7655,7 +7655,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  async function getJson(url,signal){const res=await fetch(url,{cache:'no-store',signal,headers:{Accept:'application/json'}});if(!res.ok)throw new Error(`HTTP ${res.status}`);const j=await res.json();if(j.rtCode!==undefined&&Number(j.rtCode)!==0)throw new Error('API狀態異常');return j}
  async function checkBingo(){
    if(currentGame!=='bingo'||syncBusy||document.visibilityState==='hidden')return;
-   syncBusy=true;const ctrl=new AbortController();syncAbort=ctrl;
+   syncBusy=true;lastCheckAt=new Date().toISOString();setSyncStatus('正在檢查最新開獎資料');const ctrl=new AbortController();syncAbort=ctrl;
    const timeout=setTimeout(()=>ctrl.abort(),6500);
    try{
      const latestJson=await getJson(LIVE_API+'LatestBingoResult',ctrl.signal);
@@ -7683,10 +7683,10 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
        candidate=rebuilt;
      }
      if(!contiguous(candidate))throw new Error('期別不連續，拒絕更新');
-     draws=candidate;syncSource='台彩官方 API（已驗證24期）';
+     draws=candidate;syncError='';syncSource='台彩官方 API（已驗證24期）';
      try{localStorage.setItem(STORE,JSON.stringify(draws))}catch(e){}
-     setSyncStatus('新期數已驗證，權重於下次快選自動重算');updateHint();
-   }catch(e){if(currentGame==='bingo')setSyncStatus('更新未成功，沿用上次有效資料');}
+     setSyncStatus('新期數已驗證，最新權重已生效');updateHint();
+   }catch(e){syncError=String(e?.message||e);if(currentGame==='bingo')setSyncStatus('更新未成功，沿用上次有效資料（'+syncError+'）');}
    finally{clearTimeout(timeout);syncBusy=false;syncAbort=null}
  }
  function startBingoPolling(){
@@ -7698,6 +7698,9 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  document.getElementById('aqBingoData')?.appendChild(statusBox);
  setSyncStatus(syncStatus);
  document.addEventListener('visibilitychange',()=>{if(currentGame==='bingo'&&document.visibilityState==='visible')checkBingo()});
+ window.addEventListener('pageshow',()=>{if(currentGame==='bingo')checkBingo()});
+ window.addEventListener('focus',()=>{if(currentGame==='bingo')checkBingo()});
+ window.AoerBingoSync=Object.freeze({check:checkBingo,status:()=>({active:currentGame==='bingo',busy:syncBusy,lastCheckAt,error:syncError,source:syncSource,latestIssue:draws[0]?.issue||null,periods:draws.length})});
  const oldUpdate=updateGameUI;
  updateGameUI=function(){const result=oldUpdate.apply(this,arguments);document.body.classList.toggle('aq-bingo-game',currentGame==='bingo');updateHint();if(currentGame==='bingo')startBingoPolling();return result};
  const oldSwitch=switchGame;
@@ -7712,7 +7715,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  const mobile=()=>window.matchMedia('(max-width:600px)').matches;
  let count=1,game=currentGame,mode='',everFilled=new Set(),suppress=false;
  const originalRender=renderBetTabs;
- const canUse=()=>getActivePlayMode()==='general';
+ const canUse=()=>['general','column','smart','self','mainmeal'].includes(getActivePlayMode());
  function filled(i){
    if(currentGame==='3star')return star3UnitCount(i)>0;
    if(currentGame==='4star')return star4UnitCount(i)>0;
@@ -7737,6 +7740,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
      game=currentGame;mode=getActivePlayMode();count=1;everFilled.clear();
    }
    if(!mobile()||!canUse()){
+     tabs.querySelector('.aq-plus-tab')?.remove();
      tabs.querySelectorAll('.bet-tab').forEach(b=>{b.classList.remove('aq-hidden');b.removeAttribute('aria-hidden');});
      return;
    }
@@ -7753,7 +7757,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
      plus.textContent='＋';plus.title='完成一組選號後新增一注';plus.setAttribute('aria-label','新增一注');
      plus.addEventListener('click',e=>{
        e.preventDefault();e.stopPropagation();
-       if(!filled(count-1)){alert('請完成一組選號');return}
+       if(!filled(count-1)&&!hasAny(count-1)){alert('請先完成目前分頁的選號');return}
        if(count>=10)return;
        suppress=true;clearRow(count);count++;
        loadBet(count-1);suppress=false;
@@ -7807,5 +7811,11 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  window.addEventListener('resize',()=>renderBetTabs(),{passive:true});
  renderBetTabs();
 })();
-</script></body>
+</script><style id="v14ar-mobile-pack-tabs-fix">
+@media(max-width:600px){
+ body[data-mobile-stage="numbers"] #lottoMachine #betTabs{flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:thin;max-width:100%!important;overscroll-behavior-x:contain}
+ body[data-mobile-stage="numbers"] #lottoMachine #betTabs .bet-tab{flex-shrink:0!important}
+ body[data-mobile-stage="numbers"] #lottoMachine #betTabs .aq-plus-tab{flex-shrink:0!important;position:relative!important}
+}
+</style></body>
 </html>
