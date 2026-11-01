@@ -7723,7 +7723,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
    return [...unique.values()].sort((a,b)=>BigInt(a.issue)>BigInt(b.issue)?-1:1);
  }
  function contiguous(rows){
-   return rows.length===24&&rows.every((r,i)=>i===0||(BigInt(rows[i-1].issue)-BigInt(r.issue)===1n));
+   return rows.length===36&&rows.every((r,i)=>i===0||(BigInt(rows[i-1].issue)-BigInt(r.issue)===1n));
  }
  async function getJson(url,signal){
    const res=await fetch(url,{cache:'no-store',credentials:'omit',signal,headers:{Accept:'application/json'}});
@@ -7770,7 +7770,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
        if(!unique.has(row.issue))unique.set(row.issue,row);
      }
      const merged=[...unique.values()].sort((a,b)=>BigInt(a.issue)>BigInt(b.issue)?-1:BigInt(a.issue)<BigInt(b.issue)?1:0);
-     const candidate=contiguous(merged.slice(0,36))?merged.slice(0,36):rows.slice(0,36);
+     const candidate=merged.slice(0,36);
      if(!contiguous(candidate))throw new Error('官方最近36期有缺期，保留既有資料');
      if(candidate.some(row=>!row.super))throw new Error('超級獎號資料不完整，保留既有資料');
      if(draws.length>=36&&BigInt(candidate[0].issue)<=BigInt(draws[0]?.issue||'0')){
@@ -7780,7 +7780,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
      try{localStorage.setItem(STORE,JSON.stringify(draws))}catch(e){}
      setSyncStatus('最新36期已更新，一般與超級獎號權重已生效');updateHint();
    }catch(e){
-     syncError=ctrl.signal.aborted?'資料請求逾時或已取消':String(e?.message||e);
+     syncError=ctrl.signal.aborted?'資料請求逾時或已取消':(e instanceof TypeError?'網路請求失敗：可能為 Safari 跨網域限制、網路連線或官方服務阻擋':String(e?.message||e));
      if(currentGame==='bingo')setSyncStatus('更新未成功，沿用上次有效資料（'+syncError+'）');
    }finally{clearTimeout(timeout);syncBusy=false;syncAbort=null;}
  }
@@ -8072,11 +8072,11 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  let config={...defaults};try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v==='object')config={...defaults,...v};}catch(_e){}
  function save(){try{localStorage.setItem(KEY,JSON.stringify(config));}catch(_e){}}
  const icon='<svg aria-hidden="true" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6zM18 12h.01"/></svg>';
- const mobile=document.createElement('button');mobile.id='awPrinterMobile';mobile.type='button';mobile.setAttribute('aria-label','印表機設定');mobile.title='印表機設定';mobile.innerHTML=icon;document.body.appendChild(mobile);
- const desktop=document.createElement('button');desktop.id='awPrinterDesktop';desktop.type='button';desktop.innerHTML=icon+'<span>印表機設定</span>';
+ const mobile=document.createElement('button');mobile.id='awPrinterMobile';mobile.type='button';mobile.setAttribute('aria-label','設定');mobile.title='設定';mobile.innerHTML=icon;document.body.appendChild(mobile);
+ const desktop=document.createElement('button');desktop.id='awPrinterDesktop';desktop.type='button';desktop.innerHTML=icon+'<span>設定</span>';
  const link=document.querySelector('#gameRail .draw-lookup-link');if(link)link.insertAdjacentElement('afterend',desktop);else document.querySelector('#gameRail')?.appendChild(desktop);
  const modal=document.createElement('div');modal.id='awPrinterDialog';modal.hidden=true;
- modal.innerHTML=`<div class="aw-panel" role="dialog" aria-modal="true" aria-labelledby="awTitle"><div class="aw-title"><h2 id="awTitle">印表機設定</h2><button class="aw-close" type="button" data-aw-close aria-label="關閉">×</button></div><p>網頁使用系統列印視窗選擇印表機。本站不會自行掃描區域網路，也無法讀取實際選用的印表機。</p><label for="awPaper">紙張類型</label><select id="awPaper"><option value="thermal">58mm 熱感紙（原有 50mm QR）</option><option value="a4">A4 普通紙</option></select><div id="awA4Settings"><label for="awLayout">A4 排版模式</label><select id="awLayout"><option value="16">16 格定位（4 × 4）</option><option value="1">整頁置中</option></select><div class="aw-row"><div><label for="awSize">QR 尺寸</label><select id="awSize"><option value="40">40 mm</option><option value="45">45 mm（預設）</option><option value="50">50 mm（需測試）</option></select></div><div><label for="awX">水平偏移 (mm)</label><input type="number" id="awX" min="-5" max="5" step="0.5"></div></div><label for="awY">垂直偏移 (mm)</label><input type="number" id="awY" min="-5" max="5" step="0.5"><div class="aw-tip">A4 16 格每格約 52.5 × 74.25 mm。紙張外緣可能落在不可列印區；請先以 100% 比例測試校正，並實際驗證 QR 可讀性。</div></div><div class="aw-actions"><button type="button" id="awTest">測試列印</button><button type="button" class="aw-primary" id="awSave">儲存設定</button></div></div>`;
+ modal.innerHTML=`<div class="aw-panel" role="dialog" aria-modal="true" aria-labelledby="awTitle"><div class="aw-title"><h2 id="awTitle">設定</h2><button class="aw-close" type="button" data-aw-close aria-label="關閉">×</button></div><div class="ax-settings-section"><h3>列印設定</h3><p>網頁使用系統列印視窗選擇印表機；印表機本身由系統管理。</p><label for="awPaper">紙張類型</label><select id="awPaper"><option value="thermal">58mm 熱感紙（原有 50mm QR）</option><option value="a4">A4 普通紙</option></select><div id="awA4Settings"><label for="awLayout">A4 排版模式</label><select id="awLayout"><option value="16">16 格定位（4 × 4）</option><option value="1">整頁置中</option></select><div class="aw-row"><div><label for="awSize">QR 尺寸</label><select id="awSize"><option value="40">40 mm</option><option value="45">45 mm（預設）</option><option value="50">50 mm（需測試）</option></select></div><div><label for="awX">水平偏移 (mm)</label><input type="number" id="awX" min="-5" max="5" step="0.5"></div></div><label for="awY">垂直偏移 (mm)</label><input type="number" id="awY" min="-5" max="5" step="0.5"><div class="aw-tip">A4 16 格每格約 52.5 × 74.25 mm。紙張外緣可能落在不可列印區；請先以 100% 比例測試校正，並實際驗證 QR 可讀性。</div></div><div class="aw-actions"><button type="button" id="awTest">測試列印</button><button type="button" class="aw-primary" id="awSave">儲存設定</button></div></div><div class="ax-settings-section ax-settings-future"><h3>其他設定</h3><p>預留未來功能，尚未開放操作。</p></div></div>`;
  const pos=document.createElement('div');pos.id='awPrinterPosition';pos.hidden=true;
  pos.innerHTML='<div class="aw-panel" role="dialog" aria-modal="true" aria-labelledby="awPosTitle"><div class="aw-title"><h2 id="awPosTitle">選擇 A4 列印位置</h2><button type="button" class="aw-close" data-aw-close aria-label="關閉">×</button></div><p>選擇第 1 至 16 格，預覽的格線不會列印。一次列印目前顯示的 QR。</p><div class="aw-grid" id="awGrid"></div><div class="aw-actions"><button type="button" id="awCancelPos">取消</button><button type="button" class="aw-primary" id="awDoPrint">進入系統列印</button></div></div>';
  document.body.append(modal,pos);
@@ -8114,5 +8114,22 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  window.AoerPrinterSettings={get:()=>({...config}),open:openSettings};
 })();
 </script>
+
+<style id="v14ax-settings-mobile-tabs">
+/* All settings live under the single gear entry. */
+@media(max-width:600px){
+ #awPrinterMobile{display:none!important}
+ body[data-mobile-stage="games"]:has(.page[data-page="home"].active) #awPrinterMobile{display:grid!important;place-items:center!important;position:absolute!important;top:calc(7px + env(safe-area-inset-top,0px))!important;right:10px!important;z-index:1350!important;width:44px!important;height:44px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#2868c9!important}
+ body[data-mobile-stage="plays"] #awPrinterMobile,body[data-mobile-stage="numbers"] #awPrinterMobile,body:has(.page[data-page="qrresult"].active) #awPrinterMobile{display:none!important}
+ body[data-mobile-stage="numbers"] #lottoMachine #betTabs{gap:8px!important;padding-left:8px!important}
+ body[data-mobile-stage="numbers"] #lottoMachine #betTabs .bet-tab:not(.aq-hidden),
+ body[data-mobile-stage="numbers"] #lottoMachine #betTabs .aq-plus-tab{flex:0 0 auto!important;width:auto!important;min-width:38px!important;padding:0 7px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+ body[data-mobile-stage="numbers"] #lottoMachine #betTabs .bet-tab::before,
+ body[data-mobile-stage="numbers"] #lottoMachine #betTabs .aq-plus-tab::before{display:none!important;content:none!important}
+}
+.ax-settings-section{border:1px solid #e8ddc6;background:#fffdf8;border-radius:12px;padding:12px;margin-top:12px}
+.ax-settings-section h3{margin:0 0 7px;font-size:17px;color:#324b67}
+.ax-settings-future{border-style:dashed;background:#faf9f6;min-height:90px}
+</style>
 </body>
 </html>
