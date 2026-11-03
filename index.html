@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號 V14-BI｜便利智慧快選與BINGO獎號修正</title>
+<title>奧爾樂透選號 V14-BJ｜便利智慧快選與BINGO獎號修正</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -1257,7 +1257,7 @@ window.AOER_STAR_D100=function(position,game){
 <button class="side-btn" id="machineClearAll" type="button">全部清除</button>
 <button class="side-btn mode-btn active" id="generalModeBtn" type="button">一般選號</button>
 <button class="side-btn mode-btn" id="conveniencePlayBtn" type="button">便利快選</button>
-<button class="side-btn mode-btn" id="bbSmart4Btn" type="button" title="1～100注，自動最佳化整批至少一注中3碼以上的覆蓋率">智慧自動選號</button>
+<button class="side-btn mode-btn" id="bbSmart4Btn" type="button" hidden aria-hidden="true" tabindex="-1">智慧自動選號（舊入口）</button>
 <button class="side-btn mode-btn" id="columnPlayBtn" type="button">立柱包牌</button>
 <button class="side-btn mode-btn" id="smartPlayBtn" type="button">聰明包牌</button>
 <button class="side-btn mode-btn" id="machineSelfPick" type="button">自選包牌</button>
@@ -4835,6 +4835,8 @@ function generateConvenienceQr(){
   const smart=window.AQ_WEIGHT_ON!==false&&window.SmartPickEngine;
   const prior=[];
   const smartDraw=(max,count)=>smart?window.SmartPickEngine.chooseNumbers(max,count,{past:prior}):null;
+  const shared539=game==='539'&&smart?window.Aoer539Optimizer.batch(convenienceCount).rows:null;
+  const uniform539=()=>{const arr=Array.from({length:39},(_,i)=>i+1);for(let i=38;i>0;i--){const j=cryptoInt(i+1);[arr[i],arr[j]]=[arr[j],arr[i]];}return arr.slice(0,5).sort((a,b)=>a-b);};
   if(isLottoComboGame()){
     const plays=convenienceComboPlays(),size=convenienceComboPickSize(),multiple=convenienceComboState().multiplier;
     if(!plays.length||size<2||size>4)throw Error('請先選擇樂合彩玩法。');
@@ -4846,7 +4848,7 @@ function generateConvenienceQr(){
   }else{
     for(let i=0;i<convenienceCount;i++){
       if(game==='power'){const first=smartDraw(38,6)||engine.drawFirst(6).nums;prior.push([...first]);const usedSecond=new Set(rows.map(r=>r.second[0]));let second;if(smart){const available=Array.from({length:8},(_,n)=>n+1).filter(n=>!usedSecond.has(n));second=(available.length?available:Array.from({length:8},(_,n)=>n+1))[cryptoInt(available.length||8)];}else second=engine.drawSecond().num;rows.push({first:[...first],second:[second]});}
-      else {const count=game==='539'?5:6,nums=smartDraw(game==='539'?39:49,count)||engine.draw(count).nums;prior.push([...nums]);rows.push([...nums]);}
+      else {const count=game==='539'?5:6,nums=shared539?shared539[i]:(game==='539'&&!smart?uniform539():smartDraw(game==='539'?39:49,count)||engine.draw(count).nums);prior.push([...nums]);rows.push([...nums]);}
     }
   }
   const options={gameId:game,autoSplit10:true};
@@ -8520,6 +8522,71 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
    if(e.target.closest('#machineClearAll,#mobileClearAll')){epoch++;busy=false;gen.disabled=false;progress.hidden=true;clearRows('已清除智慧選號。')}
  },true);
  showCountState();window.bbSmart4RefreshAvailability();
+
+ // V14-BJ: Shared 539 coverage optimizer. Both regular and convenience smart picks use this SAME core.
+ // No access to draws or historical result frequencies; score is exact >=3-hit outcome coverage.
+ function batchCore(quantity,locked=[]){
+   const count=Math.max(1,Math.min(100,Math.trunc(quantity)||1));
+   const fixed=locked.map(r=>[...r].sort((a,b)=>a-b));
+   checkRows(fixed,fixed.length,false);
+   if(fixed.length>count)throw Error('既有投注注數超過設定數量');
+   const result=fixed.map(r=>r.slice()),seen=new Set(result.map(key));
+   const usage=new Uint16Array(40),membership=new Uint8Array(SPACE);
+   for(const r of fixed){for(const n of r)usage[n]++;apply(r,membership,1)}
+   // When no fixed tickets exist, use 7 disjoint rows: provably optimal for <=7.
+   if(!fixed.length){
+     const pool=shuffle(allNumbers.slice());
+     const n=Math.min(count,7);
+     for(let i=0;i<n;i++){
+       const row=pool.slice(i*5,i*5+5).sort((a,b)=>a-b);
+       result.push(row);seen.add(key(row));for(const x of row)usage[x]++;apply(row,membership,1);
+     }
+   }
+   while(result.length<count){
+     const i=result.length,unused=allNumbers.filter(n=>usage[n]===0);
+     let best=null;
+     // With <=7 rows including the next, preserving disjointness is optimal if possible.
+     if(i<7&&unused.length>=5)best=shuffle(unused).slice(0,5).sort((a,b)=>a-b);
+     else{
+       let top=-1;
+       const trials=i<20?20:i<50?12:8;
+       for(let t=0;t<trials;t++){
+         const row=freshTicket(usage,t%3),signature=key(row);
+         if(seen.has(signature))continue;
+         const value=score(row,membership);
+         if(value>top){top=value;best=row}
+       }
+       if(!best){let attempts=0;do{best=freshTicket(usage,0)}while(seen.has(key(best))&&++attempts<2000)}
+     }
+     if(!best||seen.has(key(best)))throw Error('無法產生不重複投注組合');
+     result.push(best);seen.add(key(best));for(const x of best)usage[x]++;apply(best,membership,1);
+   }
+   // Bounded local replacement, never modify locked/manual tickets.
+   if(count>7&&result.length>fixed.length){
+     const steps=Math.min(28,Math.max(8,Math.ceil(count/3)));
+     for(let step=0;step<steps;step++){
+       const idx=fixed.length+randInt(result.length-fixed.length),old=result[idx];
+       seen.delete(key(old));for(const n of old)usage[n]--;apply(old,membership,-1);
+       let best=old,bestScore=score(old,membership);
+       for(let t=0;t<8;t++){
+         const candidate=freshTicket(usage,t%3);
+         if(seen.has(key(candidate)))continue;
+         const gain=score(candidate,membership);
+         if(gain>bestScore){best=candidate;bestScore=gain}
+       }
+       result[idx]=best;seen.add(key(best));for(const n of best)usage[n]++;apply(best,membership,1);
+     }
+   }
+   checkRows(result,count,false);
+   if(count<=7&&fixed.length===0){
+     const unique=new Set(result.flat());
+     if(unique.size!==count*5)throw Error('完全分散驗證失敗');
+   }
+   const coverage=membership.reduce((a,v)=>a+(v>0),0);
+   if(count<=7&&fixed.length===0&&coverage!==count*PER_TICKET)throw Error('理論覆蓋率驗證失敗');
+   return {rows:result,covered:coverage,rate:100*coverage/SPACE};
+ }
+ window.Aoer539Optimizer=Object.freeze({version:'539-SM V1.1',batch:batchCore,coverage:countCover,space:SPACE,perTicket:PER_TICKET});
  window.__bbSmartCoverageTest={get rows(){return rows.map(r=>r.slice())},get coverage(){return covered},get count(){return currentCount},countCover,checkRows,eachCovered,SPACE,PER_TICKET};
 })();
 </script>
@@ -8532,12 +8599,12 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   </div>
 </section>
 <style id="v14bg-smart-integration-css">
-#bfDesktopSmartEntry,#bbSmart4Btn{display:none!important}
+#bfDesktopSmartEntry,#bbSmart4Btn,#bbSmart4Panel{display:none!important}
 #aqWeightPanel{display:flex!important}
 </style><script id="v14bg-smart-pick-engine">
 (function(){
  'use strict';
- const V='Smart Pick Engine V1.0';
+ const V='Smart Pick Engine V1.1';
  const IDS={lotto649:'Lotto-SM V1.0','539':'539-SM V1.0',power:'Power-SM V1.0','3star':'3D-SM V1.0','4star':'4D-SM V1.0','39combo':'39LH-SM V1.0','49combo':'49LH-SM V1.0',bingo:'BINGO-SM V1.0'};
  const random=(m)=>cryptoInt(m);
  function shuffled(n){const a=Array.from({length:n},(_,i)=>i+1);for(let j=a.length-1;j>0;j--){let k=random(j+1);[a[j],a[k]]=[a[k],a[j]]}return a}
@@ -8584,6 +8651,21 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  function run(){
    const id=currentGame,mode=getActivePlayMode();
    if(mode!=='general')return null;
+   if(id==='539'){
+     syncCurrentBet();
+     const locked=[];
+     for(let i=0;i<betSelections.length;i++){
+       if(i===currentBetIndex)continue;
+       const a=[...betSelections[i]].sort((x,y)=>x-y);
+       if(a.length===5&&a.every(n=>Number.isInteger(n)&&n>=1&&n<=39))locked.push(a);
+     }
+     // Identical batch optimizer as convenience; preserve existing completed ticket rows.
+     const batch=window.Aoer539Optimizer.batch(locked.length+1,locked);
+     const selected=batch.rows[batch.rows.length-1];
+     manualPicked=new Set(selected);syncCurrentBet();lastResult=null;
+     renderNumberBoard();renderBetTabs();renderMachineTotal();refreshMachineQrEnabled();
+     return {nums:selected,covered:batch.covered,method:'539-SM V1.1'};
+   }
    if(id==='3star'||id==='4star')return digitSmart(id);
    if(id==='bingo')return bingoSmart();
    const isCombo=id==='39combo'||id==='49combo';const max=id==='539'||id==='39combo'?39:id==='power'?38:49;
@@ -8607,7 +8689,18 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  // Replace only GENERAL quick selection; preserve packing, column, meal and special paths.
  const oldQuick=quickPickIntoActiveMode;
  quickPickIntoActiveMode=async function(){
-   if(getActivePlayMode()!=='general'||window.AQ_WEIGHT_ON===false)return oldQuick.apply(this,arguments);
+   if(getActivePlayMode()!=='general')return oldQuick.apply(this,arguments);
+   if(window.AQ_WEIGHT_ON===false){
+     if(currentGame==='539'){
+       const pool=Array.from({length:39},(_,i)=>i+1);
+       for(let i=38;i>0;i--){const j=cryptoInt(i+1);[pool[i],pool[j]]=[pool[j],pool[i]];}
+       const nums=pool.slice(0,5).sort((a,b)=>a-b);
+       manualPicked=new Set(nums);syncCurrentBet();lastResult=null;
+       renderNumberBoard();renderBetTabs();renderMachineTotal();refreshMachineQrEnabled();
+       return {nums,method:'539-uniform'};
+     }
+     return oldQuick.apply(this,arguments);
+   }
    try{const result=run();if(result)return result;}catch(e){console.error('Smart Pick Engine',e);alert('智慧快選失敗：'+e.message);return;}
    return oldQuick.apply(this,arguments);
  };
@@ -8617,7 +8710,7 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  function update(){
   const model=IDS[currentGame]||V;
   const sw=document.getElementById('aqWeightSwitch');if(sw){sw.setAttribute('aria-label','啟用智慧快選（關閉為均等快選）');}
-  s.textContent=`${window.AQ_WEIGHT_ON===false?'均等快選':model}｜${currentGame==='bingo'&&bingoCurrentMode()==='super'?'超級獎號：BINGO-Super-D100 V1.0':currentGame==='bingo'?'動態分散：1～10星':currentGame==='539'?'注數分散優先':'分散／降低注間重疊'}`;
+  s.textContent=`${window.AQ_WEIGHT_ON===false?'均等快選':model}｜${currentGame==='bingo'&&bingoCurrentMode()==='super'?'超級獎號：BINGO-Super-D100 V1.0':currentGame==='bingo'?'動態分散：1～10星':currentGame==='539'?'同一覆蓋引擎：1～7注完全分散，8注以上近似最佳化':'分散／降低注間重疊'}`;
  }
  document.getElementById('betTabs')?.parentNode?.insertBefore(s,document.getElementById('betTabs'));
  document.getElementById('aqWeightSwitch')?.addEventListener('change',()=>{update();const b=document.getElementById('drawBtn');if(b)b.textContent=window.AQ_WEIGHT_ON===false?'均等快選':'智慧快選';});
@@ -8704,5 +8797,5 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close()});
  window.AoerDrawBoard={open,refresh:()=>render(true),models:games.map(g=>g[0])};
 })();
-</script></body>
+</script><style id="v14bj-hide-legacy">#bbSmart4Btn,#bfDesktopSmartEntry,#bbSmart4Panel{display:none!important}</style></body>
 </html>
