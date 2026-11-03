@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號 V14-BH｜智慧快選與內建獎號查詢</title>
+<title>奧爾樂透選號 V14-BI｜便利智慧快選與BINGO獎號修正</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -4730,7 +4730,7 @@ function activateConvenience(){
  if(panel){
    const title=panel.querySelector('h2'),intro=panel.querySelector('p');
    if(title)title.textContent=isCombo?'樂合彩便利快選':isBingo?'BINGO 便利快選':isStar?`${currentGame==='3star'?'3星彩':'4星彩'}便利快選`:'便利快選';
-   if(intro)intro.textContent=isCombo?'先選二合／三合／四合；開啟「包牌」可複選玩法，使用同一組號碼分別投注。':isBingo?'可分別設定星數、猜大小／單雙與超級獎號；注數、金額、倍率與期數連動。':isStar?'先設定注數、金額及倍率；組彩會對不重複的快選數字排列展開。':'選取注數或投注金額，兩者自動連動；製作 QR 時才使用百面骰抽號。';
+   if(intro)intro.textContent=isCombo?'先選二合／三合／四合；開啟「包牌」可複選玩法，使用同一組號碼分別投注。':isBingo?'可分別設定星數、猜大小／單雙與超級獎號；注數、金額、倍率與期數連動。':isStar?'先設定注數、金額及倍率；組彩會對不重複的快選數字排列展開。':'選取注數或投注金額，兩者自動連動；製作 QR 時依智慧／均等開關抽號。';
  }
  const groups=document.getElementById('convenienceGroups');
  if(groups&&isBingo){
@@ -4758,6 +4758,7 @@ function activateConvenience(){
  updateConvenienceView();renderMachineTotal();
 }
 function generateConvenienceStarRows(){
+ const smart=window.AQ_WEIGHT_ON!==false;const prior=[];
  const is3=currentGame==='3star',n=is3?3:4,st=convenienceStarSelections[currentGame];
  const rows=[];
  for(let i=0;i<convenienceCount;i++){
@@ -4768,7 +4769,8 @@ function generateConvenienceStarRows(){
      const values=is3?star3Permutations3(...d):star4UniquePermutations(d);
      for(const val of values)rows.push({digits:val.split('').map(Number),multiplier:st.multiplier});
    }else{
-     d=Array.from({length:n},()=>cryptoInt(10));rows.push({digits:d,multiplier:st.multiplier});
+     if(smart){d=[];for(let pos=0;pos<n;pos++){let best=Infinity,choices=[];for(let v=0;v<10;v++){const score=prior.filter(r=>r[pos]===v).length*10+(pos===n-1?prior.filter(r=>r[n-1]===v).length*5:0)+(pos===n-2?prior.filter(r=>r[n-2]===v&&r[n-1]===d[n-1]).length*3:0);if(score<best){best=score;choices=[v]}else if(score===best)choices.push(v);}d.push(choices[cryptoInt(choices.length)]);}prior.push(d.slice());}
+     else d=Array.from({length:n},()=>cryptoInt(10));rows.push({digits:d,multiplier:st.multiplier});
    }
  }
  return rows;
@@ -4777,7 +4779,7 @@ function buildConvenienceBingoPages(){
  const b=convenienceBingo;
  if(!convenienceBingoConfigured())throw new Error('請先設定至少一項 BINGO 投注。');
  if(!bingoV003SelfTest())throw new Error('BINGO 既有 QR 樣本測試未通過。');
- const starRows=Array.from({length:b.starCount},()=>({mode:'star',stars:b.stars,nums:bingoSelectedPick(b.stars,'star'),multiplier:b.starMultiplier}));
+ const biPrior=[];const starRows=Array.from({length:b.starCount},()=>{const smart=window.AQ_WEIGHT_ON!==false&&window.SmartPickEngine;const nums=smart?window.SmartPickEngine.chooseNumbers(80,b.stars,{past:biPrior}):bingoUniformPick(b.stars);biPrior.push(nums);return {mode:'star',stars:b.stars,nums,multiplier:b.starMultiplier};});
  const superAll=b.superCount?bingoSelectedPick(b.superCount,'super'):[];
  const superRows=[];
  for(let i=0;i<superAll.length;i+=20)superRows.push({mode:'super',nums:superAll.slice(i,i+20),multiplier:b.superMultiplier});
@@ -4830,18 +4832,21 @@ function generateConvenienceQr(){
     showV003QrResultPage(rows,periods,{gameId:game,autoSplit10:true});return;
   }
   const engine=gameModule(game).d100;
+  const smart=window.AQ_WEIGHT_ON!==false&&window.SmartPickEngine;
+  const prior=[];
+  const smartDraw=(max,count)=>smart?window.SmartPickEngine.chooseNumbers(max,count,{past:prior}):null;
   if(isLottoComboGame()){
     const plays=convenienceComboPlays(),size=convenienceComboPickSize(),multiple=convenienceComboState().multiplier;
     if(!plays.length||size<2||size>4)throw Error('請先選擇樂合彩玩法。');
     for(let i=0;i<convenienceCount;i++){
-      const nums=[...engine.draw(size).nums].sort((a,b)=>a-b);
+      const nums=[...(smartDraw(game==='39combo'?39:49,size)||engine.draw(size).nums)].sort((a,b)=>a-b);prior.push(nums);
       if(nums.length!==size||new Set(nums).size!==size)throw Error('百面骰選號結果無效。');
       for(const play of plays)rows.push({play,nums:[...nums],multiplier:multiple});
     }
   }else{
     for(let i=0;i<convenienceCount;i++){
-      if(game==='power')rows.push({first:[...engine.drawFirst(6).nums],second:[engine.drawSecond().num]});
-      else rows.push([...engine.draw(game==='539'?5:6).nums]);
+      if(game==='power'){const first=smartDraw(38,6)||engine.drawFirst(6).nums;prior.push([...first]);const usedSecond=new Set(rows.map(r=>r.second[0]));let second;if(smart){const available=Array.from({length:8},(_,n)=>n+1).filter(n=>!usedSecond.has(n));second=(available.length?available:Array.from({length:8},(_,n)=>n+1))[cryptoInt(available.length||8)];}else second=engine.drawSecond().num;rows.push({first:[...first],second:[second]});}
+      else {const count=game==='539'?5:6,nums=smartDraw(game==='539'?39:49,count)||engine.draw(count).nums;prior.push([...nums]);rows.push([...nums]);}
     }
   }
   const options={gameId:game,autoSplit10:true};
@@ -7728,16 +7733,16 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  }
  let draws=parseRows(BINGO_SEED).slice(0,36);
  try{const cached=parseRows(localStorage.getItem(STORE)||'[]');if(cached.length>=36&&cached[0].issue>draws[0].issue)draws=cached.slice(0,36);}catch(e){}
- const panel=document.createElement('div');panel.id='aqWeightPanel';panel.innerHTML=`<label class="aq-weight-label" for="aqWeightSwitch"><span>加權快選</span><span class="aq-weight-switch"><input type="checkbox" id="aqWeightSwitch" ${enabled?'checked':''}/><i></i></span></label><span id="aqWeightHint" aria-live="polite"></span><details id="aqBingoData"><summary>更新 BINGO 歷史資料</summary><textarea id="aqBingoDataText" placeholder="每行：期數＋20個號碼＋可選的超級獎號（最後一碼）"></textarea><button id="aqBingoImport" type="button">匯入最近開獎資料</button></details>`;
+ const panel=document.createElement('div');panel.id='aqWeightPanel';panel.innerHTML=`<label class="aq-weight-label" for="aqWeightSwitch"><span id="biSmartToggleLabel">智慧快選</span><span class="aq-weight-switch"><input type="checkbox" id="aqWeightSwitch" ${enabled?'checked':''}/><i></i></span></label><span id="aqWeightHint" aria-live="polite"></span><details id="aqBingoData"><summary>更新 BINGO 歷史資料</summary><textarea id="aqBingoDataText" placeholder="每行：期數＋20個號碼＋可選的超級獎號（最後一碼）"></textarea><button id="aqBingoImport" type="button">匯入最近開獎資料</button></details>`;
  const anchor=document.getElementById('betTabs');anchor?.parentNode?.insertBefore(panel,anchor);
  function updateHint(){
    const hint=document.getElementById('aqWeightHint'),details=document.getElementById('aqBingoData');
    if(details)details.hidden=currentGame!=='bingo';
    if(!hint)return;
-   if(!window.AQ_WEIGHT_ON)hint.textContent='所有快選：均等亂數';
+   if(!window.AQ_WEIGHT_ON)hint.textContent='均等快選｜一般與便利快選皆使用均等亂數';
    else if(currentGame==='bingo')hint.textContent=`BINGO加權樣本：${Math.min(draws.length,36)}期｜截至 ${draws[0]?.issue||'—'}`;
    else if(currentGame==='3star'||currentGame==='4star')hint.textContent='星彩目前使用各位數均等亂數';
-   else hint.textContent='依所選彩種的歷史權重選號';
+   else hint.textContent='智慧快選｜一般與便利快選共用分散策略';
  }
  document.getElementById('aqWeightSwitch')?.addEventListener('change',e=>{
    enabled=!!e.target.checked;window.AQ_WEIGHT_ON=enabled;try{localStorage.setItem(TOGGLE,String(enabled))}catch(e){}updateHint();
@@ -8527,7 +8532,8 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   </div>
 </section>
 <style id="v14bg-smart-integration-css">
-#bfDesktopSmartEntry,#bbSmart4Btn,#aqWeightPanel{display:none!important}
+#bfDesktopSmartEntry,#bbSmart4Btn{display:none!important}
+#aqWeightPanel{display:flex!important}
 </style><script id="v14bg-smart-pick-engine">
 (function(){
  'use strict';
@@ -8597,11 +8603,11 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
    }
    syncCurrentBet();lastResult=null;renderNumberBoard();renderBetTabs();renderMachineTotal();refreshMachineQrEnabled();return {nums:candidate};
  }
- window.SmartPickEngine=Object.freeze({version:V,models:IDS,run,method:'批次分散／星級動態覆蓋；BINGO超級獎號獨立D100'});
+ window.SmartPickEngine=Object.freeze({version:V,models:IDS,run,chooseNumbers,digitSmart,method:'批次分散／星級動態覆蓋；BINGO超級獎號獨立D100'});
  // Replace only GENERAL quick selection; preserve packing, column, meal and special paths.
  const oldQuick=quickPickIntoActiveMode;
  quickPickIntoActiveMode=async function(){
-   if(getActivePlayMode()!=='general')return oldQuick.apply(this,arguments);
+   if(getActivePlayMode()!=='general'||window.AQ_WEIGHT_ON===false)return oldQuick.apply(this,arguments);
    try{const result=run();if(result)return result;}catch(e){console.error('Smart Pick Engine',e);alert('智慧快選失敗：'+e.message);return;}
    return oldQuick.apply(this,arguments);
  };
@@ -8610,9 +8616,11 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  const quick=document.getElementById('drawBtn');if(quick){quick.textContent='智慧快選';quick.title='Smart Pick Engine V1.0｜依彩種與已有注數自動調整分散策略';}
  function update(){
   const model=IDS[currentGame]||V;
-  s.textContent=`${model}｜${currentGame==='bingo'&&bingoCurrentMode()==='super'?'超級獎號：BINGO-Super-D100 V1.0':currentGame==='bingo'?'動態分散：1～10星':currentGame==='539'?'注數分散優先':'分散／降低注間重疊'}`;
+  const sw=document.getElementById('aqWeightSwitch');if(sw){sw.setAttribute('aria-label','啟用智慧快選（關閉為均等快選）');}
+  s.textContent=`${window.AQ_WEIGHT_ON===false?'均等快選':model}｜${currentGame==='bingo'&&bingoCurrentMode()==='super'?'超級獎號：BINGO-Super-D100 V1.0':currentGame==='bingo'?'動態分散：1～10星':currentGame==='539'?'注數分散優先':'分散／降低注間重疊'}`;
  }
  document.getElementById('betTabs')?.parentNode?.insertBefore(s,document.getElementById('betTabs'));
+ document.getElementById('aqWeightSwitch')?.addEventListener('change',()=>{update();const b=document.getElementById('drawBtn');if(b)b.textContent=window.AQ_WEIGHT_ON===false?'均等快選':'智慧快選';});
  const oldUpdate=updateGameUI;updateGameUI=function(){const r=oldUpdate.apply(this,arguments);update();return r};update();
 })();
 </script><style id="v14bg-draw-style">
@@ -8647,7 +8655,29 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
       return arr.map(r=>normalize(game,r)).filter(r=>r.numbers.length>0);
    }finally{clearTimeout(timer)}
  }
- async function load(game,force=false){const id=game[0];if(!force&&cache.has(id)&&Date.now()-cache.get(id).time<5*60*1000)return cache.get(id);
+ function twDay(back=0){const d=new Date(Date.now()-back*86400000);return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(d).replace(/\//g,'-')}
+ async function bingoOfficialDay(back){
+   const day=twDay(back),url=`https://api.taiwanlottery.com/TLCAPIWeB/Lottery/BingoResult?openDate=${day}&pageNum=1&pageSize=50`;
+   const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),11000);
+   try{const res=await fetch(url,{cache:'no-store',signal:ctl.signal});if(!res.ok)throw Error('BINGO HTTP '+res.status);const json=await res.json();const c=json.content||{};const arr=c.bingoQueryResult||c.bingoResult||[];if(!Array.isArray(arr))throw Error('BINGO 官方資料格式異常');return arr.map(r=>normalize(games.find(g=>g[0]==='bingo'),r)).filter(r=>validBingo(r))}finally{clearTimeout(timer)}
+ }
+ function validBingo(r){return /^\d{7,12}$/.test(String(r.period))&&r.numbers.length===20&&new Set(r.numbers).size===20&&r.numbers.every(n=>Number.isInteger(n)&&n>=1&&n<=80)}
+ function parsePilio(text){const out=[],re=/期別[:：]\s*(\d{7,12})[^\d]{0,30}((?:\b\d{1,2}\s*[,，、]\s*){19}\d{1,2})[\s\S]{0,100}?超級獎號[:：]\s*(\d{1,2})/g;let m;while((m=re.exec(text))){let numbers=m[2].split(/[,，、]/).map(x=>Number(x.trim()));const r={period:m[1],numbers,special:Number(m[3]),date:twDay()};if(validBingo(r))out.push(r)}return out}
+ async function bingoSecondary(){
+   // Browser CORS may disallow the source. Secondary proxy is best-effort, not guaranteed.
+   const urls=['https://www.pilio.idv.tw/bingo/list.asp?auto=1','https://r.jina.ai/https://www.pilio.idv.tw/bingo/list.asp?auto=1'];
+   for(const url of urls)try{const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),8000);let txt;try{const res=await fetch(url,{cache:'no-store',signal:ctl.signal});if(!res.ok)throw Error(String(res.status));txt=await res.text()}finally{clearTimeout(timer)}const rows=parsePilio(txt);if(rows.length)return rows}catch(e){}
+   return [];
+ }
+ async function loadBingo(force=false){const id='bingo';if(!force&&cache.has(id)&&Date.now()-cache.get(id).time<60*1000)return cache.get(id);
+   let rows=[],error='',source='台彩官方 BINGO 日期查詢';for(let back=0;back<3;back++)try{rows.push(...await bingoOfficialDay(back));if(rows.length>=12)break}catch(e){error=String(e.message||e)}
+   if(!rows.length){rows=await bingoSecondary();if(rows.length)source='樂透彩第三方資料（待官方核對）';}
+   let uniq=new Map();for(let r of rows)if(validBingo(r)&&!uniq.has(r.period))uniq.set(r.period,r);rows=[...uniq.values()].sort((a,b)=>b.period.localeCompare(a.period)).slice(0,12);
+   if(!rows.length&&cache.has(id)){const old=cache.get(id);return {...old,source:old.source+'（保留上次資料）',error:error||'更新失敗'}}
+   const result={rows,source,error,time:Date.now()};if(rows.length)cache.set(id,result);return result;
+ }
+
+ async function load(game,force=false){const id=game[0];if(id==='bingo')return loadBingo(force);if(!force&&cache.has(id)&&Date.now()-cache.get(id).time<5*60*1000)return cache.get(id);
    const m=stamp();let rows=[],error='';for(const month of [m,prevMonth(m)])try{rows.push(...await monthRequest(game,month));if(rows.length>=12)break}catch(e){error=e.message}
    // No fake official results: fallback retains verified in-app offline history and labels it clearly.
    let source='台彩官方 API';if(!rows.length){try{const raw=id==='539'?draws539:id==='lotto649'?draws:id==='power'?powerDraws:null;
@@ -8663,7 +8693,9 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
    else{const g=games.find(x=>x[0]===page);if(!g){page=null;return render()}title.textContent=g[1]+'｜近12期';container.className='bg-draw-cards history';const data=await load(g,force);if(token!==render.token)return;container.innerHTML=data.rows.length?data.rows.map(r=>card(g,r,true,data.source)).join(''):card(g,null,true,'官方資料暫時無法取得');notice.textContent=`${data.source}｜${data.rows.length}期${data.error?'｜網路訊息：'+data.error:''}`;}
  }
  render.token=0;
- function open(){page=null;overlay.hidden=false;document.body.style.overflow='hidden';render()}
+ function open(){page=null;overlay.hidden=false;document.body.style.overflow='hidden';render(true)}
+ let biTimer=setInterval(()=>{if(!overlay.hidden&&(!page||page==='bingo'))render(true)},5*60*1000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!overlay.hidden)render(true)});
  function close(){overlay.hidden=true;document.body.style.overflow='';page=null}
  document.getElementById('bgDrawLookup')?.addEventListener('click',open);
  document.getElementById('bgDrawClose')?.addEventListener('click',close);
