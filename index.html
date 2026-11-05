@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號 V14-BL｜介面主題、字體與獎號查詢</title>
+<title>奧爾樂透選號 V14-BN｜手機深灰與設定介面修正版</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -1071,7 +1071,7 @@ window.AOER_STAR_D100=function(position,game){
  }
 }
 </style>
-<script id="v14bl-ui-early">(function(){try{const t=localStorage.getItem('aoer-ui-theme-v1');document.documentElement.dataset.uiTheme=t==='charcoal'?'charcoal':'light';const f=localStorage.getItem('aoer-ui-font-v1');document.documentElement.dataset.uiFont=f==='large'?'large':'normal';}catch(e){document.documentElement.dataset.uiTheme='light';document.documentElement.dataset.uiFont='normal';}})();</script>
+<script id="v14bl-ui-early">(function(){try{const t=localStorage.getItem('aoer-ui-theme-v1');document.documentElement.dataset.uiTheme=window.matchMedia('(max-width:600px)').matches&&t==='charcoal'?'charcoal':'light';const f=localStorage.getItem('aoer-ui-font-v1');document.documentElement.dataset.uiFont=f==='large'?'large':'normal';}catch(e){document.documentElement.dataset.uiTheme='light';document.documentElement.dataset.uiFont='normal';}})();</script>
 <style id="v14bl-theme-and-layout">
 /* V14-BL: opt-in theme demonstration; use the existing white logo surfaces for reliable contrast. */
 html[data-ui-theme="charcoal"]{
@@ -1195,6 +1195,191 @@ html[data-ui-font="large"] .bk-date-form button{font-size:15px;min-height:45px}
 @media(max-width:600px){html[data-ui-font="large"] body[data-mobile-stage="games"] #lottoMachine #gameRail :is(.game-btn[data-game="combo"],#bgDrawLookup){font-size:20px!important;min-height:68px!important;height:auto!important}}
 /* Preserve ticket/QR output on white backgrounds even if screen theme is charcoal. */
 @media print{html[data-ui-theme="charcoal"] body{background:white!important;color:#111!important}html[data-ui-theme="charcoal"] .qr-result,.qr-result-page{background:#fff!important;color:#111!important}}
+</style>
+
+<style id="v14bm-charcoal-refinement">
+/* V14-BM: requested gray palette; scoped to charcoal so the light theme stays unchanged. */
+html[data-ui-theme="charcoal"]{
+  --bm-button:#C3C7CA;
+  --bm-panel:#727D84;
+  --bm-edge:#0B0E10;
+}
+/* Framing behind the category rail and number selection board. */
+html[data-ui-theme="charcoal"] #lottoMachine.machine{
+  background:#36454F!important;
+  border-color:var(--bm-edge)!important;
+}
+html[data-ui-theme="charcoal"] #lottoMachine :is(.game-rail,.machine-main,.machine-side){
+  background:var(--bm-panel)!important;
+  border:1px solid var(--bm-edge)!important;
+  color:#F7F9FA!important;
+}
+html[data-ui-theme="charcoal"] #lottoMachine :is(.number-board,.star3-place){
+  background:var(--bm-panel)!important;
+  border:1px solid var(--bm-edge)!important;
+  border-radius:12px;
+}
+html[data-ui-theme="charcoal"] #lottoMachine .number-board{
+  padding:6px;
+}
+/* All eight embedded lottery logos have PNG alpha already. Remove the light slabs
+   around them rather than rasterizing/altering their colorful original artwork. */
+html[data-ui-theme="charcoal"] #lottoMachine #gameRail .game-btn[data-game]:not([data-game="combo"]){
+  background:var(--bm-button)!important;
+  background-image:none!important;
+  border:2px solid var(--bm-edge)!important;
+  color:#1E2C33!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.18)!important;
+}
+html[data-ui-theme="charcoal"] #lottoMachine #gameRail .game-btn[data-game].active:not([data-game="combo"]){
+  background:var(--bm-button)!important;
+  border:2px solid var(--bm-edge)!important;
+  box-shadow:inset 0 0 0 2px #225F9D,0 0 0 2px #225F9D!important;
+}
+html[data-ui-theme="charcoal"] #lottoMachine #gameRail .game-btn img.game-logo,
+html[data-ui-theme="charcoal"] .bg-draw-card img.bl-draw-logo,
+html[data-ui-theme="charcoal"] .qr-game-logo img,
+html[data-ui-theme="charcoal"] img.game-logo{
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  mix-blend-mode:normal!important;
+  filter:none!important;
+}
+html[data-ui-theme="charcoal"] .bg-draw-card .bl-draw-logo{
+  padding:0!important;
+  border-radius:0!important;
+  box-sizing:border-box;
+}
+/* Non-lottery navigation stays as two equally styled utility controls. */
+html[data-ui-theme="charcoal"] #lottoMachine #gameRail :is(.game-btn[data-game="combo"],#bgDrawLookup){
+  background:#516673!important;
+  background-image:none!important;
+  color:#F4F8FA!important;
+  border:1px solid var(--bm-edge)!important;
+  box-shadow:none!important;
+}
+/* The mobile page uses a higher-specificity transparent rail rule. */
+@media(max-width:600px){
+ html[data-ui-theme="charcoal"] body[data-mobile-stage="games"] #lottoMachine #gameRail.game-rail{
+   background:var(--bm-panel)!important;
+   border:1px solid var(--bm-edge)!important;
+ }
+}
+/* Selection numerals: pale gray default buttons, black outline. Selected/pillar
+   markers remain distinct so users can still tell which numbers are active. */
+html[data-ui-theme="charcoal"] #lottoMachine :is(.num-btn,.number-btn,.star3-digit):not(.selected):not([data-column-owner]){
+  background:var(--bm-button)!important;
+  background-image:none!important;
+  color:#1E2C33!important;
+  border:1px solid var(--bm-edge)!important;
+  box-shadow:0 2px 0 #30363B!important;
+}
+html[data-ui-theme="charcoal"] #lottoMachine :is(.num-btn,.number-btn,.star3-digit).selected{
+  background:#80B6E6!important;
+  color:#102D43!important;
+  border:2px solid var(--bm-edge)!important;
+  box-shadow:0 2px 0 #263D50!important;
+}
+html[data-ui-theme="charcoal"] #lottoMachine #numberBoard .num-btn[data-column-owner]{
+  border:1px solid var(--bm-edge)!important;
+}
+/* Apply the same frame treatment to the game heading and auxiliary selection box. */
+html[data-ui-theme="charcoal"] #lottoMachine :is(.machine-top,.machine-page){
+  border-color:var(--bm-edge)!important;
+}
+/* Do not put a synthetic background onto transparent lottery marks in print. */
+@media print{
+  html[data-ui-theme="charcoal"] .bg-draw-card .bl-draw-logo,
+  html[data-ui-theme="charcoal"] .qr-game-logo img{background:transparent!important}
+}
+</style>
+<style id="v14bn-mobile-polish">
+/* V14-BN: Mobile appearance refinements; all charcoal overrides stay on <=600px. */
+@media(max-width:600px){
+  /* Category buttons: previous active-game highlight was overriding the gray palette. */
+  html[data-ui-theme="charcoal"] body[data-mobile-stage="games"] #lottoMachine #gameRail .game-btn[data-game]:not([data-game="combo"]),
+  html[data-ui-theme="charcoal"] body[data-mobile-stage="games"] #lottoMachine #gameRail .game-btn.ai-last-game,
+  html[data-ui-theme="charcoal"] body[data-mobile-stage="games"] #lottoMachine #gameRail .game-btn.ai-last-game.active {
+    background:#C3C7CA!important;
+    background-image:none!important;
+    border:2px solid #0B0E10!important;
+    color:#1D2B31!important;
+    box-shadow:0 1px 2px rgba(0,0,0,.2)!important;
+  }
+  html[data-ui-theme="charcoal"] body[data-mobile-stage="games"] #lottoMachine #gameRail .game-btn.active:not([data-game="combo"]),
+  html[data-ui-theme="charcoal"] body[data-mobile-stage="games"] #lottoMachine #gameRail .game-btn.ai-last-game.active {
+    box-shadow:inset 0 0 0 2px #3175B0,0 0 0 2px #80C3F5!important;
+  }
+  /* Three-stage navigation bar and selected-lottery summary. */
+  html[data-ui-theme="charcoal"] body #mobileStepNav,
+  html[data-ui-theme="charcoal"] body #mobileFlowHeader .mobile-flow-summary {
+    background:#727D84!important;
+    background-image:none!important;
+    border:1px solid #0B0E10!important;
+    box-shadow:none!important;
+  }
+  html[data-ui-theme="charcoal"] #mobileStepNav .mobile-step-item.is-pending,
+  html[data-ui-theme="charcoal"] #mobileStepNav .mobile-step-item.is-complete,
+  html[data-ui-theme="charcoal"] #mobileFlowHeader .mobile-summary-logo span,
+  html[data-ui-theme="charcoal"] #mobileFlowHeader .mobile-summary-play:not(.has-play){color:#F4F6F7!important}
+  html[data-ui-theme="charcoal"] #mobileFlowHeader .mobile-summary-play:before{background:#0B0E10!important}
+  html[data-ui-theme="charcoal"] #mobileStepNav .mobile-step-item.is-current{color:#E6F5FF!important}
+  html[data-ui-theme="charcoal"] #mobileStepNav .mobile-step-item.is-current i{background:#D9F0FF!important}
+  /* Mobile column editor and quick-jump popover. Preserve selected-column visual cues. */
+  html[data-ui-theme="charcoal"] body.mobile-column-mode #mobileColumnPicker,
+  html[data-ui-theme="charcoal"] body.mobile-column-mode #mobileColumnFloatMenu{
+    background:#727D84!important;
+    background-image:none!important;
+    border:1px solid #0B0E10!important;
+    box-shadow:0 5px 15px rgba(0,0,0,.22)!important;
+  }
+  html[data-ui-theme="charcoal"] body.mobile-column-mode #mobileColumnPicker .mobile-column-picker-head,
+  html[data-ui-theme="charcoal"] body.mobile-column-mode #mobileColumnCurrent,
+  html[data-ui-theme="charcoal"] body.mobile-column-mode #mobileColumnFloatMenu .mobile-column-float-menu-title{color:#F7FAFC!important}
+  html[data-ui-theme="charcoal"] body.mobile-column-mode #mobileColumnChoices button,
+  html[data-ui-theme="charcoal"] body.mobile-column-mode #mobileColumnFloatMenuGrid button{
+    background:#C3C7CA!important;background-image:none!important;color:#192930!important;
+    border:2px solid #0B0E10!important;box-shadow:none!important;
+  }
+  html[data-ui-theme="charcoal"] body.mobile-column-mode #mobileColumnChoices button.selected,
+  html[data-ui-theme="charcoal"] body.mobile-column-mode #mobileColumnFloatMenuGrid button.selected{
+    box-shadow:0 0 0 2px #727D84,0 0 0 4px var(--column-color,#2f8df5)!important;
+    outline-offset:1px;
+  }
+  /* The redundant footer is retired; continue using the top picker and floating quick switch. */
+  body.mobile-column-mode #columnInline .mobile-column-bottom{display:none!important}
+  /* A white-stroke chevron with an opaque dark backing stays legible in both themes. */
+  .page[data-page="qrresult"] #qrBackBtn{
+    display:grid!important;place-items:center!important;color:transparent!important;
+    font-size:0!important;border:0!important;border-radius:12px!important;
+    background:#36454F!important;box-shadow:none!important;
+  }
+  .page[data-page="qrresult"] #qrBackBtn::before{
+    content:"";display:block;width:13px;height:13px;
+    border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;
+    transform:rotate(45deg);margin-left:6px;box-sizing:border-box;
+  }
+}
+/* Remove verbose descriptions of the temporarily-disabled smart switch, keeping the switch and label. */
+#aqWeightHint,#bgEngineHint,#blSmartDisabledNote{display:none!important}
+/* Large type: extend to number-ball buttons and all play selection buttons, without scaling the box geometry. */
+html[data-ui-font="large"] #lottoMachine .number-board .num-btn{font-size:23px!important;line-height:1.15!important}
+html[data-ui-font="large"] #lottoMachine :is(.star3-digit,.star4-digit){font-size:21px!important;line-height:1.2!important}
+html[data-ui-font="large"] #lottoMachine .side-actions-grid :is(.mode-btn,.side-btn){font-size:18px!important;line-height:1.3!important;white-space:normal!important;overflow-wrap:anywhere!important;min-width:0!important}
+html[data-ui-font="large"] #lottoMachine #mobilePlayCategories .mobile-play-category{font-size:17px!important;line-height:1.3!important}
+html[data-ui-font="large"] #lottoMachine #mobileColumnChoices button,
+html[data-ui-font="large"] #mobileColumnFloatMenuGrid button{font-size:15px!important;line-height:1.25!important}
+@media(max-width:600px){
+  html[data-ui-font="large"] #lottoMachine .number-board .num-btn{font-size:18px!important}
+  html[data-ui-font="large"] body[data-mobile-stage="numbers"] #lottoMachine :is(#star3Controls,#star4Controls) .star3-digit{font-size:21px!important}
+  html[data-ui-font="large"] body[data-mobile-stage="plays"] #lottoMachine .side-actions-grid .mode-btn{font-size:18px!important;line-height:1.3!important;padding:9px 5px!important}
+}
+@media(min-width:601px){
+  /* Desktop always uses the original light palette and cannot change theme. */
+  .bl-appearance-settings [data-bl-theme]{opacity:.5!important;cursor:not-allowed!important}
+}
 </style>
 </head>
 <body>
@@ -1455,11 +1640,7 @@ html[data-ui-font="large"] .bk-date-form button{font-size:15px;min-height:45px}
 </section>
 <section aria-hidden="true" class="column-inline" id="columnInline">
 <div class="column-inline-head"><h2>連碰立柱</h2><div class="sub">8柱操作介面預覽｜直接在首頁下方操作</div><button class="column-inline-close" id="columnClose">回一般選號</button></div>
-<div class="mobile-column-bottom">
-  <details id="mobileColumnDetails"><summary>查看全部柱數 <span id="mobileColumnTotal">0 / 8柱</span></summary><div class="mobile-column-detail-rows" id="mobileColumnDetailRows"></div></details>
-  <div class="mobile-column-bottom-actions"><button type="button" id="mobileColumnClear">清除此柱</button><button type="button" id="mobileColumnNextBottom">下一柱 →</button></div>
-  <p class="mobile-column-help" id="mobileColumnHelp">請先選柱，再從上方點選號碼。</p>
-</div>
+
 <div class="column-body">
 <div class="column-inline-toolbar">
 <span class="column-page-tag" id="columnActiveLabel">目前：第1柱</span>
@@ -1502,7 +1683,7 @@ html[data-ui-font="large"] .bk-date-form button{font-size:15px;min-height:45px}
 </div></section>
 <section class="page" data-page="qrresult">
 <div class="qr-result-shell">
-<div class="qr-result-head"><button class="secondary qr-back" id="qrBackBtn" type="button" aria-label="返回選號區" title="返回選號區">‹</button><div class="sub" id="qrResultHeadTitle">大樂透 V003 QR Code</div></div>
+<div class="qr-result-head"><button class="secondary qr-back" id="qrBackBtn" type="button" aria-label="返回選號區" title="返回選號區"></button><div class="sub" id="qrResultHeadTitle">大樂透 V003 QR Code</div></div>
 <div class="qr-result-card">
 <button aria-label="加入我的最愛" aria-pressed="false" id="archiveToggleFav" type="button">♡</button>
 <div class="qr-game-logo" hidden="" id="qrGameLogo"></div><h1 class="title" id="qrResultTitle" style="text-align:center;margin-bottom:4px">大樂透 V003 QR Code</h1>
@@ -8323,7 +8504,7 @@ body.aq-bingo-game #preorderBox .sub{display:none!important}
  pos.innerHTML='<div class="aw-panel" role="dialog" aria-modal="true" aria-labelledby="awPosTitle"><div class="aw-title"><h2 id="awPosTitle">選擇 A4 列印位置</h2><button type="button" class="aw-close" data-aw-close aria-label="關閉">×</button></div><p>選擇第 1 至 16 格，預覽的格線不會列印。一次列印目前顯示的 QR。</p><div class="aw-grid" id="awGrid"></div><div class="aw-actions"><button type="button" id="awCancelPos">取消</button><button type="button" class="aw-primary" id="awDoPrint">進入系統列印</button></div></div>';
  document.body.append(modal,pos);
  const el=id=>document.getElementById(id);let cell=0;let lastFocus=null;
- function openSettings(){lastFocus=document.activeElement;el('awPaper').value=config.paper;el('awLayout').value=config.layout;el('awSize').value=String(config.qrSize);el('awX').value=config.offsetX;el('awY').value=config.offsetY;sync();modal.hidden=false;el('awPaper').focus();}
+ function openSettings(){lastFocus=document.activeElement;el('awPaper').value=config.paper;el('awLayout').value=config.layout;el('awSize').value=String(config.qrSize);el('awX').value=config.offsetX;el('awY').value=config.offsetY;sync();modal.hidden=false;const heading=el('awTitle');if(heading){heading.tabIndex=-1;try{heading.focus({preventScroll:true});}catch(_){heading.focus();}}}
  function sync(){const isA4=el('awPaper').value==='a4';el('awA4Settings').hidden=!isA4;el('awTest').disabled=!isA4;el('awTest').title=isA4?'印出 A4 格線校正紙':'熱感紙請在 QR 頁使用原有列印功能';}
  function read(){config.paper=el('awPaper').value;config.layout=el('awLayout').value;config.qrSize=Number(el('awSize').value);config.offsetX=Math.max(-5,Math.min(5,Number(el('awX').value)||0));config.offsetY=Math.max(-5,Math.min(5,Number(el('awY').value)||0));save();}
  function close(){modal.hidden=true;pos.hidden=true;lastFocus?.focus?.();}
@@ -8696,15 +8877,15 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  window.AoerDrawBoard={open,refresh:()=>render(true),models:games.map(g=>g.id)};
 })();
 </script><style id="v14bj-hide-legacy">#bbSmart4Btn,#bfDesktopSmartEntry,#bbSmart4Panel{display:none!important}</style><script id="v14bl-appearance-settings">(function(){'use strict';
- const root=document.documentElement,KEY_THEME='aoer-ui-theme-v1',KEY_FONT='aoer-ui-font-v1';
+ const root=document.documentElement,KEY_THEME='aoer-ui-theme-v1',KEY_FONT='aoer-ui-font-v1',isDesktop=window.matchMedia('(min-width:601px)');
  const pane=document.querySelector('#awPrinterDialog .ax-settings-future');
  if(!pane)return;
  const section=document.createElement('section');section.className='ax-settings-section bl-appearance-settings';
- section.innerHTML=`<h3>介面外觀</h3><fieldset><legend>介面顏色</legend><div class="bl-choice-group" role="group" aria-label="介面顏色"><button type="button" class="bl-choice" data-bl-theme="light">淺色（原版）</button><button type="button" class="bl-choice" data-bl-theme="charcoal">深灰 #36454F</button></div><p class="bl-preview-note">深灰主題為局部視覺試作；不影響 QR 編碼和列印版型。</p></fieldset><fieldset><legend>字體大小</legend><div class="bl-choice-group" role="group" aria-label="字體大小"><button type="button" class="bl-choice" data-bl-font="normal">一般（預設）</button><button type="button" class="bl-choice" data-bl-font="large">放大（約 12.5%）</button></div><p class="bl-preview-note">僅調整文字尺寸與必要間距，不放大整張頁面或按鈕外框。</p></fieldset>`;
+ section.innerHTML=`<h3>介面外觀</h3><fieldset><legend>介面顏色</legend><div class="bl-choice-group" role="group" aria-label="介面顏色"><button type="button" class="bl-choice" data-bl-theme="light">淺色（原版）</button><button type="button" class="bl-choice" data-bl-theme="charcoal">深灰 #36454F</button></div><p class="bl-preview-note">深灰主題已套用彩種與選號區新配色，保留 QR 編碼和列印版型。</p></fieldset><fieldset><legend>字體大小</legend><div class="bl-choice-group" role="group" aria-label="字體大小"><button type="button" class="bl-choice" data-bl-font="normal">一般（預設）</button><button type="button" class="bl-choice" data-bl-font="large">放大（約 12.5%）</button></div><p class="bl-preview-note">僅調整文字尺寸與必要間距，不放大整張頁面或按鈕外框。</p></fieldset>`;
  pane.insertAdjacentElement('beforebegin',section);
  function safeSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
  function apply(which,value){
-  if(which==='theme'){value=value==='charcoal'?'charcoal':'light';root.dataset.uiTheme=value;safeSet(KEY_THEME,value)}
+  if(which==='theme'){value=value==='charcoal'?'charcoal':'light';if(isDesktop.matches){value='light';root.dataset.uiTheme='light';}else{root.dataset.uiTheme=value;safeSet(KEY_THEME,value)}}
   else{value=value==='large'?'large':'normal';root.dataset.uiFont=value;safeSet(KEY_FONT,value)}
   section.querySelectorAll('[data-bl-'+which+']').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset[which==='theme'?'blTheme':'blFont']===value)));
  }
@@ -8712,13 +8893,24 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   if(b.hasAttribute('data-bl-theme'))apply('theme',b.dataset.blTheme);else apply('font',b.dataset.blFont);
  });
  apply('theme',root.dataset.uiTheme);apply('font',root.dataset.uiFont);
+ function syncThemeViewport(){
+  let preference='light';try{preference=localStorage.getItem(KEY_THEME)==='charcoal'?'charcoal':'light'}catch(_){}
+  root.dataset.uiTheme=isDesktop.matches?'light':preference;
+  section.querySelectorAll('[data-bl-theme]').forEach(b=>{
+   b.disabled=isDesktop.matches;
+   b.setAttribute('aria-disabled',String(isDesktop.matches));
+   b.setAttribute('aria-pressed',String(b.dataset.blTheme===root.dataset.uiTheme));
+   b.title=isDesktop.matches?'電腦版暫時固定使用淺色介面':'';
+  });
+ }
+ syncThemeViewport();
+ if(isDesktop.addEventListener)isDesktop.addEventListener('change',syncThemeViewport);
+ else window.addEventListener('resize',syncThemeViewport);
  const sw=document.getElementById('aqWeightSwitch');if(sw){sw.checked=false;sw.disabled=true;sw.setAttribute('aria-disabled','true');sw.title='智慧選號暫時停用';}
  window.AQ_WEIGHT_ON=false;
- const label=document.getElementById('biSmartToggleLabel');if(label)label.textContent='智慧快選（暫停）';
- const hint=document.getElementById('aqWeightHint');if(hint)hint.textContent='目前預設一般均等快選';
- const panel=document.getElementById('aqWeightPanel');if(panel&&!document.getElementById('blSmartDisabledNote')){
-   const note=document.createElement('span');note.id='blSmartDisabledNote';note.textContent='智慧模式暫不開放切換';panel.appendChild(note);
- }
+ const label=document.getElementById('biSmartToggleLabel');if(label)label.textContent='智慧快選';
+ const hint=document.getElementById('aqWeightHint');if(hint)hint.textContent='';
+ 
  const draw=document.getElementById('drawBtn');if(draw)draw.textContent='均等快選';
  document.addEventListener('change',e=>{if(e.target?.id==='aqWeightSwitch'){e.preventDefault();e.target.checked=false;window.AQ_WEIGHT_ON=false;}},true);
  window.AoerAppearance={get:()=>({theme:root.dataset.uiTheme,font:root.dataset.uiFont}),setTheme:t=>apply('theme',t),setFont:f=>apply('font',f)};
