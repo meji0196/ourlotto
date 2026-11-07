@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號 V14-BP｜BINGO深灰與選號介面修正版</title>
+<title>奧爾樂透選號 V14-BQ｜BINGO深灰與選號介面修正版</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -1383,7 +1383,7 @@ html[data-ui-font="large"] #mobileColumnFloatMenuGrid button{font-size:15px!impo
 </style>
 
 <style id="v14bo-mobile-dark-bingo-and-pick-polish">
-/* V14-BP: only apply the palette adjustments to the phone charcoal theme. */
+/* V14-BQ: only apply the palette adjustments to the phone charcoal theme. */
 @media screen and (max-width:600px){
   /* BINGO convenience play cards and containers were styled separately from the main theme. */
   html[data-ui-theme="charcoal"] body.aq-bingo-game #lottoMachine #conveniencePanel,
@@ -1477,7 +1477,7 @@ html[data-ui-font="large"] #mobileColumnFloatMenuGrid button{font-size:15px!impo
 .bg-draw-card[data-draw-game="bingo"] .bl-ball-separator{display:none!important}
 </style>
 <style id="v14bp-mobile-history-and-star-polish">
-/* V14-BP: preserve all desktop and existing QR layouts; changes below target the mobile UI. */
+/* V14-BQ: preserve all desktop and existing QR layouts; changes below target the mobile UI. */
 html[data-ui-theme="charcoal"] :is(#star3Controls,#star4Controls) .star3-toolbar{
  background:#727D84!important;border:1px solid #0B0E10!important;color:#EDF3F6!important;
  border-radius:12px;padding:12px;gap:12px;flex-wrap:wrap;
@@ -1567,6 +1567,60 @@ html[data-ui-theme="charcoal"] :is(#star3Controls,#star4Controls) .star3-note{co
 @media(max-width:600px){
   #lottoMachine :is(.machine-top,.star3-toolbar,.self-toolbar,.bingo-top-row){padding-inline:10px;box-sizing:border-box}
   .bg-draw-card .no-data{padding:9px 3px;line-height:1.55}
+}
+
+</style>
+<style id="v14bq-mobile-history">
+/* V14-BQ: ROC date controls and compact mobile history header. Desktop draw board unchanged. */
+#bkDateForm .bq-roc-date{display:none}
+#bkDateForm .bq-date-field{display:contents}
+#bkDateForm .bq-search-button{display:inline-flex;align-items:center;justify-content:center;padding:7px!important}
+#bkDateForm .bq-search-button svg{display:block;pointer-events:none}
+#bpHistoryToolbar[hidden],.bp-history-top[hidden]{display:none!important}
+@media(max-width:600px){
+ .bg-draw-header{gap:7px!important;min-height:66px!important;padding:8px 0!important;z-index:15!important;box-sizing:border-box}
+ .bg-draw-header>#bgDrawTitle{min-width:0}
+ .bg-draw-overlay[data-bq-view="history"] .bg-draw-header>#bgDrawTitle{display:none!important}
+ .bg-draw-header>.bp-history-top{display:flex!important;flex:1 1 0;min-width:0;align-items:center;justify-content:flex-start;gap:8px;margin:0!important;min-height:48px}
+ .bg-draw-header>.bp-history-top[hidden]{display:none!important}
+ .bg-draw-header>.bp-history-top #bpHistoryLogo{flex:0 1 120px;min-width:0;max-width:130px}
+ .bg-draw-header>.bp-history-top #bpHistoryLogo img.bl-draw-logo{display:block;width:100%;height:46px!important;max-width:120px!important;object-fit:contain;object-position:left center;padding:0!important;background:transparent!important;border:0!important}
+ .bg-draw-header>.bp-history-top .bp-next-draw{flex:1 1 92px;min-width:0;max-width:none;text-align:left!important;font-size:11px!important;line-height:1.3;color:#536773;white-space:normal!important;overflow-wrap:normal;font-weight:750}
+ .bg-draw-overlay[data-bq-view="history"] .bg-draw-header :is(#bgDrawBack,#bgDrawClose){min-width:39px!important;width:39px;height:43px;flex:none;font-size:21px!important;padding:5px!important}
+ .bp-history-toolbar{top:var(--bq-draw-header-height,74px)!important;padding:5px 9px!important;margin:0 0 8px!important;z-index:14!important}
+ #bkDateForm{display:flex!important;gap:5px!important;align-items:center;justify-content:space-between;flex-wrap:nowrap!important;margin:0!important;padding:3px 0!important;border:0!important}
+ #bkDateForm[hidden]{display:none!important}
+ #bkDateForm .bp-history-label{flex:none!important;font-size:13px!important;letter-spacing:0!important;margin:0 3px 0 0;line-height:1.3}
+ #bkDateForm .bp-date-label{display:none!important}
+ #bkDateForm .bq-date-field{position:relative;display:block!important;flex:1 1 90px;min-width:0;max-width:none;height:39px}
+ #bkDateForm .bq-roc-date{display:block!important;box-sizing:border-box;width:100%!important;height:39px!important;min-height:39px!important;max-width:100%!important;min-width:0!important;flex:none!important;border:1px solid #B9C1C6!important;border-radius:9px!important;background:#E8EBED!important;color:#263944!important;font-size:12px!important;font-weight:750;letter-spacing:-.3px;line-height:1.2;padding:5px 23px 5px 6px!important;text-align:center;font-variant-numeric:tabular-nums}
+ #bkDateForm .bq-roc-date::placeholder{color:#66777F;opacity:.75}
+ #bkDateForm .bq-date-field>input[type=date]{position:absolute!important;right:0!important;top:0!important;width:24px!important;max-width:24px!important;min-width:24px!important;height:39px!important;min-height:39px!important;padding:0!important;opacity:0!important;border:0!important;box-shadow:none!important;cursor:pointer!important;pointer-events:auto!important;z-index:2}
+ #bkDateForm .bq-date-field::after{content:"";pointer-events:none;position:absolute;right:7px;top:16px;width:8px;height:8px;border-right:1.6px solid #576771;border-bottom:1.6px solid #576771;transform:rotate(45deg)}
+ #bkDateForm .bq-range-dash{flex:none;font-size:12px;color:#647682;font-weight:700;line-height:1}
+ #bkDateForm .bq-search-button{background:transparent!important;border:0!important;box-shadow:none!important;color:#304D63!important;flex:0 0 29px!important;min-width:29px!important;width:29px!important;height:39px!important;min-height:39px!important;padding:5px!important;border-radius:6px!important;font-size:18px!important;touch-action:manipulation}
+ #bkDateForm .bq-search-button:focus-visible{outline:2px solid #4F91C5!important;outline-offset:2px}
+ #bkDateForm #bkLatest12{background:transparent!important;border:0!important;box-shadow:none!important;color:#526676!important;flex:0 0 25px!important;min-width:25px!important;width:25px!important;height:39px!important;min-height:39px!important;padding:4px!important;font-size:20px!important}
+ html[data-ui-theme="charcoal"] .bg-draw-header>.bp-history-top .bp-next-draw{color:#E1E8EC!important}
+ html[data-ui-theme="charcoal"] #bkDateForm .bq-date-field>.bq-roc-date{background:#C3C7CA!important;color:#20313B!important;border-color:#0B0E10!important}
+ html[data-ui-theme="charcoal"] #bkDateForm .bq-range-dash{color:#E3EAF0!important}
+ html[data-ui-theme="charcoal"] #bkDateForm .bq-search-button,html[data-ui-theme="charcoal"] #bkDateForm #bkLatest12{background:transparent!important;color:#F1F4F6!important;border:0!important}
+ html[data-ui-theme="charcoal"] #bkDateForm .bq-date-field::after{border-color:#36454F}
+}
+@media(max-width:365px){
+ .bg-draw-header{gap:5px!important}
+ .bg-draw-header>.bp-history-top{gap:4px!important}
+ .bg-draw-header>.bp-history-top #bpHistoryLogo{flex-basis:95px}
+ .bg-draw-header>.bp-history-top #bpHistoryLogo img.bl-draw-logo{max-width:97px!important;height:40px!important}
+ .bg-draw-header>.bp-history-top .bp-next-draw{font-size:10px!important}
+ #bkDateForm{flex-wrap:nowrap!important;gap:3px!important}
+ #bkDateForm .bp-history-label{font-size:12px!important;margin:0!important;flex:0 0 25px!important}
+ #bkDateForm .bq-date-field{flex-basis:77px!important;height:37px}
+ #bkDateForm .bq-roc-date{font-size:11px!important;padding-left:3px!important;padding-right:17px!important;height:37px!important}
+ #bkDateForm .bq-date-field>input[type=date]{width:19px!important;max-width:19px!important;height:37px!important}
+ #bkDateForm .bq-date-field::after{right:5px}
+ #bkDateForm .bq-search-button{flex-basis:25px!important;min-width:25px!important;width:25px!important}
+ #bkDateForm #bkLatest12{flex-basis:22px!important;min-width:22px!important;width:22px!important}
 }
 
 </style>
@@ -8815,13 +8869,18 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   <div class="bg-draw-sheet">
     <header class="bg-draw-header"><button id="bgDrawBack" type="button" aria-label="返回">←</button><h2 id="bgDrawTitle">奧爾樂透獎號</h2><button id="bgDrawClose" type="button" aria-label="關閉">✕</button></header>
     <div id="bgDrawNotice" class="bg-draw-notice" role="status" aria-live="polite">載入官方獎號中…</div>
-    <form class="bk-date-form" hidden="" id="bkDateForm">
-  <span class="bp-history-label">歷史獎號查詢</span>
-  <label for="bpDrawStart" class="bp-date-label">期間</label>
-  <input aria-label="查詢起始日期" id="bpDrawStart" type="date" required>
-  <span aria-hidden="true">～</span>
-  <input aria-label="查詢結束日期" id="bkDrawDate" type="date" required>
-  <button type="submit" title="查詢日期區間，最多24期" aria-label="查詢日期區間">⌕</button>
+    <form class="bk-date-form" hidden="" id="bkDateForm" aria-label="歷史獎號日期查詢">
+  <span class="bp-history-label">查詢</span>
+  <div class="bq-date-field">
+    <input class="bq-roc-date" id="bpDrawStartROC" type="text" inputmode="numeric" placeholder="115/10/10" aria-label="起始日期（民國年／月／日）" autocomplete="off" spellcheck="false">
+    <input aria-label="選擇起始日期" id="bpDrawStart" type="date">
+  </div>
+  <span class="bq-range-dash" aria-hidden="true">～</span>
+  <div class="bq-date-field">
+    <input class="bq-roc-date" id="bkDrawDateROC" type="text" inputmode="numeric" placeholder="115/11/07" aria-label="結束日期（民國年／月／日）" autocomplete="off" spellcheck="false">
+    <input aria-label="選擇結束日期" id="bkDrawDate" type="date">
+  </div>
+  <button type="submit" class="bq-search-button" title="查詢日期區間，最多24期" aria-label="查詢歷史獎號"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.7"/><path d="m15.6 15.6 5 5"/></svg></button>
   <button id="bkLatest12" type="button" title="回到最近24期" aria-label="回到最近24期">↻</button>
 </form>
     <div id="bgDrawCards" class="bg-draw-cards"></div>
@@ -8977,6 +9036,13 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  const responses=new Map(),inflight=new Map(),views=new Map();
  let page=null,selectedDate='',selectedStart='',renderToken=0;
  const pad=n=>String(n).padStart(2,'0');
+ function roc(iso){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));return m?`${Number(m[1])-1911}/${m[2]}/${m[3]}`:'';}
+ function isoFromROC(str){const m=/^\s*(\d{2,4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*$/.exec(String(str||''));if(!m)return '';const year=Number(m[1])+(Number(m[1])<1912?1911:0),mo=Number(m[2]),day=Number(m[3]);if(year<1912||year>2200||mo<1||mo>12||day<1||day>31)return '';const iso=`${year}-${pad(mo)}-${pad(day)}`;const d=new Date(Date.UTC(year,mo-1,day));return d.toISOString().slice(0,10)===iso?iso:'';}
+ const rocStart=document.getElementById('bpDrawStartROC'),rocEnd=document.getElementById('bkDrawDateROC');
+ function syncRoc(force=false){if(rocStart&&(force||document.activeElement!==rocStart))rocStart.value=roc(startInput.value);if(rocEnd&&(force||document.activeElement!==rocEnd))rocEnd.value=roc(dateInput.value);}
+ function commitRoc(){const from=isoFromROC(rocStart.value),to=isoFromROC(rocEnd.value);startInput.value=from;dateInput.value=to;if(from&&to)syncRoc(true);return Boolean(from&&to);}
+ for(const [raw,shown] of [[startInput,rocStart],[dateInput,rocEnd]]){if(!raw||!shown)continue;raw.addEventListener('input',()=>syncRoc(true));raw.addEventListener('change',()=>syncRoc(true));shown.addEventListener('blur',()=>{const iso=isoFromROC(shown.value);if(iso){raw.value=iso;syncRoc(true)}});}
+
  const safe=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
  function taiwanParts(){return Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).map(x=>[x.type,x.value]));}
  function taiwanDay(){const p=taiwanParts();return `${p.year}-${p.month}-${p.day}`;}
@@ -8994,7 +9060,7 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   let numbers=numList(raw,g.kind);
   let special=first(r,g.kind==='power'?['specialNumber','specialNum','secondAreaNumber','secondNumber','secondDrawNumber']:g.kind==='six'?['specialNumber','specialNum']:g.kind==='bingo'?['bullEyeTop','superNumber']:[]);
   // Official 6/38 and 6/49 drawNumberAppear carries six main balls followed by the second-zone/special ball.
-  // V14-BP rejected all seven-number Power draws as invalid six-number entries.
+  // V14-BQ rejected all seven-number Power draws as invalid six-number entries.
   if((g.kind==='power'||g.kind==='six')&&numbers.length===7){
    if(special===null)special=numbers[6];
    numbers=numbers.slice(0,6);
@@ -9081,25 +9147,27 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   return `<div class="bk-ball-row">${primary}${special?`<span class="bl-ball-separator" aria-hidden="true"></span><span class="bl-special-wrap"><span class="bk-ball bk-special" title="${specialType}" aria-label="${specialType} ${pad(r.special)}">${pad(r.special)}</span></span>`:''}</div>`;
  }
  function card(g,r,history){const tag=history?'article':'button';const attrib=history?'':`type="button" data-bg-game="${g.id}" aria-label="查看${g.name}最近24期"`;
-  return `<${tag} ${attrib} class="bg-draw-card bk-${colorClass(g)}" data-draw-game="${g.id}">${history?'':`<div class="bk-card-line"><h3>${logo(g)}</h3></div>`}${r?`<div class="meta">${safe(r.period)}期　${safe(r.date.replaceAll('-','/'))}</div>${drawBalls(g,r)}`:'<div class="no-data">目前無法確認獎號，請稍後重試</div>'}</${tag}>`;
+  return `<${tag} ${attrib} class="bg-draw-card bk-${colorClass(g)}" data-draw-game="${g.id}">${history?'':`<div class="bk-card-line"><h3>${logo(g)}</h3></div>`}${r?`<div class="meta">${safe(r.period)}期　${safe(roc(r.date))}</div>${drawBalls(g,r)}`:'<div class="no-data">目前無法確認獎號，請稍後重試</div>'}</${tag}>`;
  }
  // Keep the logo and date-range controls together and stationary when scrolling the 24-draw history.
  const toolbar=document.createElement('div');toolbar.id='bpHistoryToolbar';toolbar.className='bp-history-toolbar';toolbar.hidden=true;
  const top=document.createElement('div');top.className='bp-history-top';top.innerHTML='<div id="bpHistoryLogo"></div><div class="bp-next-draw" id="bpNextDraw"></div>';
- toolbar.appendChild(top);toolbar.appendChild(dateForm);overlay.querySelector('.bg-draw-sheet').insertBefore(toolbar,notice);
+ overlay.querySelector('.bg-draw-header').insertBefore(top,title);toolbar.appendChild(dateForm);overlay.querySelector('.bg-draw-sheet').insertBefore(toolbar,notice);
  function nextDraw(g){const p=taiwanParts(),date=`${p.year}-${p.month}-${p.day}`;
   const day=new Date(date+'T12:00:00+08:00'),dow=day.getUTCDay(),hour=Number(p.hour);
-  if(g.kind==='bingo'){const now=new Date();const mm=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',minute:'2-digit'}).format(now);return (hour===23&&Number(mm)>=55?dayMinus(date,-1):date).slice(5).replace('-','/');}
+  if(g.kind==='bingo'){const now=new Date();const mm=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',minute:'2-digit'}).format(now);return (hour===23&&Number(mm)>=55?dayMinus(date,-1):date);}
   const weekdays=g.id==='lotto649'||g.id==='49combo'?[2,5]:g.id==='power'?[1,4]:g.kind==='bingo'?[0,1,2,3,4,5,6]:[1,2,3,4,5,6];
   let shift=0;while(shift<8){const w=(dow+shift)%7;if(weekdays.includes(w)&&(shift>0||hour<21))break;shift++;}
-  const target=dayMinus(date,-shift);return target.slice(5).replace('-','/');
+  const target=dayMinus(date,-shift);return target;
  }
- function displayToolbar(g){toolbar.hidden=page===null;dateForm.hidden=page===null;
+ function displayToolbar(g){toolbar.hidden=page===null;dateForm.hidden=page===null;overlay.dataset.bqView=page===null?'overview':'history';top.hidden=page===null;requestAnimationFrame(syncHistoryHeader);
   if(g){document.getElementById('bpHistoryLogo').innerHTML=logo(g);
-   const next=document.getElementById('bpNextDraw');next.textContent=`預計下次開獎（${nextDraw(g)}）`;
+   const next=document.getElementById('bpNextDraw');next.textContent=`預計下次開獎 ${roc(nextDraw(g))}`;
    next.title='依一般開獎日推算；特殊開獎日程以台彩公告為準';
   }
  }
+ function syncHistoryHeader(){const h=overlay.querySelector('.bg-draw-header')?.getBoundingClientRect().height;if(h>0)overlay.style.setProperty('--bq-draw-header-height',`${Math.ceil(h)}px`);}
+ window.addEventListener('resize',()=>requestAnimationFrame(syncHistoryHeader));
  function dateRangeValid(from,to){return /^\d{4}-\d{2}-\d{2}$/.test(from)&&/^\d{4}-\d{2}-\d{2}$/.test(to)&&from<=to&&to<=taiwanDay()}
  async function render(force=false){const token=++renderToken,end=selectedDate||taiwanDay();dateInput.max=taiwanDay();startInput.max=taiwanDay();
   displayToolbar(page!==null?byId(page):null);
@@ -9111,25 +9179,26 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
    let data;try{data=await load(g,end,selectedStart,force)}catch(e){data={rows:[],error:String(e)}}if(token!==renderToken)return;
    container.innerHTML=data.rows.length?data.rows.map(r=>card(g,r,true)).join(''):card(g,null,true);
    if(!selectedStart&&data.rows.length){startInput.value=data.rows[data.rows.length-1].date||'';dateInput.value=data.rows[0].date||end;}
+   syncRoc();
    if(data.error&&data.rows.length===0){notice.textContent='獎號暫時無法更新，請稍後重試。';notice.dataset.error='true';}
    if(data.error&&data.rows.length){notice.textContent='部分資料更新失敗，已顯示現有紀錄。';notice.dataset.error='true';}
   }
  }
- function open(){page=null;selectedDate='';selectedStart='';startInput.value='';dateInput.value='';overlay.hidden=false;document.body.style.overflow='hidden';render(true)}
+ function open(){page=null;selectedDate='';selectedStart='';startInput.value='';dateInput.value='';syncRoc(true);overlay.hidden=false;document.body.style.overflow='hidden';render(true)}
  function close(){renderToken++;overlay.hidden=true;document.body.style.overflow='';page=null;selectedDate='';selectedStart=''}
  document.getElementById('bgDrawLookup')?.addEventListener('click',()=>{
   if(window.matchMedia('(min-width:601px)').matches){window.open(desktopLookupUrl,'_blank','noopener,noreferrer');return;}
   open();
  });
  document.getElementById('bgDrawClose')?.addEventListener('click',close);
- document.getElementById('bgDrawBack')?.addEventListener('click',()=>{if(page!==null){page=null;selectedDate='';selectedStart='';startInput.value='';dateInput.value='';render()}else close()});
- document.getElementById('bkLatest12')?.addEventListener('click',()=>{selectedDate='';selectedStart='';startInput.value='';dateInput.value='';render(true)});
- dateForm.addEventListener('submit',ev=>{ev.preventDefault();const from=startInput.value,to=dateInput.value;
+ document.getElementById('bgDrawBack')?.addEventListener('click',()=>{if(page!==null){page=null;selectedDate='';selectedStart='';startInput.value='';dateInput.value='';syncRoc(true);render()}else close()});
+ document.getElementById('bkLatest12')?.addEventListener('click',()=>{selectedDate='';selectedStart='';startInput.value='';dateInput.value='';syncRoc(true);render(true)});
+ dateForm.addEventListener('submit',ev=>{ev.preventDefault();if(window.matchMedia('(max-width:600px)').matches)commitRoc();const from=startInput.value,to=dateInput.value;
   if(!dateRangeValid(from,to)){notice.textContent='請確認日期範圍：起日不得晚於迄日，且不可查詢未來日期。';notice.dataset.error='true';return;}
   selectedStart=from;selectedDate=to;render(true);
  });
  container.addEventListener('click',ev=>{const b=ev.target.closest('[data-bg-game]');if(!b)return;page=b.dataset.bgGame;
-  selectedDate='';selectedStart='';startInput.value='';dateInput.value='';render();
+  selectedDate='';selectedStart='';startInput.value='';dateInput.value='';syncRoc(true);render();
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close()});
  setInterval(()=>{if(!overlay.hidden&&!selectedDate)render(true)},5*60*1000);
