@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號 V14-BO｜BINGO深灰與選號介面修正版</title>
+<title>奧爾樂透選號 V14-BP｜BINGO深灰與選號介面修正版</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -1383,7 +1383,7 @@ html[data-ui-font="large"] #mobileColumnFloatMenuGrid button{font-size:15px!impo
 </style>
 
 <style id="v14bo-mobile-dark-bingo-and-pick-polish">
-/* V14-BO: only apply the palette adjustments to the phone charcoal theme. */
+/* V14-BP: only apply the palette adjustments to the phone charcoal theme. */
 @media screen and (max-width:600px){
   /* BINGO convenience play cards and containers were styled separately from the main theme. */
   html[data-ui-theme="charcoal"] body.aq-bingo-game #lottoMachine #conveniencePanel,
@@ -1475,6 +1475,100 @@ html[data-ui-font="large"] #mobileColumnFloatMenuGrid button{font-size:15px!impo
 /* BINGO special ball already has a red fill; remove only its redundant text caption. */
 .bg-draw-card[data-draw-game="bingo"] .bl-special-wrap .bl-special-caption{display:none!important}
 .bg-draw-card[data-draw-game="bingo"] .bl-ball-separator{display:none!important}
+</style>
+<style id="v14bp-mobile-history-and-star-polish">
+/* V14-BP: preserve all desktop and existing QR layouts; changes below target the mobile UI. */
+html[data-ui-theme="charcoal"] :is(#star3Controls,#star4Controls) .star3-toolbar{
+ background:#727D84!important;border:1px solid #0B0E10!important;color:#EDF3F6!important;
+ border-radius:12px;padding:12px;gap:12px;flex-wrap:wrap;
+}
+html[data-ui-theme="charcoal"] :is(#star3Controls,#star4Controls) :is(.star3-group-toggle,.star3-mult-wrap){color:#E3E9ED!important}
+html[data-ui-theme="charcoal"] :is(#star3Controls,#star4Controls) .star3-mult{
+ color:#1D3039!important;background:#C3C7CA!important;border-color:#0B0E10!important;
+ color-scheme:light!important;padding-inline:12px!important;
+}
+html[data-ui-theme="charcoal"] :is(#star3Controls,#star4Controls) .star3-summary{color:#EDF3F6!important}
+html[data-ui-theme="charcoal"] :is(#star3Controls,#star4Controls) .star3-pill{
+ background:#C3C7CA!important;color:#182E39!important;border:1px solid #0B0E10!important;
+ padding:9px 13px!important;
+}
+html[data-ui-theme="charcoal"] :is(#star3Controls,#star4Controls) .star3-pill :is(b,strong,span){color:#182E39!important}
+html[data-ui-theme="charcoal"] :is(#star3Controls,#star4Controls) .star3-note{color:#DDE6EB!important;line-height:1.6!important}
+/* General control breathing room without stretching numbered choice buttons. */
+#lottoMachine :is(.machine-actions,.self-toolbar,.self-summary,.star3-toolbar,.combo39-controls){gap:10px;row-gap:11px}
+#lottoMachine :is(.self-countbox button,.self-mode-btn,.combo39-play-btn,.star3-mult,.quick-pick-count){box-sizing:border-box;min-width:0}
+#lottoMachine :is(.self-bet-count,.self-pill,.star3-pill,.combo39-mult-wrap,.star3-mult-wrap){line-height:1.4}
+#lottoMachine :is(.self-countbox input,.self-countbox button){padding-inline:7px}
+#lottoMachine :is(.self-countbox,.self-summary){margin-block:3px}
+#lottoMachine #selfInline .self-body{padding:15px 14px 16px}
+#lottoMachine #selfInline .self-toolbar{align-items:center;gap:11px}
+#lottoMachine #selfInline #selfNote{display:none!important}
+#lottoMachine #selfInline .self-preview{margin-top:13px}
+#lottoMachine :is(.star3-controls,.bingo-controls,.self-inline,.convenience-group){box-sizing:border-box}
+.bg-draw-card{padding:16px 17px!important;box-sizing:border-box}
+.bg-draw-card .meta{margin:7px 0 10px!important;line-height:1.5}
+.bg-draw-card .bk-ball-row{padding-block:4px;row-gap:8px!important}
+.bg-draw-header button{padding:6px 10px!important}
+/* Controls for the history date range: two clear dates, accessible action buttons. */
+.bp-history-toolbar[hidden]{display:none!important}
+.bp-history-toolbar{margin:0 0 12px}
+.bp-history-top{display:none}
+#bkDateForm{display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:12px 13px;margin:0}
+#bkDateForm[hidden]{display:none!important}
+#bkDateForm input[type=date]{box-sizing:border-box;min-width:0;padding:7px 8px;border-radius:9px}
+#bkDateForm button{box-sizing:border-box;min-height:41px;padding:8px 11px}
+.bp-history-label{font-size:13px;font-weight:850;white-space:nowrap}
+.bp-date-label{font-size:12px;font-weight:750;white-space:nowrap}
+#bpHistoryToolbar .bl-draw-logo{max-width:174px;height:51px;object-position:left center}
+.bp-next-draw{font-size:12px;font-weight:750;color:#697a87;white-space:nowrap;text-align:right}
+@media screen and (max-width:600px){
+  .bg-draw-sheet{padding:8px 12px 36px!important}
+  .bg-draw-header{z-index:8!important;padding:7px 0 8px!important;min-height:52px}
+  .bp-history-toolbar{position:sticky;top:60px;z-index:7;background:#F8F6F0;padding:9px 9px 10px;border:1px solid #D5D9DC;border-radius:13px;box-shadow:0 3px 10px rgba(11,14,16,.09)}
+  .bp-history-top{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:9px;min-height:52px}
+  .bp-history-top #bpHistoryLogo{flex:1;min-width:0}
+  .bp-history-top #bpHistoryLogo img{width:100%;max-width:163px}
+  .bp-next-draw{font-size:11px;max-width:142px;line-height:1.4;color:#40545f}
+  #bkDateForm{margin:0;padding:8px 0 0;border:0;border-top:1px solid rgba(80,91,102,.18);background:transparent!important;border-radius:0;gap:5px;flex-wrap:nowrap}
+  #bkDateForm .bp-history-label{font-size:11px;letter-spacing:-.2px}
+  #bkDateForm .bp-date-label{font-size:11px}
+  #bkDateForm input[type=date]{flex:1;min-width:0;width:0;max-width:none;min-height:36px!important;height:36px!important;font-size:12px!important;padding:4px 3px!important}
+  #bkDateForm button{height:36px!important;min-height:36px!important;min-width:36px;padding:4px 6px!important;font-size:15px!important}
+  #bkLatest12{font-size:17px!important}
+  #bgDrawNotice:not([data-error="true"]){display:none!important}
+  .bg-draw-notice[data-error="true"]{margin:8px 2px!important;color:#B24F32!important;font-size:12px!important}
+  .bg-draw-cards.history{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important;max-width:100%!important;margin:6px auto 0!important}
+  .bg-draw-cards.history>.bg-draw-card{width:100%;min-width:0;margin:0 auto}
+  .bg-draw-cards.history>.bg-draw-card .bk-card-line{display:none!important}
+  .bg-draw-cards.history>.bg-draw-card .meta{font-size:13px!important;font-weight:750!important;margin:0 0 9px!important}
+  .bg-draw-card :is(.bk-source,.source){display:none!important}
+  .bg-draw-card .bk-ball-row{padding:3px 0!important;gap:5px!important}
+  .bg-draw-card{padding:13px 13px 14px!important}
+  html[data-ui-theme="charcoal"] .bp-history-toolbar{background:#727D84!important;border:1px solid #0B0E10!important;color:#F0F3F6!important}
+  html[data-ui-theme="charcoal"] .bp-next-draw{color:#E6EBEF!important}
+  html[data-ui-theme="charcoal"] #bkDateForm{border-top-color:#4C575E!important}
+  html[data-ui-theme="charcoal"] #bkDateForm :is(.bp-history-label,.bp-date-label){color:#EFF3F6!important}
+  html[data-ui-theme="charcoal"] #bkDateForm input[type=date]{background:#C3C7CA!important;color:#20313B!important;border:1px solid #0B0E10!important;color-scheme:light!important}
+  html[data-ui-theme="charcoal"] #bkDateForm button{background:#C3C7CA!important;color:#20313B!important;border:1px solid #0B0E10!important}
+  html[data-ui-theme="charcoal"] #bpHistoryLogo img.bl-draw-logo{background:transparent!important;padding:0!important;border:0!important;filter:drop-shadow(-.7px 0 rgba(236,244,248,.92)) drop-shadow(.7px 0 rgba(236,244,248,.92)) drop-shadow(0 .7px rgba(236,244,248,.92))!important}
+}
+@media screen and (max-width:365px){
+  #bkDateForm{flex-wrap:wrap!important;justify-content:flex-start}
+  #bkDateForm .bp-history-label{flex:0 0 100%}
+  #bkDateForm input[type=date]{flex:1 1 85px}
+}
+
+/* Extra safe insets for labeled controls, without changing the fixed-dimension number-grid keys. */
+#lottoMachine :is(.mode-btn,.side-btn,.machine-action,.combo-play-card,.mobile-play-category,.convenience-pick-btn){
+  padding-inline:clamp(10px,2.5vw,17px)!important;line-height:1.35;box-sizing:border-box;
+}
+#lottoMachine :is(.machine-action,.combo-play-card,.mode-btn){overflow-wrap:break-word}
+#lottoMachine :is(.self-summary,.star3-summary,.machine-actions){min-width:0}
+@media(max-width:600px){
+  #lottoMachine :is(.machine-top,.star3-toolbar,.self-toolbar,.bingo-top-row){padding-inline:10px;box-sizing:border-box}
+  .bg-draw-card .no-data{padding:9px 3px;line-height:1.55}
+}
+
 </style>
 </head>
 <body>
@@ -1728,7 +1822,7 @@ html[data-ui-font="large"] #mobileColumnFloatMenuGrid button{font-size:15px!impo
 <span class="self-pill">單期 <strong id="selfPrice">500元</strong></span>
 </div>
 <button aria-hidden="true" class="self-apply hidden" disabled="" id="selfApply" tabindex="-1" type="button">製作QR</button>
-<div class="self-note" id="selfNote">請先從上方選擇至少6個母號。均衡配牌會盡量平均單號與兩兩配對；百面骰配牌依目前d100權重抽取。</div>
+<div class="self-note" id="selfNote" hidden aria-hidden="true"></div>
 </div>
 <div class="self-preview" id="selfPreview"></div>
 </div>
@@ -8721,12 +8815,15 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   <div class="bg-draw-sheet">
     <header class="bg-draw-header"><button id="bgDrawBack" type="button" aria-label="返回">←</button><h2 id="bgDrawTitle">奧爾樂透獎號</h2><button id="bgDrawClose" type="button" aria-label="關閉">✕</button></header>
     <div id="bgDrawNotice" class="bg-draw-notice" role="status" aria-live="polite">載入官方獎號中…</div>
-    <form id="bkDateForm" class="bk-date-form" hidden>
-      <label for="bkDrawDate">查詢日期</label>
-      <input id="bkDrawDate" type="date" required aria-label="選擇歷史開獎日期">
-      <button type="submit">查詢該日前12期</button>
-      <button type="button" id="bkLatest12">最近12期</button>
-    </form>
+    <form class="bk-date-form" hidden="" id="bkDateForm">
+  <span class="bp-history-label">歷史獎號查詢</span>
+  <label for="bpDrawStart" class="bp-date-label">期間</label>
+  <input aria-label="查詢起始日期" id="bpDrawStart" type="date" required>
+  <span aria-hidden="true">～</span>
+  <input aria-label="查詢結束日期" id="bkDrawDate" type="date" required>
+  <button type="submit" title="查詢日期區間，最多24期" aria-label="查詢日期區間">⌕</button>
+  <button id="bkLatest12" type="button" title="回到最近24期" aria-label="回到最近24期">↻</button>
+</form>
     <div id="bgDrawCards" class="bg-draw-cards"></div>
   </div>
 </section>
@@ -8857,9 +8954,15 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
 </style>
 <script id="v14bk-draw-board">
 (function(){'use strict';
- const overlay=document.getElementById('bgDrawOverlay'),container=document.getElementById('bgDrawCards'),notice=document.getElementById('bgDrawNotice'),title=document.getElementById('bgDrawTitle');
- const dateForm=document.getElementById('bkDateForm'),dateInput=document.getElementById('bkDrawDate');
- // 39/49 LH outcomes are based on Daily539 / Lotto649 main balls respectively; use common source of truth.
+ const overlay=document.getElementById('bgDrawOverlay');
+ const container=document.getElementById('bgDrawCards');
+ const notice=document.getElementById('bgDrawNotice');
+ const title=document.getElementById('bgDrawTitle');
+ const dateForm=document.getElementById('bkDateForm');
+ const dateInput=document.getElementById('bkDrawDate');
+ const startInput=document.getElementById('bpDrawStart');
+ const desktopLookupUrl='https://lotto-glass-board.workspace-840742.chatgpt.site/';
+ const PAGE_SIZE=24, TTL=5*60*1000;
  const games=[
   {id:'539',name:'今彩539',endpoint:'Daily539Result',key:'daily539Res',base:'539',kind:'five'},
   {id:'lotto649',name:'大樂透',endpoint:'Lotto649Result',key:'lotto649Res',base:'lotto649',kind:'six'},
@@ -8870,106 +8973,168 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   {id:'49combo',name:'49樂合彩',endpoint:'Lotto649Result',key:'lotto649Res',base:'lotto649',kind:'six'},
   {id:'bingo',name:'BINGO',endpoint:'BingoResult',key:'bingoQueryResult',base:'bingo',kind:'bingo'}
  ];
- const gameById=id=>games.find(g=>g.id===id),sources=new Map(),queries=new Map();
- const ttl=5*60*1000;let page=null,selectedDate='',cacheRefresh=0,renderToken=0;
+ const byId=id=>games.find(g=>g.id===id);
+ const responses=new Map(),inflight=new Map(),views=new Map();
+ let page=null,selectedDate='',selectedStart='',renderToken=0;
  const pad=n=>String(n).padStart(2,'0');
  const safe=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
- function taiwanDay(back=0){const d=new Date(Date.now()-back*86400000);let fmt=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'});const parts=Object.fromEntries(fmt.formatToParts(d).map(x=>[x.type,x.value]));return `${parts.year}-${parts.month}-${parts.day}`}
- function dayMinus(day,back){let d=new Date(day+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()-back);return d.toISOString().slice(0,10)}
- function monthShift(month,delta){const [y,m]=month.split('-').map(Number);let d=new Date(Date.UTC(y,m-1+delta,1));return d.toISOString().slice(0,7)}
+ function taiwanParts(){return Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).map(x=>[x.type,x.value]));}
+ function taiwanDay(){const p=taiwanParts();return `${p.year}-${p.month}-${p.day}`;}
+ function dayMinus(day,n){const d=new Date(day+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()-n);return d.toISOString().slice(0,10);}
+ function monthShift(month,delta){const [y,m]=month.split('-').map(Number);return new Date(Date.UTC(y,m-1+delta,1)).toISOString().slice(0,7);}
  function numList(v,kind){
-   if(Array.isArray(v))return v.map(Number).filter(Number.isInteger);
-   if(typeof v==='string'){let txt=v.trim();if(kind==='digits'&&/^\d{3,4}$/.test(txt))return txt.split('').map(Number);return txt.split(/[,，、\s]+/).map(Number).filter(Number.isInteger)}
-   if(typeof v==='number'&&kind==='digits')return String(v).split('').map(Number);
-   return [];
+  if(Array.isArray(v))return v.map(Number).filter(Number.isInteger);
+  if(typeof v==='string'){const t=v.trim();if(kind==='digits'&&/^\d{3,4}$/.test(t))return [...t].map(Number);return t.split(/[,，、\s]+/).map(Number).filter(Number.isInteger);}
+  if(typeof v==='number'&&kind==='digits')return [...String(v)].map(Number);
+  return [];
  }
  const first=(obj,keys)=>{for(const k of keys)if(obj?.[k]!==undefined&&obj?.[k]!==null)return obj[k];return null};
  function normalize(g,r){
-   let raw=first(r,g.kind==='bingo'?['openShowOrder','bigShowOrder','drawNumberAppear']:['drawNumberAppear','drawNumber','winningNumbers','lotteryNo','numbers']);
-   let numbers=numList(raw,g.kind);if(g.kind==='digits'&&numbers.length!==Number(g.id[0])){
-     raw=first(r,['drawNumberAppear','drawNumber','drawNumberSize','number','winningNumbers','lotteryNo']);numbers=numList(raw,'digits');
+  let raw=first(r,g.kind==='bingo'?['openShowOrder','bigShowOrder','drawNumberAppear']:['drawNumberAppear','drawNumber','winningNumbers','lotteryNo','numbers']);
+  let numbers=numList(raw,g.kind);
+  let special=first(r,g.kind==='power'?['specialNumber','specialNum','secondAreaNumber','secondNumber','secondDrawNumber']:g.kind==='six'?['specialNumber','specialNum']:g.kind==='bingo'?['bullEyeTop','superNumber']:[]);
+  // Official 6/38 and 6/49 drawNumberAppear carries six main balls followed by the second-zone/special ball.
+  // V14-BP rejected all seven-number Power draws as invalid six-number entries.
+  if((g.kind==='power'||g.kind==='six')&&numbers.length===7){
+   if(special===null)special=numbers[6];
+   numbers=numbers.slice(0,6);
+  }
+  if((g.kind==='power'||g.kind==='six')&&numbers.length!==6){
+   const size=numList(r?.drawNumberSize,g.kind);
+   if(size.length>=6){numbers=size.slice(0,6);if(special===null&&size.length>=7)special=size[6];}
+  }
+  if(g.id==='49combo')special=null;
+  if(g.kind==='digits'&&numbers.length!==Number(g.id[0])){
+   raw=first(r,['drawNumberAppear','drawNumber','drawNumberSize','number','winningNumbers','lotteryNo']);numbers=numList(raw,'digits');
+  }
+  const date=String(first(r,['lotteryDate','openDate','drawDate','date'])||'').slice(0,10);
+  return {period:String(first(r,['period','drawTerm','drawNo','issue'])||''),date,numbers,special:special===null?null:Number(special)};
+ }
+ function valid(g,r){const a=r.numbers,n=g.kind==='digits'?Number(g.id[0]):g.kind==='bingo'?20:g.kind==='five'?5:6;
+  if(a.length!==n||!a.every(Number.isInteger))return false;
+  if(g.kind==='digits')return a.every(x=>x>=0&&x<=9);
+  const max=g.kind==='bingo'?80:g.kind==='power'?38:g.kind==='five'?39:49;
+  if(!a.every(x=>x>=1&&x<=max)||new Set(a).size!==n)return false;
+  if(g.kind==='power')return Number.isInteger(r.special)&&r.special>=1&&r.special<=8;
+  return true;
+ }
+ function dedupe(g,arr,end,start=''){
+  const u=new Map();for(const r of arr){if(!valid(g,r))continue;
+   if(end&&r.date&&r.date>end||start&&(!r.date||r.date<start))continue;
+   const key=r.period||`${r.date}:${r.numbers.join(',')}`;if(!u.has(key))u.set(key,r);
+  }
+  return [...u.values()].sort((a,b)=>String(b.period).localeCompare(String(a.period))||String(b.date).localeCompare(String(a.date))).slice(0,PAGE_SIZE);
+ }
+ async function jsonFetch(url){const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),11000);
+  try{const res=await fetch(url,{signal:ctl.signal,cache:'no-store'});if(!res.ok)throw Error(`HTTP ${res.status}`);
+   const j=await res.json();if(j.rtCode!==undefined&&Number(j.rtCode)!==0)throw Error(`API 狀態 ${j.rtCode}`);return j;
+  }finally{clearTimeout(tm)}
+ }
+ async function fetchCached(key,url,g,field,older,force=false){
+  const hit=responses.get(key);if(!force&&hit&&Date.now()-hit.ts<(older?12*60*60*1000:TTL))return hit.rows;
+  if(inflight.has(key))return inflight.get(key);
+  const task=(async()=>{const j=await jsonFetch(url),list=j.content?.[field];if(!Array.isArray(list))throw Error('缺少開獎資料欄位 '+field);
+   const rows=list.map(x=>normalize(g,x)).filter(x=>valid(g,x));responses.set(key,{rows,ts:Date.now()});return rows;
+  })();inflight.set(key,task);try{return await task}finally{inflight.delete(key)}
+ }
+ async function requestMonth(g,month,force=false){return fetchCached(`month:${g.base}:${month}`,
+  `https://api.taiwanlottery.com/TLCAPIWeB/Lottery/${g.endpoint}?period=&month=${month}&endMonth=${month}&pageNum=1&pageSize=80`,
+  g,g.key,month<taiwanDay().slice(0,7),force);
+ }
+ async function requestBingo(day,force=false){const g=byId('bingo');return fetchCached(`bingo:${day}`,
+  `https://api.taiwanlottery.com/TLCAPIWeB/Lottery/BingoResult?openDate=${day}&pageNum=1&pageSize=50`,
+  g,'bingoQueryResult',day<taiwanDay(),force);
+ }
+ async function official(g,end,start,force=false){let rows=[],error='';
+  if(g.kind==='bingo'){
+   for(let n=0;n<32&&dedupe(g,rows,end,start).length<PAGE_SIZE;n++){
+    const d=dayMinus(end,n);if(start&&d<start)break;
+    try{rows.push(...await requestBingo(d,force&&n===0))}catch(e){error=String(e.message||e)}
+    if(!start&&n>=4)break;
    }
-   let special=first(r,g.kind==='power'?['specialNumber','specialNum','secondAreaNumber','secondNumber','secondDrawNumber']:g.kind==='six'?['specialNumber','specialNum']:g.kind==='bingo'?['bullEyeTop','superNumber']:[]);
-   const date=String(first(r,['lotteryDate','openDate','drawDate','date'])||'').slice(0,10);
-   return {period:String(first(r,['period','drawTerm','drawNo','issue'])||''),date,numbers,special:special===null?null:Number(special)};
- }
- function valid(g,r){const a=r.numbers;const n=g.kind==='digits'?Number(g.id[0]):g.kind==='bingo'?20:g.kind==='five'?5:6;
-   if(a.length!==n||!a.every(Number.isInteger))return false;
-   if(g.kind==='digits')return a.every(x=>x>=0&&x<=9);
-   const max=g.kind==='bingo'?80:g.kind==='power'?38:g.kind==='five'?39:49;
-   return a.every(x=>x>=1&&x<=max)&&new Set(a).size===n;
- }
- function dedupe(g,arr,day){const unique=new Map();for(const r of arr)if(valid(g,r)&&(!day||!r.date||r.date<=day)){
-   const key=r.period||`${r.date}:${r.numbers.join(',')}`;if(!unique.has(key))unique.set(key,r);
- }return [...unique.values()].sort((a,b)=>String(b.period).localeCompare(String(a.period))||String(b.date).localeCompare(String(a.date))).slice(0,12)}
- async function jsonFetch(url){const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),11000);try{
-   const res=await fetch(url,{signal:ctl.signal,cache:'no-store'});if(!res.ok)throw Error(`HTTP ${res.status}`);
-   const j=await res.json();if(j.rtCode!==undefined&&Number(j.rtCode)!==0)throw Error(`官方回傳狀態 ${j.rtCode}`);return j;
- }finally{clearTimeout(tm)}}
- async function requestMonth(g,month,force){const key=`month:${g.base}:${month}`;const older=month<taiwanDay().slice(0,7);const hit=queries.get(key);
-   if(!force&&hit&&Date.now()-hit.ts<(older?12*60*60*1000:ttl))return hit.rows;
-   const url=`https://api.taiwanlottery.com/TLCAPIWeB/Lottery/${g.endpoint}?period=&month=${month}&endMonth=${month}&pageNum=1&pageSize=80`;
-   const j=await jsonFetch(url),content=j.content||{};let list=content[g.key];if(!Array.isArray(list))throw Error('官方回傳缺少 '+g.key);
-   const rows=list.map(x=>normalize(g,x)).filter(x=>valid(g,x));queries.set(key,{rows,ts:Date.now()});return rows;
- }
- async function requestBingo(day,force){const g=gameById('bingo'),key=`bingo:${day}`;const hit=queries.get(key);if(!force&&hit&&Date.now()-hit.ts<(day<taiwanDay()?12*60*60*1000:60000))return hit.rows;
-   const url=`https://api.taiwanlottery.com/TLCAPIWeB/Lottery/BingoResult?openDate=${day}&pageNum=1&pageSize=50`;
-   const j=await jsonFetch(url);const list=j.content?.bingoQueryResult;
-   if(!Array.isArray(list))throw Error('官方 BINGO 資料欄位異常');
-   const rows=list.map(x=>normalize(g,x)).filter(x=>valid(g,x));queries.set(key,{rows,ts:Date.now()});return rows;
- }
- async function official(g,day,force){let rows=[],error='';
-   if(g.kind==='bingo'){
-     for(let n=0;n<4&&rows.length<12;n++)try{rows.push(...await requestBingo(dayMinus(day,n),force&&n===0))}catch(e){error=String(e.message||e)}
-   }else{
-     const month=day.slice(0,7);for(let n=0;n<4&&dedupe(g,rows,day).length<12;n++)try{rows.push(...await requestMonth(g,monthShift(month,-n),force&&n===0))}catch(e){error=String(e.message||e)}
+  }else{
+   let month=end.slice(0,7);
+   for(let n=0;n<18&&dedupe(g,rows,end,start).length<PAGE_SIZE;n++){
+    const m=monthShift(month,-n);if(start&&m<start.slice(0,7))break;
+    try{rows.push(...await requestMonth(g,m,force&&n===0))}catch(e){error=String(e.message||e)}
    }
-   return {rows:dedupe(g,rows,day),error,source:'台彩官方 API'};
+  }
+  return {rows:dedupe(g,rows,end,start),error,source:'台彩官方 API'};
  }
- // Only show verified in-app draws as clearly labelled backup, never call them fresh official data.
- function offline(g,day){try{const raw=g.base==='539'?draws539:g.base==='lotto649'?draws:g.base==='power'?powerDraws:null;
-   if(!Array.isArray(raw))return [];return dedupe(g,raw.map(r=>({period:String(r.issue||''),date:String(r.date||'').slice(0,10),numbers:(r.nums||[]).map(Number),special:r.special??null})),day);
- }catch(e){return []}}
- async function load(g,day,force){const key=`view:${g.base}:${day}`;const hit=sources.get(key);if(!force&&hit&&Date.now()-hit.ts<ttl)return hit;
-   let data;try{data=await official(g,day,force)}catch(e){data={rows:[],error:String(e),source:'台彩官方 API'}}
-   if(!data.rows.length){const prior=sources.get(key);if(prior?.rows.length)data={...prior,source:prior.source+'（已保存）',error:data.error};
-     else{const backup=offline(g,day);if(backup.length)data={rows:backup,source:'App 歷史備份（未確認最新）',error:data.error};}}
-   data.ts=Date.now();if(data.rows.length)sources.set(key,data);return data;
+ function offline(g,end,start){try{const raw=g.base==='539'?draws539:g.base==='lotto649'?draws:g.base==='power'?powerDraws:null;
+  if(!Array.isArray(raw))return [];return dedupe(g,raw.map(r=>({period:String(r.issue||''),date:String(r.date||'').slice(0,10),numbers:(r.nums||[]).map(Number),special:r.special??null})),end,start);
+ }catch(_){return []}}
+ async function load(g,end,start,force=false){const key=`view:${g.base}:${end}:${start}`;const hit=views.get(key);if(!force&&hit&&Date.now()-hit.ts<TTL)return hit;
+  const data=await official(g,end,start,force);
+  if(!data.rows.length){if(hit?.rows.length){data.rows=hit.rows;data.source='已保存紀錄';}
+   else{const older=offline(g,end,start);if(older.length){data.rows=older;data.source='已保存紀錄';}}
+  }
+  data.ts=Date.now();if(data.rows.length)views.set(key,data);return data;
  }
  const colorClass=g=>g.kind==='five'?'five':g.kind==='six'?'six':g.kind==='power'?'power':g.kind==='digits'?'digit':'bingo';
  const logoMap=Object.fromEntries(games.map(g=>[g.id,document.querySelector('#gameRail .game-btn[data-game="'+g.id+'"] img.game-logo')?.getAttribute('src')||'']));
- function gameHeading(g){const src=logoMap[g.id];return src?`<img class="bl-draw-logo" alt="${safe(g.name)}" src="${src}" loading="lazy" decoding="async">`:`<span class="bl-draw-logo-text">${safe(g.name)}</span>`;}
+ function logo(g){const src=logoMap[g.id];return src?`<img class="bl-draw-logo" alt="${safe(g.name)}" src="${src}" loading="lazy" decoding="async">`:`<span class="bl-draw-logo-text">${safe(g.name)}</span>`}
  function drawBalls(g,r){if(!r)return '';
-   let primary=r.numbers.map(n=>`<span class="bk-ball" aria-label="號碼 ${n}">${g.kind==='digits'?n:pad(n)}</span>`).join('');
-   const special=g.id!=='49combo'&&r.special!==null&&Number.isInteger(r.special)&&r.special>=1&&r.special<=(g.kind==='bingo'?80:g.kind==='power'?8:49);
-   return `<div class="bk-ball-row">${primary}${special?`<span class="bl-ball-separator" aria-hidden="true"></span><span class="bl-special-wrap"><small class="bl-special-caption">${g.kind==='power'?'第二區':g.kind==='six'?'特別號':'超級獎號'}</small><span class="bk-ball bk-special" title="${g.kind==='power'?'第二區':g.kind==='six'?'特別號':'超級獎號'}" aria-label="${g.kind==='power'?'第二區':g.kind==='six'?'特別號':'超級獎號'} ${pad(r.special)}">${pad(r.special)}</span></span>`:''}</div>`;
+  const primary=r.numbers.map(n=>`<span class="bk-ball" aria-label="號碼 ${n}">${g.kind==='digits'?n:pad(n)}</span>`).join('');
+  const special=g.id!=='49combo'&&r.special!==null&&Number.isInteger(r.special)&&r.special>=1&&r.special<=(g.kind==='bingo'?80:g.kind==='power'?8:49);
+  const specialType=g.kind==='power'?'第二區':g.kind==='six'?'特別號':'超級獎號';
+  return `<div class="bk-ball-row">${primary}${special?`<span class="bl-ball-separator" aria-hidden="true"></span><span class="bl-special-wrap"><span class="bk-ball bk-special" title="${specialType}" aria-label="${specialType} ${pad(r.special)}">${pad(r.special)}</span></span>`:''}</div>`;
  }
- function card(g,r,history,source){const tag=history?'article':'button';const attrib=history?'':`type="button" data-bg-game="${g.id}" aria-label="查看${g.name}最近12期"`;
-   return `<${tag} ${attrib} class="bg-draw-card bk-${colorClass(g)}" data-draw-game="${g.id}"><div class="bk-card-line"><h3>${gameHeading(g)}</h3><span class="bk-source">${source.startsWith('台彩')?'官方':'備份'}</span></div>${r?`<div class="meta">${safe(r.period)}期　${safe(r.date)}</div>${drawBalls(g,r)}`:'<div class="no-data">目前無法確認獎號；請稍後再試</div>'}<div class="source">${safe(source)}</div></${tag}>`;
+ function card(g,r,history){const tag=history?'article':'button';const attrib=history?'':`type="button" data-bg-game="${g.id}" aria-label="查看${g.name}最近24期"`;
+  return `<${tag} ${attrib} class="bg-draw-card bk-${colorClass(g)}" data-draw-game="${g.id}">${history?'':`<div class="bk-card-line"><h3>${logo(g)}</h3></div>`}${r?`<div class="meta">${safe(r.period)}期　${safe(r.date.replaceAll('-','/'))}</div>${drawBalls(g,r)}`:'<div class="no-data">目前無法確認獎號，請稍後重試</div>'}</${tag}>`;
  }
- async function render(force=false){const token=++renderToken;const day=selectedDate||taiwanDay();dateInput.max=taiwanDay();dateForm.hidden=page===null;
-   container.innerHTML='<div class="bk-loading">正在讀取獎號…</div>';notice.textContent='正在核對台彩開獎資料…';
-   if(page===null){title.textContent='奧爾樂透獎號';container.className='bg-draw-cards';const all=await Promise.all(games.map(g=>load(g,day,force)));if(token!==renderToken)return;
-     container.innerHTML=games.map((g,i)=>card(g,all[i].rows[0],false,all[i].source)).join('');notice.textContent='點選彩種查看最近12期；不同彩種會分別標示官方與備份來源。';
-   }else{const g=gameById(page);if(!g){page=null;return render(force)}title.textContent=g.name+'｜'+(selectedDate?'指定日期以前':'最近')+'12期';container.className='bg-draw-cards history';
-     const data=await load(g,day,force);if(token!==renderToken)return;
-     container.innerHTML=data.rows.length?data.rows.map(r=>card(g,r,true,data.source)).join(''):card(g,null,true,data.source);
-     notice.textContent=`${data.source}｜顯示${data.rows.length}期${data.error?'｜更新訊息：'+data.error:''}`;
-   }
+ // Keep the logo and date-range controls together and stationary when scrolling the 24-draw history.
+ const toolbar=document.createElement('div');toolbar.id='bpHistoryToolbar';toolbar.className='bp-history-toolbar';toolbar.hidden=true;
+ const top=document.createElement('div');top.className='bp-history-top';top.innerHTML='<div id="bpHistoryLogo"></div><div class="bp-next-draw" id="bpNextDraw"></div>';
+ toolbar.appendChild(top);toolbar.appendChild(dateForm);overlay.querySelector('.bg-draw-sheet').insertBefore(toolbar,notice);
+ function nextDraw(g){const p=taiwanParts(),date=`${p.year}-${p.month}-${p.day}`;
+  const day=new Date(date+'T12:00:00+08:00'),dow=day.getUTCDay(),hour=Number(p.hour);
+  if(g.kind==='bingo'){const now=new Date();const mm=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',minute:'2-digit'}).format(now);return (hour===23&&Number(mm)>=55?dayMinus(date,-1):date).slice(5).replace('-','/');}
+  const weekdays=g.id==='lotto649'||g.id==='49combo'?[2,5]:g.id==='power'?[1,4]:g.kind==='bingo'?[0,1,2,3,4,5,6]:[1,2,3,4,5,6];
+  let shift=0;while(shift<8){const w=(dow+shift)%7;if(weekdays.includes(w)&&(shift>0||hour<21))break;shift++;}
+  const target=dayMinus(date,-shift);return target.slice(5).replace('-','/');
  }
- function open(){page=null;selectedDate='';dateInput.value='';overlay.hidden=false;document.body.style.overflow='hidden';render(true)}
- function close(){renderToken++;overlay.hidden=true;document.body.style.overflow='';page=null;selectedDate=''}
- document.getElementById('bgDrawLookup')?.addEventListener('click',open);
+ function displayToolbar(g){toolbar.hidden=page===null;dateForm.hidden=page===null;
+  if(g){document.getElementById('bpHistoryLogo').innerHTML=logo(g);
+   const next=document.getElementById('bpNextDraw');next.textContent=`預計下次開獎（${nextDraw(g)}）`;
+   next.title='依一般開獎日推算；特殊開獎日程以台彩公告為準';
+  }
+ }
+ function dateRangeValid(from,to){return /^\d{4}-\d{2}-\d{2}$/.test(from)&&/^\d{4}-\d{2}-\d{2}$/.test(to)&&from<=to&&to<=taiwanDay()}
+ async function render(force=false){const token=++renderToken,end=selectedDate||taiwanDay();dateInput.max=taiwanDay();startInput.max=taiwanDay();
+  displayToolbar(page!==null?byId(page):null);
+  container.innerHTML='<div class="bk-loading">正在讀取獎號…</div>';notice.textContent='';notice.dataset.error='false';
+  if(page===null){title.textContent='奧爾樂透獎號';container.className='bg-draw-cards';
+   const all=await Promise.all(games.map(g=>load(g,end,'',force).catch(e=>({rows:[],error:String(e),source:''}))));if(token!==renderToken)return;
+   container.innerHTML=games.map((g,i)=>card(g,all[i].rows[0],false)).join('');
+  }else{const g=byId(page);if(!g){page=null;return render(force)}title.textContent=g.name+'｜歷史獎號';container.className='bg-draw-cards history';
+   let data;try{data=await load(g,end,selectedStart,force)}catch(e){data={rows:[],error:String(e)}}if(token!==renderToken)return;
+   container.innerHTML=data.rows.length?data.rows.map(r=>card(g,r,true)).join(''):card(g,null,true);
+   if(!selectedStart&&data.rows.length){startInput.value=data.rows[data.rows.length-1].date||'';dateInput.value=data.rows[0].date||end;}
+   if(data.error&&data.rows.length===0){notice.textContent='獎號暫時無法更新，請稍後重試。';notice.dataset.error='true';}
+   if(data.error&&data.rows.length){notice.textContent='部分資料更新失敗，已顯示現有紀錄。';notice.dataset.error='true';}
+  }
+ }
+ function open(){page=null;selectedDate='';selectedStart='';startInput.value='';dateInput.value='';overlay.hidden=false;document.body.style.overflow='hidden';render(true)}
+ function close(){renderToken++;overlay.hidden=true;document.body.style.overflow='';page=null;selectedDate='';selectedStart=''}
+ document.getElementById('bgDrawLookup')?.addEventListener('click',()=>{
+  if(window.matchMedia('(min-width:601px)').matches){window.open(desktopLookupUrl,'_blank','noopener,noreferrer');return;}
+  open();
+ });
  document.getElementById('bgDrawClose')?.addEventListener('click',close);
- document.getElementById('bgDrawBack')?.addEventListener('click',()=>{if(page!==null){page=null;selectedDate='';dateInput.value='';render()}else close()});
- document.getElementById('bkLatest12')?.addEventListener('click',()=>{selectedDate='';dateInput.value='';render(true)});
- dateForm?.addEventListener('submit',ev=>{ev.preventDefault();const d=dateInput.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return;
-   if(d>taiwanDay()){notice.textContent='不能查詢未來日期';return}selectedDate=d;render(true)});
- container.addEventListener('click',ev=>{const b=ev.target.closest('[data-bg-game]');if(b){page=b.dataset.bgGame;selectedDate='';dateInput.value='';render()}});
+ document.getElementById('bgDrawBack')?.addEventListener('click',()=>{if(page!==null){page=null;selectedDate='';selectedStart='';startInput.value='';dateInput.value='';render()}else close()});
+ document.getElementById('bkLatest12')?.addEventListener('click',()=>{selectedDate='';selectedStart='';startInput.value='';dateInput.value='';render(true)});
+ dateForm.addEventListener('submit',ev=>{ev.preventDefault();const from=startInput.value,to=dateInput.value;
+  if(!dateRangeValid(from,to)){notice.textContent='請確認日期範圍：起日不得晚於迄日，且不可查詢未來日期。';notice.dataset.error='true';return;}
+  selectedStart=from;selectedDate=to;render(true);
+ });
+ container.addEventListener('click',ev=>{const b=ev.target.closest('[data-bg-game]');if(!b)return;page=b.dataset.bgGame;
+  selectedDate='';selectedStart='';startInput.value='';dateInput.value='';render();
+ });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close()});
- setInterval(()=>{if(!overlay.hidden&&(page===null||page==='bingo')&&!selectedDate)render(true)},5*60*1000);
+ setInterval(()=>{if(!overlay.hidden&&!selectedDate)render(true)},5*60*1000);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!overlay.hidden&&!selectedDate)render(true)});
- window.AoerDrawBoard={open,refresh:()=>render(true),models:games.map(g=>g.id)};
+ window.AoerDrawBoard={open,refresh:()=>render(true),models:games.map(g=>g.id),normalizePowerSample:row=>normalize(byId('power'),row)};
 })();
 </script><style id="v14bj-hide-legacy">#bbSmart4Btn,#bfDesktopSmartEntry,#bbSmart4Panel{display:none!important}</style><script id="v14bl-appearance-settings">(function(){'use strict';
  const root=document.documentElement,KEY_THEME='aoer-ui-theme-v1',KEY_FONT='aoer-ui-font-v1',isDesktop=window.matchMedia('(min-width:601px)');
