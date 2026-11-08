@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號 V14-BQ｜BINGO深灰與選號介面修正版</title>
+<title>奧爾樂透選號｜V14-BT 跨平台日曆同步</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -1623,6 +1623,90 @@ html[data-ui-theme="charcoal"] :is(#star3Controls,#star4Controls) .star3-note{co
  #bkDateForm #bkLatest12{flex-basis:22px!important;min-width:22px!important;width:22px!important}
 }
 
+</style>
+
+<!-- 開發版共用雲端日曆：部署 our-lotto-sync 後自動讀取，未部署時沿用內建已核對日曆。 -->
+<script id="v14bs-official-calendar-and-promotions">
+(function(){'use strict';
+// Built-in historical announcements are archival examples. Future announcements
+// must be delivered by a verified, same-origin aoer-schedule.json feed.
+const TODAY_ZONE='Asia/Taipei';
+const BASE_WEEKDAYS={lotto649:[2,5],'49combo':[2,5],power:[1,4],'539':[1,2,3,4,5,6],'39combo':[1,2,3,4,5,6],'3star':[1,2,3,4,5,6],'4star':[1,2,3,4,5,6],bingo:[0,1,2,3,4,5,6]};
+const LOCAL_ADDITIONS={lotto649:["2026-02-12", "2026-02-14", "2026-02-15", "2026-02-16", "2026-02-18", "2026-02-19", "2026-02-21", "2026-02-22", "2026-02-23", "2026-02-25", "2026-02-26", "2026-02-28", "2026-03-01", "2026-03-02"],'49combo':["2026-02-12", "2026-02-14", "2026-02-15", "2026-02-16", "2026-02-18", "2026-02-19", "2026-02-21", "2026-02-22", "2026-02-23", "2026-02-25", "2026-02-26", "2026-02-28", "2026-03-01", "2026-03-02"],'539':["2026-02-15", "2026-02-22", "2026-03-01"],'39combo':["2026-02-15", "2026-02-22", "2026-03-01"],'3star':["2026-02-15", "2026-02-22", "2026-03-01"],'4star':["2026-02-15", "2026-02-22", "2026-03-01"]};
+const BUILTIN_PROMOTIONS=[{"description":"每期獨立加開8碼；請以台彩當期正式結果為準。","draws":[{"date":"2026-09-15","numbers":[5,8,13,15,16,22,28,34],"period":"115000088"},{"date":"2026-09-18","numbers":[9,13,17,20,29,32,40,44],"period":"115000089"},{"date":"2026-09-22","numbers":[3,15,26,27,31,34,39,46],"period":"115000090"},{"date":"2026-09-25","numbers":[1,10,11,25,37,41,42,49],"period":"115000091"},{"date":"2026-09-29","numbers":[10,17,34,40,41,42,44,47],"period":"115000092"},{"date":"2026-10-02","numbers":[1,10,19,27,31,43,44,47],"period":"115000093"},{"date":"2026-10-06","numbers":[1,11,19,34,36,38,42,48],"period":"115000094"},{"date":"2026-10-09","numbers":[9,13,18,28,29,31,38,42],"period":"115000095"},{"date":"2026-10-13","numbers":[10,19,24,34,40,42,45,46],"period":"115000096"},{"date":"2026-10-16","numbers":[18,20,22,23,31,43,44,47],"period":"115000097"},{"date":"2026-10-20","numbers":[3,6,16,17,19,24,36,37],"period":"115000098"},{"date":"2026-10-23","numbers":[15,16,24,29,35,38,44,45],"period":"115000099"}],"end":"2026-10-23","hideAfter":"2027-01-23","id":"2026-midautumn-lotto649","lastDrawDate":"2026-10-23","numbersSource":"https://news.tvbs.com.tw/life/4019703","officialRules":"https://lotto.ctbcbank.com/news1150908.htm","start":"2026-09-15","title":"115年大樂透中秋加碼","verification":"media-reported"}];
+const FEED_PATH=window.AOER_SYNC_FEED_URL||'https://meji0196.github.io/our-lotto-sync/aoer-schedule.json';
+const CACHE_KEY='aoer-schedule-feed-v1';
+const ONE_DAY=86400000,MAX_AGE=6*60*60*1000;
+const goodIso=s=>{if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;const d=new Date(s+'T00:00:00Z');return !isNaN(d)&&d.toISOString().slice(0,10)===s;};
+const today=()=>{const p=new Intl.DateTimeFormat('en-CA',{timeZone:TODAY_ZONE,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());let x=Object.fromEntries(p.map(v=>[v.type,v.value]));return `${x.year}-${x.month}-${x.day}`;};
+const plusDay=(iso,n)=>new Date(Date.parse(iso+'T00:00:00Z')+n*ONE_DAY).toISOString().slice(0,10);
+const archiveBuiltIn={schemaVersion:1,issuedAt:'2026-11-08T00:00:00+08:00',games:Object.fromEntries(Object.entries(LOCAL_ADDITIONS).map(([game,addDates])=>[game,{addedDates:addDates,cancelledDates:[],weekdays:BASE_WEEKDAYS[game]}])),promotions:BUILTIN_PROMOTIONS};
+let remote=null,lastChecked=0,inflight=null,source='內建官方歷史日程',lastError='';
+const uniqueDateArray=(a,max=400)=>Array.isArray(a)&&a.length<=max&&a.every(goodIso)&&new Set(a).size===a.length;
+const validNumbers=a=>Array.isArray(a)&&a.length===8&&a.every(n=>Number.isInteger(n)&&n>=1&&n<=49)&&new Set(a).size===8;
+function validate(raw){
+ if(!raw||typeof raw!=='object'||raw.schemaVersion!==1||typeof raw.issuedAt!=='string'||!Number.isFinite(Date.parse(raw.issuedAt)))throw Error('日曆資料版本或公告時間不正確');
+ if(!raw.games||typeof raw.games!=='object'||Array.isArray(raw.games))throw Error('缺少彩種開獎日程');
+ const games={};
+ for(const [game,info] of Object.entries(raw.games)){
+  if(!Object.hasOwn(BASE_WEEKDAYS,game))throw Error('不支援彩種：'+game);
+  if(!info||typeof info!=='object'||!uniqueDateArray(info.addedDates||[])||!uniqueDateArray(info.cancelledDates||[]))throw Error('日期內容格式錯誤');
+  if(info.weekdays!==undefined&&(!Array.isArray(info.weekdays)||info.weekdays.length>7||info.weekdays.some(n=>!Number.isInteger(n)||n<0||n>6)))throw Error('星期日程格式錯誤');
+  games[game]={addedDates:info.addedDates||[],cancelledDates:info.cancelledDates||[],weekdays:info.weekdays||null};
+ }
+ const promotions=[];
+ if(raw.promotions!==undefined){
+  if(!Array.isArray(raw.promotions)||raw.promotions.length>30)throw Error('加碼活動數量錯誤');
+  for(const x of raw.promotions){
+   if(!x||!/^[-\w]{1,90}$/.test(x.id||'')||typeof x.title!=='string'||x.title.length>80||!goodIso(x.start)||!goodIso(x.end)||!goodIso(x.lastDrawDate)||!goodIso(x.hideAfter)||x.start>x.end||x.hideAfter<x.end)throw Error('活動主檔不正確');
+   if(!Array.isArray(x.draws)||x.draws.length>100)throw Error('活動期數錯誤');
+   const seen=new Set();for(const d of x.draws){if(!/^\d{9}$/.test(String(d.period))||!goodIso(d.date)||!validNumbers(d.numbers)||seen.has(d.period))throw Error('促銷獎號驗證失敗');seen.add(d.period)}
+   promotions.push({id:x.id,title:x.title,start:x.start,end:x.end,hideAfter:x.hideAfter,lastDrawDate:x.lastDrawDate,officialRules:typeof x.officialRules==='string'?x.officialRules:'',numbersSource:typeof x.numbersSource==='string'?x.numbersSource:'',verification:typeof x.verification==='string'?x.verification:'',description:typeof x.description==='string'?x.description:'',draws:x.draws.map(d=>({period:String(d.period),date:d.date,numbers:[...d.numbers]}))});
+  }
+ }
+ return {schemaVersion:1,issuedAt:new Date(raw.issuedAt).toISOString(),games,promotions};
+}
+function readCache(){try{const j=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');if(j){remote=validate(j);source='已保存的公告日曆';}}catch(e){/* Ignore invalid cache. */}}
+function activeGame(game){const b=archiveBuiltIn.games[game]||{},r=remote?.games?.[game]||{};return {weekdays:r.weekdays||b.weekdays||BASE_WEEKDAYS[game]||[2,5],addedDates:new Set([...(b.addedDates||[]),...(r.addedDates||[])]),cancelledDates:new Set([...(b.cancelledDates||[]),...(r.cancelledDates||[])])};}
+function isDrawDate(game,iso){if(!goodIso(iso))return false;const g=activeGame(game);if(g.cancelledDates.has(iso))return false;if(g.addedDates.has(iso))return true;return g.weekdays.includes(new Date(iso+'T00:00:00Z').getUTCDay());}
+function nextDates(game,afterIso,count){if(!Object.hasOwn(BASE_WEEKDAYS,game)||!goodIso(afterIso)||!Number.isInteger(count)||count<1||count>100)throw Error('開獎日曆參數錯誤');const out=[];for(let n=0;n<500&&out.length<count;n++){const day=plusDay(afterIso,n);if(isDrawDate(game,day))out.push(day)}return out;}
+function promotions(){const result=new Map(BUILTIN_PROMOTIONS.map(p=>[p.id,p]));for(const p of remote?.promotions||[])result.set(p.id,p);return [...result.values()];}
+function promoByPeriod(period){const per=String(period);for(const p of promotions()){const draw=p.draws.find(d=>d.period===per);if(draw)return {...p,draw};}return null;}
+function currentPromos(){return promotions().filter(p=>p.start<=today()&&today()<=p.hideAfter);}
+function status(){return {source,lastChecked,lastError,hasRemote:!!remote,feedPath:FEED_PATH};}
+function changed(){try{window.dispatchEvent(new CustomEvent('aoer:draw-calendar-updated',{detail:status()}))}catch(e){}}
+async function refresh(force=false){if(location.protocol==='file:'&&!/^https:\/\//.test(FEED_PATH))return {ok:false,reason:'本機離線檔使用內建日程'};
+ if(inflight)return inflight;if(!force&&Date.now()-lastChecked<(lastError?5*60*1000:MAX_AGE))return {ok:!!remote,reason:lastError};
+ inflight=(async()=>{lastChecked=Date.now();try{const c=new AbortController(),tid=setTimeout(()=>c.abort(),10000);let res;try{res=await fetch(FEED_PATH,{cache:'no-store',signal:c.signal,credentials:'same-origin',headers:{Accept:'application/json'}})}finally{clearTimeout(tid)}
+ if(!res.ok)throw Error('未發布公告日曆檔（HTTP '+res.status+'）');
+ const raw=await res.text();if(raw.length>130000)throw Error('資料超出容量限制');
+ const cfg=validate(JSON.parse(raw));if(remote&&Date.parse(cfg.issuedAt)<Date.parse(remote.issuedAt))throw Error('收到較舊的公告檔');
+ remote=cfg;source='跨平台共用公告日曆';lastError='';try{localStorage.setItem(CACHE_KEY,JSON.stringify(remote))}catch(e){}changed();return {ok:true};
+ }catch(e){lastError=String(e.message||e);return {ok:false,reason:lastError}}finally{inflight=null}})();return inflight;
+}
+readCache();
+window.AoerDrawCalendar=Object.freeze({today,isDrawDate,nextDates,promotions,currentPromos,promoByPeriod,status,refresh,validate});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>refresh(),{once:true});else refresh();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
+setInterval(()=>{if(!document.hidden)refresh()},6*60*60*1000);
+})();
+</script>
+<style id="v14bs-promotion-ui">
+.bs-bonus-zone{margin-top:10px;padding:11px 10px;border-radius:12px;background:rgba(240,180,60,.10);border:1px solid rgba(196,142,34,.28)}
+.bs-bonus-title{font-size:13px;font-weight:850;color:#7d4d1c;margin-bottom:9px}
+.bs-bonus-zone .bk-ball-row{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+.bs-bonus-zone .bs-bonus-ball{background:#f5bb69!important;color:#533417!important;border:1px solid #c58c37!important}
+.bs-bonus-caveat{margin-top:8px;font-size:11px;line-height:1.6;color:#745a3f}
+.bs-bonus-caveat a{color:inherit;text-decoration:underline}
+.bs-bonus-banner{margin:4px 0 12px;padding:15px 14px;text-align:left;display:flex;flex-direction:column;gap:5px;width:100%;border-radius:13px;border:1px solid #e7be74;background:#fff5de;color:#5e421c;font-size:13px;cursor:pointer}
+.bs-bonus-banner strong{font-size:15px}
+.bs-preorder-note{font-size:11px;font-weight:700;color:#9b4f39;line-height:1.45}
+html[data-ui-theme="charcoal"] .bs-bonus-zone{background:#50616b;border-color:#bfa077}
+html[data-ui-theme="charcoal"] .bs-bonus-title{color:#ffe0a5}
+html[data-ui-theme="charcoal"] .bs-bonus-caveat{color:#e5ded6}
+html[data-ui-theme="charcoal"] .bs-bonus-banner{background:#52636c;color:#fff0c8;border-color:#bda77f}
+html[data-ui-theme="charcoal"] .bs-preorder-note{color:#ffc6b6}
+@media(max-width:600px){.bs-bonus-zone{padding:9px 7px}.bs-bonus-zone .bk-ball-row{gap:5px}}
 </style>
 </head>
 <body>
@@ -5069,10 +5153,10 @@ function switchGame(id){
 }
 let purchaseMode='consecutive',preorderDate='';
 function fmtDateTW(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'),wd=['日','一','二','三','四','五','六'][d.getDay()];return `${y}/${m}/${day}（週${wd}）`}
-function buildPreorderDates(count=gameCfg().preorderCount||10){const out=[],d=new Date(),days=new Set(gameCfg().drawDays||[2,5]);d.setHours(12,0,0,0);d.setDate(d.getDate()+1);for(let guard=0;guard<120&&out.length<count;guard++){if(days.has(d.getDay()))out.push(new Date(d));d.setDate(d.getDate()+1)}return out}
+function buildPreorderDates(count=gameCfg().preorderCount||10){const cal=window.AoerDrawCalendar; if(cal){try{const start=cal.today();const tomorrow=new Date(Date.parse(start+'T00:00:00Z')+86400000).toISOString().slice(0,10);return cal.nextDates(currentGame,tomorrow,count).map(iso=>new Date(iso+'T12:00:00'));}catch(e){console.warn('公告日曆計算失敗，使用正常週期',e)}}const out=[],d=new Date(),days=new Set(gameCfg().drawDays||[2,5]);d.setHours(12,0,0,0);d.setDate(d.getDate()+1);for(let guard=0;guard<120&&out.length<count;guard++){if(days.has(d.getDay()))out.push(new Date(d));d.setDate(d.getDate()+1)}return out}
 function isoLocalDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function preorderOffsetForDate(v){const count=gameCfg().preorderCount||10,dates=buildPreorderDates(count),idx=dates.findIndex(d=>isoLocalDate(d)===v);if(idx<0)throw new Error(`指定預購日期不在目前可選的${count}個開獎日內。`);return idx}
-function renderPurchaseMode(){const sel=document.getElementById('preorderDate');if(!sel)return;if(currentGame==='bingo'){preorderDate='';purchaseMode='consecutive';sel.innerHTML='<option value="">—</option>';sel.value='';sel.disabled=true;renderMachineTotal();return}sel.disabled=false;const dates=buildPreorderDates(gameCfg().preorderCount||10);sel.innerHTML='<option value="">不指定預購日期</option>'+dates.map(d=>{const v=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;return `<option value="${v}">${fmtDateTW(d)}</option>`}).join('');if(preorderDate&&!dates.some(d=>isoLocalDate(d)===preorderDate))preorderDate='';sel.value=preorderDate||'';purchaseMode=preorderDate?'preorder':'consecutive';renderMachineTotal()}
+function renderPurchaseMode(){const sel=document.getElementById('preorderDate');if(!sel)return;if(currentGame==='bingo'){preorderDate='';purchaseMode='consecutive';sel.innerHTML='<option value="">—</option>';sel.value='';sel.disabled=true;renderMachineTotal();return}sel.disabled=false;const dates=buildPreorderDates(gameCfg().preorderCount||10);sel.innerHTML='<option value="">不指定預購日期</option>'+dates.map(d=>{const v=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;return `<option value="${v}">${fmtDateTW(d)}</option>`}).join('');const wasInvalid=!!preorderDate&&!dates.some(d=>isoLocalDate(d)===preorderDate);if(wasInvalid){preorderDate='';const warning=document.getElementById('bsPreorderNotice');if(warning)warning.textContent='已公告的開獎日程有變動，原指定日期不再可選，請重新確認。';}sel.value=preorderDate||'';purchaseMode=preorderDate?'preorder':'consecutive';renderMachineTotal()}
 let manualPicked=new Set(),powerSecondPicked=new Set(),periods=1,currentBetIndex=0;
 const combo39PlaySelections=Array(10).fill(2),combo39MultiplierSelections=Array(10).fill(1);
 const combo39MultiPlaySelections=Array.from({length:10},()=>new Set([2]));
@@ -9034,7 +9118,7 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  ];
  const byId=id=>games.find(g=>g.id===id);
  const responses=new Map(),inflight=new Map(),views=new Map();
- let page=null,selectedDate='',selectedStart='',renderToken=0;
+ let page=null,selectedDate='',selectedStart='',renderToken=0,drawOrder='ascending';
  const pad=n=>String(n).padStart(2,'0');
  function roc(iso){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));return m?`${Number(m[1])-1911}/${m[2]}/${m[3]}`:'';}
  function isoFromROC(str){const m=/^\s*(\d{2,4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*$/.exec(String(str||''));if(!m)return '';const year=Number(m[1])+(Number(m[1])<1912?1911:0),mo=Number(m[2]),day=Number(m[3]);if(year<1912||year>2200||mo<1||mo>12||day<1||day>31)return '';const iso=`${year}-${pad(mo)}-${pad(day)}`;const d=new Date(Date.UTC(year,mo-1,day));return d.toISOString().slice(0,10)===iso?iso:'';}
@@ -9058,6 +9142,7 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  function normalize(g,r){
   let raw=first(r,g.kind==='bingo'?['openShowOrder','bigShowOrder','drawNumberAppear']:['drawNumberAppear','drawNumber','winningNumbers','lotteryNo','numbers']);
   let numbers=numList(raw,g.kind);
+  const fallOrderOriginal=numList(first(r,g.kind==='bingo'?['openShowOrder','drawNumberAppear','bigShowOrder']:['drawNumberAppear','drawNumber','winningNumbers','lotteryNo','numbers']),g.kind);
   let special=first(r,g.kind==='power'?['specialNumber','specialNum','secondAreaNumber','secondNumber','secondDrawNumber']:g.kind==='six'?['specialNumber','specialNum']:g.kind==='bingo'?['bullEyeTop','superNumber']:[]);
   // Official 6/38 and 6/49 drawNumberAppear carries six main balls followed by the second-zone/special ball.
   // V14-BQ rejected all seven-number Power draws as invalid six-number entries.
@@ -9074,7 +9159,8 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
    raw=first(r,['drawNumberAppear','drawNumber','drawNumberSize','number','winningNumbers','lotteryNo']);numbers=numList(raw,'digits');
   }
   const date=String(first(r,['lotteryDate','openDate','drawDate','date'])||'').slice(0,10);
-  return {period:String(first(r,['period','drawTerm','drawNo','issue'])||''),date,numbers,special:special===null?null:Number(special)};
+  const fallOrder=(g.kind==='digits'?numbers:fallOrderOriginal).slice(0,numbers.length);
+  return {period:String(first(r,['period','drawTerm','drawNo','issue'])||''),date,numbers,fallOrder:fallOrder.length===numbers.length?fallOrder:numbers.slice(),special:special===null?null:Number(special)};
  }
  function valid(g,r){const a=r.numbers,n=g.kind==='digits'?Number(g.id[0]):g.kind==='bingo'?20:g.kind==='five'?5:6;
   if(a.length!==n||!a.every(Number.isInteger))return false;
@@ -9141,19 +9227,36 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  const logoMap=Object.fromEntries(games.map(g=>[g.id,document.querySelector('#gameRail .game-btn[data-game="'+g.id+'"] img.game-logo')?.getAttribute('src')||'']));
  function logo(g){const src=logoMap[g.id];return src?`<img class="bl-draw-logo" alt="${safe(g.name)}" src="${src}" loading="lazy" decoding="async">`:`<span class="bl-draw-logo-text">${safe(g.name)}</span>`}
  function drawBalls(g,r){if(!r)return '';
-  const primary=r.numbers.map(n=>`<span class="bk-ball" aria-label="號碼 ${n}">${g.kind==='digits'?n:pad(n)}</span>`).join('');
-  const special=g.id!=='49combo'&&r.special!==null&&Number.isInteger(r.special)&&r.special>=1&&r.special<=(g.kind==='bingo'?80:g.kind==='power'?8:49);
-  const specialType=g.kind==='power'?'第二區':g.kind==='six'?'特別號':'超級獎號';
-  return `<div class="bk-ball-row">${primary}${special?`<span class="bl-ball-separator" aria-hidden="true"></span><span class="bl-special-wrap"><span class="bk-ball bk-special" title="${specialType}" aria-label="${specialType} ${pad(r.special)}">${pad(r.special)}</span></span>`:''}</div>`;
+  // 3/4-star: digits encode place values and must never be sorted.
+  const original=(drawOrder==='fall' && Array.isArray(r.fallOrder) && r.fallOrder.length===r.numbers.length)?r.fallOrder:r.numbers;
+  const display=g.kind==='digits'?r.numbers:drawOrder==='fall'?original:r.numbers.slice().sort((a,b)=>a-b);
+  const bingoSpecial=g.kind==='bingo'&&Number.isInteger(r.special)&&r.numbers.includes(r.special)?r.special:null;
+  const primary=display.map(n=>{const isBull=bingoSpecial===n;
+   return `<span class="bk-ball${isBull?' bk-special br-bingo-bull':''}" aria-label="${isBull?'超級獎號 ':'號碼 '}${n}"${isBull?' title="超級獎號"':''}>${g.kind==='digits'?n:pad(n)}</span>`;
+  }).join('');
+  // BINGO's super ball is one of the twenty regular balls, not a twenty-first ball.
+  const extra=g.kind!=='bingo'&&g.id!=='49combo'&&r.special!==null&&Number.isInteger(r.special)&&r.special>=1&&r.special<=(g.kind==='power'?8:49);
+  const specialType=g.kind==='power'?'第二區':'特別號';
+  return `<div class="bk-ball-row">${primary}${extra?`<span class="bl-ball-separator" aria-hidden="true"></span><span class="bl-special-wrap"><span class="bk-ball bk-special" title="${specialType}" aria-label="${specialType} ${pad(r.special)}">${pad(r.special)}</span></span>`:''}</div>`;
+ }
+ function bonusBalls(g,r){if(!r||g.id!=='lotto649')return '';const p=window.AoerDrawCalendar?.promoByPeriod?.(r.period);if(!p)return '';
+  const vals=p.draw.numbers.map(n=>`<span class="bk-ball bs-bonus-ball">${String(n).padStart(2,'0')}</span>`).join('');
+  return `<div class="bs-bonus-zone"><div class="bs-bonus-title">${safe(p.title)} · 加碼獎號（8碼）</div><div class="bk-ball-row">${vals}</div><div class="bs-bonus-caveat">依媒體整理資訊，請以台彩正式開獎結果為準。<a href="${safe(p.numbersSource)}" target="_blank" rel="noopener noreferrer">獎號來源</a> · <a href="${safe(p.officialRules)}" target="_blank" rel="noopener noreferrer">活動辦法</a></div></div>`;
+ }
+ function bonusBanner(){const events=window.AoerDrawCalendar?.currentPromos?.()||[];const p=events.find(x=>x.id==='2026-midautumn-lotto649'||x.draws?.length);if(!p)return '';
+  return `<button type="button" class="bs-bonus-banner" data-bs-promo="${safe(p.id)}"><strong>${safe(p.title)}</strong><span>加碼獎號保留查詢至 ${safe(roc(p.hideAfter))}　｜　查看活動各期</span></button>`;
  }
  function card(g,r,history){const tag=history?'article':'button';const attrib=history?'':`type="button" data-bg-game="${g.id}" aria-label="查看${g.name}最近24期"`;
-  return `<${tag} ${attrib} class="bg-draw-card bk-${colorClass(g)}" data-draw-game="${g.id}">${history?'':`<div class="bk-card-line"><h3>${logo(g)}</h3></div>`}${r?`<div class="meta">${safe(r.period)}期　${safe(roc(r.date))}</div>${drawBalls(g,r)}`:'<div class="no-data">目前無法確認獎號，請稍後重試</div>'}</${tag}>`;
+  return `<${tag} ${attrib} class="bg-draw-card bk-${colorClass(g)}" data-draw-game="${g.id}">${history?'':`<div class="bk-card-line"><h3>${logo(g)}</h3></div>`}${r?`<div class="meta">${safe(r.period)}期　${safe(roc(r.date))}</div>${drawBalls(g,r)}${bonusBalls(g,r)}`:'<div class="no-data">目前無法確認獎號，請稍後重試</div>'}</${tag}>`;
  }
  // Keep the logo and date-range controls together and stationary when scrolling the 24-draw history.
+ const orderToggle=document.createElement('button');orderToggle.type='button';orderToggle.id='brDrawOrder';orderToggle.setAttribute('aria-label','依落球順序顯示');orderToggle.setAttribute('aria-pressed','false');orderToggle.innerHTML='<span>依落球順序顯示</span><i aria-hidden="true"></i>';
+ overlay.querySelector('.bg-draw-header').insertBefore(orderToggle,document.getElementById('bgDrawClose'));
+ orderToggle.addEventListener('click',()=>{drawOrder=drawOrder==='ascending'?'fall':'ascending';orderToggle.setAttribute('aria-pressed',String(drawOrder==='fall'));render(false);});
  const toolbar=document.createElement('div');toolbar.id='bpHistoryToolbar';toolbar.className='bp-history-toolbar';toolbar.hidden=true;
  const top=document.createElement('div');top.className='bp-history-top';top.innerHTML='<div id="bpHistoryLogo"></div><div class="bp-next-draw" id="bpNextDraw"></div>';
  overlay.querySelector('.bg-draw-header').insertBefore(top,title);toolbar.appendChild(dateForm);overlay.querySelector('.bg-draw-sheet').insertBefore(toolbar,notice);
- function nextDraw(g){const p=taiwanParts(),date=`${p.year}-${p.month}-${p.day}`;
+ function nextDraw(g){const p=taiwanParts(),date=`${p.year}-${p.month}-${p.day}`;if(g.kind!=='bingo'&&window.AoerDrawCalendar){try{const start=Number(p.hour)>=21?dayMinus(date,-1):date;const dates=window.AoerDrawCalendar.nextDates(g.id,start,1);if(dates.length)return dates[0];}catch(e){}}
   const day=new Date(date+'T12:00:00+08:00'),dow=day.getUTCDay(),hour=Number(p.hour);
   if(g.kind==='bingo'){const now=new Date();const mm=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',minute:'2-digit'}).format(now);return (hour===23&&Number(mm)>=55?dayMinus(date,-1):date);}
   const weekdays=g.id==='lotto649'||g.id==='49combo'?[2,5]:g.id==='power'?[1,4]:g.kind==='bingo'?[0,1,2,3,4,5,6]:[1,2,3,4,5,6];
@@ -9163,7 +9266,7 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  function displayToolbar(g){toolbar.hidden=page===null;dateForm.hidden=page===null;overlay.dataset.bqView=page===null?'overview':'history';top.hidden=page===null;requestAnimationFrame(syncHistoryHeader);
   if(g){document.getElementById('bpHistoryLogo').innerHTML=logo(g);
    const next=document.getElementById('bpNextDraw');next.textContent=`預計下次開獎 ${roc(nextDraw(g))}`;
-   next.title='依一般開獎日推算；特殊開獎日程以台彩公告為準';
+   next.title='已套用內建官方加開日及可用的已驗證公告日曆；新公告以台彩實際公布為準';
   }
  }
  function syncHistoryHeader(){const h=overlay.querySelector('.bg-draw-header')?.getBoundingClientRect().height;if(h>0)overlay.style.setProperty('--bq-draw-header-height',`${Math.ceil(h)}px`);}
@@ -9172,10 +9275,10 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  async function render(force=false){const token=++renderToken,end=selectedDate||taiwanDay();dateInput.max=taiwanDay();startInput.max=taiwanDay();
   displayToolbar(page!==null?byId(page):null);
   container.innerHTML='<div class="bk-loading">正在讀取獎號…</div>';notice.textContent='';notice.dataset.error='false';
-  if(page===null){title.textContent='奧爾樂透獎號';container.className='bg-draw-cards';
+  if(page===null){title.textContent='獎號資訊';container.className='bg-draw-cards';
    const all=await Promise.all(games.map(g=>load(g,end,'',force).catch(e=>({rows:[],error:String(e),source:''}))));if(token!==renderToken)return;
-   container.innerHTML=games.map((g,i)=>card(g,all[i].rows[0],false)).join('');
-  }else{const g=byId(page);if(!g){page=null;return render(force)}title.textContent=g.name+'｜歷史獎號';container.className='bg-draw-cards history';
+   container.innerHTML=games.map((g,i)=>card(g,all[i].rows[0],false)+(g.id==='lotto649'?bonusBanner():'' )).join('');
+  }else{const g=byId(page);if(!g){page=null;return render(force)}title.textContent='獎號資訊';container.className='bg-draw-cards history';
    let data;try{data=await load(g,end,selectedStart,force)}catch(e){data={rows:[],error:String(e)}}if(token!==renderToken)return;
    container.innerHTML=data.rows.length?data.rows.map(r=>card(g,r,true)).join(''):card(g,null,true);
    if(!selectedStart&&data.rows.length){startInput.value=data.rows[data.rows.length-1].date||'';dateInput.value=data.rows[0].date||end;}
@@ -9197,7 +9300,7 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   if(!dateRangeValid(from,to)){notice.textContent='請確認日期範圍：起日不得晚於迄日，且不可查詢未來日期。';notice.dataset.error='true';return;}
   selectedStart=from;selectedDate=to;render(true);
  });
- container.addEventListener('click',ev=>{const b=ev.target.closest('[data-bg-game]');if(!b)return;page=b.dataset.bgGame;
+ container.addEventListener('click',ev=>{const promo=ev.target.closest('[data-bs-promo]');if(promo){const p=(window.AoerDrawCalendar?.promotions?.()||[]).find(x=>x.id===promo.dataset.bsPromo);if(!p)return;page='lotto649';selectedDate=p.lastDrawDate;selectedStart=p.start;startInput.value=p.start;dateInput.value=p.lastDrawDate;syncRoc(true);render();return;}const b=ev.target.closest('[data-bg-game]');if(!b)return;page=b.dataset.bgGame;
   selectedDate='';selectedStart='';startInput.value='';dateInput.value='';syncRoc(true);render();
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close()});
@@ -9244,5 +9347,139 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  document.addEventListener('change',e=>{if(e.target?.id==='aqWeightSwitch'){e.preventDefault();e.target.checked=false;window.AQ_WEIGHT_ON=false;}},true);
  window.AoerAppearance={get:()=>({theme:root.dataset.uiTheme,font:root.dataset.uiFont}),setTheme:t=>apply('theme',t),setFont:f=>apply('font',f)};
 })();</script>
+
+<style id="v14br-mobile-design">
+/* V14-BR: only mobile receives the new interaction and dark-mode refinements. */
+@media(max-width:600px){
+ html[data-ui-theme="charcoal"] #lottoMachine #selfInline .self-countbox :is(input,button),
+ html[data-ui-theme="charcoal"] #lottoMachine #quickModeExtras .self-countbox :is(input,button){
+   color:#243842!important;-webkit-text-fill-color:#243842!important;
+   background:#C3C7CA!important;border:1px solid #0B0E10!important;
+   opacity:1!important;
+ }
+ html[data-ui-theme="charcoal"] #lottoMachine #selfInline .self-bet-count-label,
+ html[data-ui-theme="charcoal"] #lottoMachine #quickModeExtras .self-bet-count-label{
+   color:#EDF2F4!important;-webkit-text-fill-color:#EDF2F4!important;
+ }
+ html[data-ui-theme="charcoal"] #lottoMachine #quickModeExtras #selfCountInput{
+    color:#243842!important;-webkit-text-fill-color:#243842!important;
+    background:#C3C7CA!important;border:1px solid #0B0E10!important;opacity:1!important;
+ }
+ html[data-ui-theme="charcoal"] #lottoMachine #quickModeExtras .self-countbox button:disabled{opacity:.52!important}
+ html[data-ui-theme="charcoal"] #lottoMachine #quickModeExtras{
+    box-sizing:border-box!important;padding:7px 6px!important;margin:5px 0!important;
+ }
+ /* Remove redundant written explanations, preserve live counts and generated rows. */
+ #lottoMachine #selfInline .self-note,
+ #lottoMachine #columnInline .column-inline-hint,
+ #lottoMachine #columnInline .column-valid,
+ #lottoMachine #columnInline .column-footer{display:none!important}
+ /* Leave a tactile inset around dense dark-mode tools and select inputs. */
+ html[data-ui-theme="charcoal"] body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow{
+    box-sizing:border-box!important;padding:5px 6px!important;margin:5px 0!important;gap:7px!important;
+ }
+ html[data-ui-theme="charcoal"] #lottoMachine #comboAddonSwitches{
+   box-sizing:border-box!important;padding:7px 6px!important;margin:8px 0!important;gap:7px!important;
+ }
+ html[data-ui-theme="charcoal"] body[data-mobile-stage="numbers"] #lottoMachine #periodBox{
+    padding:12px 8px 7px!important;gap:10px!important;box-sizing:border-box!important;
+ }
+ html[data-ui-theme="charcoal"] #lottoMachine :is(.machine-action,.mobile-clear-all,.combo-addon-btn,.period-select,.preorder-select){
+    box-sizing:border-box!important;min-width:0;
+ }
+ body.br-first-plays[data-mobile-stage="plays"] #lottoMachine .side-actions-grid .mode-btn:is(.active,.au-return-active){
+    background:#f5f5f3!important;color:#53606a!important;border:1px solid #d5d8da!important;
+    box-shadow:none!important;outline:none!important;filter:none!important;
+ }
+ html[data-ui-theme="charcoal"] body.br-first-plays[data-mobile-stage="plays"] #lottoMachine .side-actions-grid .mode-btn:is(.active,.au-return-active){
+    background:#C3C7CA!important;color:#263944!important;border:1px solid #0B0E10!important;
+    box-shadow:none!important;outline:none!important;filter:none!important;
+ }
+ /* Overview header gets the draw-order switch beside the close button. */
+ .bg-draw-header{gap:5px!important}
+ .bg-draw-overlay[data-bq-view="history"] #brDrawOrder{display:none!important}
+ .bg-draw-header #brDrawOrder{
+    display:inline-flex!important;align-items:center;gap:6px;flex:0 0 auto;min-height:37px!important;
+    min-width:0!important;width:auto!important;padding:3px 6px!important;
+    background:transparent!important;border:0!important;box-shadow:none!important;
+    color:#576978!important;font-size:10px!important;font-weight:750;white-space:nowrap;
+ }
+ .bg-draw-header #brDrawOrder i{display:inline-block;width:26px;height:18px;background:#b8c2c9;border-radius:15px;position:relative;flex:none}
+ .bg-draw-header #brDrawOrder i::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;left:2px;top:2px;background:white;box-shadow:0 1px 2px #0003;transition:transform .16s}
+ .bg-draw-header #brDrawOrder[aria-pressed="true"] i{background:#2878B7}
+ .bg-draw-header #brDrawOrder[aria-pressed="true"] i::after{transform:translateX(8px)}
+ .bg-draw-header #brDrawOrder:focus-visible{outline:2px solid #3895e0!important;outline-offset:2px}
+ html[data-ui-theme="charcoal"] .bg-draw-header #brDrawOrder{color:#E3E9ED!important}
+ .bg-draw-header h2{min-width:0!important;font-size:clamp(16px,4.5vw,19px)!important;letter-spacing:-.3px;white-space:nowrap!important}
+}
+@media(max-width:359px){
+ body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow{flex-wrap:wrap!important;row-gap:6px!important;}
+ body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #drawBtn{flex:1 1 86px!important;min-width:0!important;}
+ body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #quickPickCount{flex:0 0 68px!important;min-width:0!important;}
+ body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #machineClear,
+ body[data-mobile-stage="numbers"] #lottoMachine #aiMobilePickRow #mobileClearAll{flex:1 1 100px!important;min-width:0!important;}
+ .bg-draw-header #brDrawOrder{gap:3px!important;padding:2px!important}
+}
+@media(min-width:601px){#brDrawOrder{display:none!important}}
+/* In draw cards, Power second zone uses the green from the Power Lottery logo. */
+.bg-draw-card[data-draw-game="power"] .bk-ball.bk-special{background:#007330!important;border:2px solid #47a15c!important;color:#fff!important}
+.bg-draw-card[data-draw-game="bingo"] .bk-ball.br-bingo-bull{background:#d9444c!important;color:#fff!important;border:2px solid #b92335!important;box-shadow:0 0 0 2px #ffffff40}
+</style>
+<script id="v14br-mobile-gestures-and-neutral-plays">
+(function(){'use strict';
+ const isMobile=()=>window.matchMedia('(max-width:600px)').matches;
+ const app=document.getElementById('lottoMachine');if(!app)return;
+ // A newly selected game does not visually preselect "General" or any other play.
+ app.addEventListener('click',e=>{
+  if(!isMobile()||document.body.dataset.mobileStage!=='games')return;
+  if(!e.target.closest('#gameRail [data-game]'))return;
+  document.body.classList.add('br-first-plays');
+ },true);
+ app.addEventListener('click',e=>{
+  if(!isMobile()||document.body.dataset.mobileStage!=='plays')return;
+  if(e.target.closest('.side-actions-grid .mode-btn,[data-mobile-combo]'))document.body.classList.remove('br-first-plays');
+ },true);
+ // Let app's existing stage handler enforce prerequisites; never synthesize bet selections.
+ let swipe=null;
+ const blocked=['#numberBoard','#powerFirstZone','#bingoTopRow','#betTabs','#qrSwipeFrame',
+   '.column-scroll','.column-cards','.star3-digits','.star3-grid','input','select','textarea','[contenteditable="true"]',
+   '.bg-draw-overlay','.aw-dialog','.ax-settings-dialog','.qr-swipe-frame','.bingo-star-group',
+   '.number-board','.bet-tabs','.mobile-play-category'];
+ const avoid=target=>target instanceof Element&&blocked.some(sel=>target.closest(sel));
+ document.addEventListener('touchstart',e=>{
+  swipe=null;if(!isMobile()||e.touches.length!==1||avoid(e.target))return;
+  if(!document.querySelector('.page[data-page="home"].active'))return;
+  const x=e.touches[0].clientX;
+  if(x<24||x>window.innerWidth-24)return; // Reserve iOS system-edge gestures.
+  swipe={x,y:e.touches[0].clientY,stage:document.body.dataset.mobileStage};
+ },{passive:true});
+ document.addEventListener('touchend',e=>{
+  if(!swipe||!isMobile()||!window.__lottoMobileFlow){swipe=null;return;}
+  const s=swipe;swipe=null;
+  if(e.changedTouches.length!==1||document.body.dataset.mobileStage!==s.stage)return;
+  const dx=e.changedTouches[0].clientX-s.x,dy=e.changedTouches[0].clientY-s.y;
+  if(Math.abs(dx)<75||Math.abs(dx)<Math.abs(dy)*1.45)return;
+  const flow=window.__lottoMobileFlow,stage=flow.currentStage();
+  if(dx>0){if(stage==='numbers')flow.setStage('plays');else if(stage==='plays')flow.setStage('games');}
+  else if(stage==='games'||stage==='plays'){
+   // Switch forward only to an already-unlocked step, never choose a bet mode on behalf of the user.
+   const dest=stage==='games'?'plays':'numbers';
+   const step=document.querySelector('#mobileStepNav [data-mobile-step="'+dest+'"]');
+   if(step&&!step.disabled)flow.setStage(dest);
+  }
+ },{passive:true});
+ document.addEventListener('touchcancel',()=>swipe=null,{passive:true});
+})();
+</script>
+<script id="v14bs-calendar-interaction">
+(function(){'use strict';
+const note=document.createElement('div');note.id='bsPreorderNotice';note.setAttribute('role','status');note.setAttribute('aria-live','polite');note.className='bs-preorder-note';document.getElementById('preorderBox')?.appendChild(note);
+function showStatus(){const cal=window.AoerDrawCalendar;const st=cal?.status?.();if(note.textContent.includes('原指定日期不再可選'))return;note.textContent=st?.hasRemote?'已套用最新公告日曆；實際可預購日期以投注機為準。':'依一般開獎日程；春節臨時新增日期須由公告日曆同步，實際以台彩公告為準。';}
+showStatus();
+window.addEventListener('aoer:draw-calendar-updated',()=>{
+ try{if(typeof renderPurchaseMode==='function')renderPurchaseMode();showStatus();if(!document.getElementById('bgDrawOverlay')?.hidden)window.AoerDrawBoard?.refresh?.();}catch(e){console.warn('更新預購日程介面失敗',e)}
+});
+})();
+</script>
 </body>
 </html>
