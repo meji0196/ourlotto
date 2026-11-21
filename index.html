@@ -9336,7 +9336,7 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  const dateInput=document.getElementById('bkDrawDate');
  const startInput=document.getElementById('bpDrawStart');
  const desktopLookupUrl='https://lotto-glass-board.workspace-840742.chatgpt.site/';
- const PAGE_SIZE=24, TTL=5*60*1000;
+ const PAGE_SIZE=24, TTL=5*60*1000, PREVIEW_REFRESH_MS=60*1000;
  const games=[
   {id:'539',name:'今彩539',endpoint:'Daily539Result',key:'daily539Res',base:'539',kind:'five'},
   {id:'lotto649',name:'大樂透',endpoint:'Lotto649Result',key:'lotto649Res',base:'lotto649',kind:'six'},
@@ -9455,7 +9455,7 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  function offline(g,end,start){try{const raw=g.base==='539'?draws539:g.base==='lotto649'?draws:g.base==='power'?powerDraws:null;
   if(!Array.isArray(raw))return [];return dedupe(g,raw.map(r=>({period:String(r.issue||''),date:String(r.date||'').slice(0,10),numbers:(r.nums||[]).map(Number),special:r.special??null})),end,start);
  }catch(_){return []}}
- async function load(g,end,start,force=false){const key=`view:${g.base}:${end}:${start}`;const hit=views.get(key);if(!force&&hit&&Date.now()-hit.ts<TTL)return hit;
+ async function load(g,end,start,force=false){const key=`view:${g.base}:${end}:${start}`;const hit=views.get(key);if(!force&&hit&&Date.now()-hit.ts<PREVIEW_REFRESH_MS)return hit;
   const data=await official(g,end,start,force);
   if(!data.rows.length){if(hit?.rows.length){data.rows=hit.rows;data.source='已保存紀錄';}
    else{const older=offline(g,end,start);if(older.length){data.rows=older;data.source='已保存紀錄';}}
@@ -9464,23 +9464,48 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   const early=await earlyDraw(g,end,start);
   const dates=new Set(data.rows.map(r=>r.date));
   const missing=early.filter(r=>!dates.has(r.date));
-  if(missing.length){data.rows=[...missing,...data.rows].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,PAGE_SIZE);data.previewCount=missing.length;}
+  if(missing.length){
+   data.rows=[...missing,...data.rows].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,PAGE_SIZE);
+   data.previewCount=missing.length;
+   data.previewSources=[...new Set(missing.map(r=>r.source).filter(Boolean))];
+  }
   data.ts=Date.now();if(data.rows.length)views.set(key,data);return data;
  }
 
- // Early results published by the separate GitHub sync service. These are NEVER eligible for prize settlement.
+ // Preview-only GitHub feed; official Taiwan Lottery result remains required for prize settlement.
+ // This URL remains stable when its upstream changes from Pilio to Our Lotto.
  const EARLY_FEED='https://meji0196.github.io/our-lotto-sync/early-draws.json';
- let earlyCache={ts:0,data:null};
+ let earlyCache={ts:0,data:null},earlyInflight=null;
+ const previewLabel=q=>q.source==='our-lotto'?'奧爾樂透獎號':q.source==='pilio'?'Pilio 備援':'暫定獎號';
+ async function previewFeed(){
+  if(earlyCache.data&&Date.now()-earlyCache.ts<PREVIEW_REFRESH_MS)return earlyCache.data;
+  if(earlyInflight)return earlyInflight;
+  earlyInflight=(async()=>{
+   const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),6500);
+   try{
+    const r=await fetch(EARLY_FEED+'?cb='+Date.now(),{signal:ctl.signal,cache:'no-store'});
+    if(!r.ok)throw Error('preview unavailable: HTTP '+r.status);
+    const j=await r.json();
+    if(j.schemaVersion!==1||j.purpose!=='PRELIMINARY_DISPLAY_ONLY'||!j.games||typeof j.games!=='object')throw Error('invalid preliminary feed');
+    earlyCache={ts:Date.now(),data:j};return j;
+   }finally{clearTimeout(timer)}
+  })();
+  try{return await earlyInflight}finally{earlyInflight=null}
+ }
  async function earlyDraw(g,end,start){
   if(g.id==='bingo')return [];
-  try{if(Date.now()-earlyCache.ts>150000){const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),5000);try{const r=await fetch(EARLY_FEED+'?t='+Math.floor(Date.now()/120000),{signal:ctl.signal,cache:'no-store'});if(!r.ok)throw Error('no preview feed');const j=await r.json();if(j.schemaVersion!==1||!j.games||typeof j.games!=='object')throw Error('invalid preview feed');earlyCache={ts:Date.now(),data:j};}finally{clearTimeout(timer)}}
-   const q=earlyCache.data?.games?.[g.id==='39combo'?'539':g.id==='49combo'?'lotto649':g.id];if(!q)return [];
+  try{
+   const feed=await previewFeed(),q=feed.games?.[g.id==='39combo'?'539':g.id==='49combo'?'lotto649':g.id];
+   if(!q||q.verified!==false||!['our-lotto','pilio'].includes(q.source))return [];
    if(!/^\d{4}-\d{2}-\d{2}$/.test(q.date)||q.date>end||(start&&q.date<start)||q.date>taiwanDay())return [];
-   const dayAge=(Date.parse(taiwanDay()+'T00:00:00Z')-Date.parse(q.date+'T00:00:00Z'))/86400000;
-   if(dayAge>2||dayAge<0)return [];
-   const row={period:'',date:q.date,numbers:Array.isArray(q.numbers)?q.numbers.map(Number):[],fallOrder:q.numbers||[],special:q.special==null?null:Number(q.special),preliminary:true,source:'pilio 暫定獎號'};
+   const age=(Date.parse(taiwanDay()+'T00:00:00Z')-Date.parse(q.date+'T00:00:00Z'))/86400000;
+   if(age>2||age<0)return [];
+   if(!Array.isArray(q.numbers)||q.numbers.some(x=>!Number.isInteger(x)))return [];
+   if(q.special!==null&&q.special!==undefined&&!Number.isInteger(q.special))return [];
+   const row={period:'',date:q.date,numbers:q.numbers.slice(),fallOrder:q.numbers.slice(),special:q.special??null,
+    preliminary:true,source:previewLabel(q),upstreamSource:q.upstreamSource||null};
    return valid(g,row)?[row]:[];
-  }catch(_){return []}
+  }catch(e){console.warn('暫定獎號暫不可取得',e);return []}
  }
  const colorClass=g=>g.kind==='five'?'five':g.kind==='six'?'six':g.kind==='power'?'power':g.kind==='digits'?'digit':'bingo';
  const logoMap=Object.fromEntries(games.map(g=>[g.id,document.querySelector('#gameRail .game-btn[data-game="'+g.id+'"] img.game-logo')?.getAttribute('src')||'']));
@@ -9544,7 +9569,7 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
    container.innerHTML=data.rows.length?data.rows.map(r=>card(g,r,true)).join(''):card(g,null,true);
    if(!selectedStart&&data.rows.length){startInput.value=data.rows[data.rows.length-1].date||'';dateInput.value=data.rows[0].date||end;}
    syncRoc();
-   if(data.previewCount){notice.textContent='部分獎號來自 pilio，僅供提前參考；尚待台彩官方核對，不用於正式中獎判定。';notice.dataset.error='false';}
+   if(data.previewCount){notice.textContent='部分獎號為暫定資料（'+(data.previewSources||[]).join('／')+'），尚待台彩官方核對，不用於正式中獎判定。';notice.dataset.error='false';}
    if(data.error&&data.rows.length===0){notice.textContent='獎號暫時無法更新，請稍後重試。';notice.dataset.error='true';}
    if(data.error&&data.rows.length){notice.textContent='部分資料更新失敗，已顯示現有紀錄。';notice.dataset.error='true';}
   }
@@ -9566,8 +9591,8 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   selectedDate='';selectedStart='';startInput.value='';dateInput.value='';syncRoc(true);render();
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close()});
- setInterval(()=>{if(!overlay.hidden&&!selectedDate)render(true)},5*60*1000);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!overlay.hidden&&!selectedDate)render(true)});
+ setInterval(()=>{if(!overlay.hidden&&!selectedDate)render(false)},PREVIEW_REFRESH_MS);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!overlay.hidden&&!selectedDate)render(false)});
  window.AoerDrawBoard={open,refresh:()=>render(true),models:games.map(g=>g.id),normalizePowerSample:row=>normalize(byId('power'),row),
   journalPreview:async(gameId,date)=>{const g=byId(gameId);if(!g)return null;const rows=await earlyDraw(g,date,date);return rows[0]||null;},
   journalDraws:async(gameId,dates)=>{
@@ -9908,7 +9933,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
       for(const [betIndex,bet] of (page.rows||[]).entries()){
        const first=Array.isArray(bet)?bet:Array.isArray(bet?.first)?bet.first:Array.isArray(bet?.nums)?bet.nums:Array.isArray(bet?.digits)?bet.digits:null;
        const matches=first?first.filter(n=>preview.numbers.includes(Number(n))).length:null;
-       oldResults.push({game,date,preview:true,period:'待台彩公告',balls:preview.numbers,special:preview.special,bet,betIndex:pageBetOffset+betIndex,previewHit:matches,reason:'pilio 暫定獎號，尚待台彩正式公布獎號及派彩'});
+       oldResults.push({game,date,preview:true,period:'待台彩公告',balls:preview.numbers,special:preview.special,bet,betIndex:pageBetOffset+betIndex,previewHit:matches,reason:(preview.source||'暫定獎號')+'，尚待台彩正式公布獎號及派彩'});
       }
      }else oldResults.push({game,date,reason:'尚未取得當期官方完整開獎與派彩資料'});
      continue;
@@ -10008,7 +10033,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
    const heading=`${roc(g.date)}${period?'　期數 '+safe(period):''}`;
    if(!complete){
     const prev=g.rows.filter(r=>r.preview);
-    const provisional=prev.length?`<p class="ca-preview-hint">Pilio 暫定獎號（待台彩核對），尚不能判定中獎金額</p>`:'';
+    const provisional=prev.length?`<p class="ca-preview-hint">暫定獎號（待台彩官方核對），尚不能判定中獎金額</p>`:'';
     const insufficient=g.rows.find(r=>r.reason&&!r.preview)?.reason||'尚未取得完整的官方獎號與派彩資料';
     return `<section class="bv-win-group ca-draw-check-group ca-check-pending" data-draw-date="${safe(g.date)}"><h5>${heading}　待對獎</h5><p class="ca-check-wait">${safe(insufficient)}</p>${provisional}</section>`;
    }
