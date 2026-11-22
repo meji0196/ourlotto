@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號｜V14-BZ 選號記錄修正</title>
+<title>奧爾樂透選號｜V14-CA BINGO 逐期對獎</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -2027,6 +2027,31 @@ html[data-ui-theme="charcoal"] #buJournalSheet .bv-note-card{background:#4b5c67!
  }
  body[data-mobile-stage="plays"] #lottoMachine .side-actions-grid .mode-btn:disabled{opacity:.45!important;filter:grayscale(1)!important;}
 }
+</style>
+<style id="v14-ca-bingo-notebook-style">
+#buJournalSheet .by-paid-label:has(input:disabled){opacity:.55;pointer-events:none}
+#buJournalSheet .ca-bingo-set-only{font-size:12px;font-weight:800;color:#667085;border:1px solid #b9c5d0;padding:5px 9px;border-radius:9px}
+#buJournalSheet .ca-bingo-selection{background:#f7fafc;border:1px solid #d1e0eb;border-radius:13px;padding:13px;margin:12px 0}
+#buJournalSheet .ca-bingo-selection h4{margin:0 0 10px;font-size:17px}
+#buJournalSheet .ca-bingo-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px}
+#buJournalSheet .ca-bingo-fields label{min-width:0;color:#30455b;font-size:12px}
+#buJournalSheet .ca-bingo-fields input,#buJournalSheet .ca-bingo-fields select{background:white;color:#28394e;width:100%;min-width:0;margin-top:5px;border:1px solid #bfcbd6;border-radius:9px;font-size:16px}
+#buJournalSheet #caBingoConfirm{border:none;background:#216ad0;color:white;font-weight:900;border-radius:9px;padding:11px 16px;margin-bottom:8px;cursor:pointer}
+#buJournalSheet .ca-bingo-selection small,#buJournalSheet .ca-bingo-caution{display:block;font-size:12px;color:#657184;line-height:1.65}
+#buJournalSheet .ca-bingo-slots{margin-top:9px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+#buJournalSheet .ca-bingo-slots span{font-size:12px;border-radius:7px;padding:7px;background:#e7effa;color:#234368}
+#buJournalSheet .ca-bingo-win-summary{font-weight:900;color:#176f47;margin:8px 0}
+#buJournalSheet .ca-bingo-draw-balls{font-size:12px;line-height:1.6;word-break:break-word;color:#50657a}
+#buJournalSheet .ca-bingo-total{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:12px 0;padding:10px;background:#eef5fc;border-radius:9px}
+#buJournalSheet .ca-bingo-total b{color:#1f6647}#buJournalSheet .ca-bingo-total span{font-size:12px}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-selection{background:#35454d;border-color:#647580}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-fields label,html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-selection h4{color:#f2f6f9}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-fields input,html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-fields select{background:#26343b;color:#f4f6f9;border-color:#637787}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-slots span{background:#435761;color:#ebf1f5}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-total{background:#41545e;color:#edf4f8}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-total b{color:#99e2bc}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-caution,html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-selection small{color:#e0e9ed}
+@media(max-width:360px){#buJournalSheet .ca-bingo-fields{grid-template-columns:1fr}#buJournalSheet .ca-bingo-slots{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -9891,6 +9916,112 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
 });
 })();
 </script>
+<script id="v14-ca-bingo-journal-source">
+/* V14-CA: BINGO notebook-only draw lookup. Never infer a prize from unanchored periods. */
+(function(){'use strict';
+ const BASE='https://api.taiwanlottery.com/TLCAPIWeB/Lottery/BingoResult';
+ const CACHE=new Map();
+ const pad=n=>String(n).padStart(2,'0');
+ function validDay(s){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s||'')))return false;const t=new Date(s+'T00:00:00Z');return !isNaN(t)&&t.toISOString().slice(0,10)===s;}
+ function validTime(t){if(!/^\d{2}:\d{2}$/.test(String(t||'')))return false;const [h,m]=t.split(':').map(Number),n=h*60+m;return n>=425&&n<=1435&&(n-425)%5===0;}
+ function shifted(day,diff){const t=new Date(day+'T00:00:00Z');t.setUTCDate(t.getUTCDate()+diff);return t.toISOString().slice(0,10);}
+ function slots(day,time,count){if(!validDay(day)||!validTime(time)||!Number.isInteger(count)||count<1||count>12)throw Error('請選擇有效的 BINGO 首期開獎日期與時間（最多12期）');
+  const first=(Number(time.slice(0,2))*60+Number(time.slice(3))-425)/5;
+  return Array.from({length:count},(_,i)=>{const absolute=first+i;const d=shifted(day,Math.floor(absolute/203)),minute=425+(absolute%203)*5;return {date:d,time:pad(Math.floor(minute/60))+':'+pad(minute%60),index:1+absolute%203};});
+ }
+ function numberList(v){if(Array.isArray(v))return v.map(Number);if(typeof v==='string')return v.trim().split(/[,，、\s]+/).map(Number);return [];}
+ function validNumbers(n){return Array.isArray(n)&&n.length===20&&n.every(x=>Number.isInteger(x)&&x>=1&&x<=80)&&new Set(n).size===20;}
+ function normal(r,day){
+  const issue=String(r?.drawTerm??r?.period??r?.issue??r?.drawNo??'').trim();
+  const order=numberList(r?.openShowOrder);
+  const nums=numberList(r?.bigShowOrder??r?.openShowOrder??r?.drawNumberAppear??r?.numbers);
+  if(!/^\d{7,12}$/.test(issue)||!validNumbers(nums)|| (order.length&&(!validNumbers(order)||order.some(n=>!nums.includes(n)))))return null;
+  const s=r?.bullEyeTop??r?.superNumber??r?.special??(order.length===20?order[19]:null);
+  const superNumber=Number(s);
+  if(!Number.isInteger(superNumber)||!nums.includes(superNumber)||(order.length===20&&superNumber!==order[19]))return null;
+  const dateRaw=String(r?.lotteryDate??r?.openDate??r?.drawDate??r?.date??'');
+  let at=String(r?.openTime??r?.drawTime??r?.lotteryTime??r?.dTime??r?.openDateTime??r?.drawDateTime??'');
+  if(!at&&dateRaw.includes(':'))at=dateRaw;
+  const match=/(?:^|[T\s])(\d{2}:\d{2})(?::\d{2})?/.exec(at)||/^(\d{2}:\d{2})(?::\d{2})?$/.exec(at);
+  const time=match&&validTime(match[1])?match[1]:'';
+  return {date:day,time,issue,numbers:nums,super:superNumber};
+ }
+ async function dayRows(day,force=false){
+  if(!validDay(day))return {rows:[],valid:false};
+  const saved=CACHE.get(day),parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(p=>[p.type,p.value]));const isToday=day===parts.year+'-'+parts.month+'-'+parts.day;
+  const ttl=isToday?45000:6*3600000;
+  if(!force&&saved&&Date.now()-saved.time<ttl)return saved.value;
+  try{
+   const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);
+   let json;
+   try{const res=await fetch(BASE+'?openDate='+encodeURIComponent(day)+'&pageNum=1&pageSize=250',{cache:'no-store',credentials:'omit',signal:ctrl.signal,headers:{Accept:'application/json'}});
+    if(!res.ok)throw Error('HTTP '+res.status);json=await res.json();}
+   finally{clearTimeout(timer)}
+   if(json.rtCode!==undefined&&Number(json.rtCode)!==0)throw Error('官方回傳狀態異常');
+   const records=json?.content?.bingoQueryResult;
+   if(!Array.isArray(records)||records.length>203)throw Error('開獎資料格式不符合預期');
+   const parsed=records.map(x=>normal(x,day));
+   if(parsed.some(x=>!x))throw Error('開獎資料驗證失敗');
+   const sorted=parsed.sort((a,b)=>BigInt(a.issue)<BigInt(b.issue)?-1:BigInt(a.issue)>BigInt(b.issue)?1:0);
+   if(new Set(sorted.map(x=>x.issue)).size!==sorted.length)throw Error('開獎資料有重複期別');
+   const contiguous=sorted.every((x,i)=>!i||BigInt(x.issue)===BigInt(sorted[i-1].issue)+1n);
+   const value={rows:sorted,valid:contiguous};
+   if(contiguous&&sorted.length)CACHE.set(day,{time:Date.now(),value});
+   return value;
+  }catch(err){console.warn('BINGO 對獎查詢失敗',day,err);return saved?.value||{rows:[],valid:false};}
+ }
+ async function lookup(expected,force=false){
+  if(!Array.isArray(expected)||expected.length<1||expected.length>12)return new Map();
+  const days=[...new Set(expected.map(x=>x.date))],loaded=new Map();
+  for(const day of days)loaded.set(day,await dayRows(day,force));
+  const result=new Map();
+  for(const day of days){const data=loaded.get(day);if(!data?.valid||!data.rows.length)continue;
+   const rows=data.rows;
+   // A full official day is an independent 07:05 anchor. A partial day must be
+   // anchored by explicit official timestamps, or by a full preceding day whose
+   // last issue is followed immediately by the first issue of this date.
+   let anchored=rows.length===203;
+   if(!anchored&&rows.every(x=>validTime(x.time))){const indexes=rows.map(x=>1+(Number(x.time.slice(0,2))*60+Number(x.time.slice(3))-425)/5);anchored=indexes.every((x,i)=>!i||(x===indexes[i-1]+1));}
+   if(!anchored){const prev=shifted(day,-1),prior=loaded.get(prev)||await dayRows(prev,false);loaded.set(prev,prior);
+    anchored=prior.valid&&prior.rows.length===203&&BigInt(rows[0].issue)===BigInt(prior.rows[202].issue)+1n;
+   }
+   if(!anchored)continue;
+   for(let i=0;i<rows.length;i++){
+    const row=rows[i];let time=validTime(row.time)?row.time:'';
+    if(!time){const min=425+i*5;time=pad(Math.floor(min/60))+':'+pad(min%60);}
+    if(validTime(time))result.set(day+'T'+time,{...row,time});
+   }
+  }
+  return result;
+ }
+ const RATES={1:{1:50},2:{2:75,1:25},3:{3:500,2:50},4:{4:1000,3:100,2:25},5:{5:7500,4:500,3:50},6:{6:25000,5:1000,4:200,3:25},7:{7:80000,6:3000,5:300,4:50,3:25},8:{8:500000,7:20000,6:1000,5:200,4:25,0:25},9:{9:1000000,8:100000,7:3000,6:500,5:100,4:25,0:25},10:{10:5000000,9:250000,8:25000,7:2500,6:250,5:25,0:25}};
+ function combo(n,k){if(!Number.isInteger(n)||!Number.isInteger(k)||k<0||k>n)return 0;let v=1;for(let i=1;i<=k;i++)v=v*(n-k+i)/i;return Math.round(v);}
+ function score(page,draw){
+  if(!validNumbers(draw?.numbers)||!Number.isInteger(draw?.super))return null;
+  const winning=new Set(draw.numbers),prizes=[];let total=0,winCount=0;
+  const award=(label,amount,units,hits)=>{if(units<=0||!Number.isFinite(amount)||amount<=0)return;total+=amount*units;winCount+=units;prizes.push({award:label,amount:amount*units,units,hits});};
+  for(const row of page.rows||[]){const nums=(row.nums||[]).map(Number),mult=Number(row.multiplier||1);
+   if(!Number.isInteger(mult)||mult<1||mult>50||!nums.length||nums.some(n=>!Number.isInteger(n)||n<1||n>80)||new Set(nums).size!==nums.length)return null;
+   if(row.mode==='super'){if(nums.includes(draw.super))award('超級獎號',1200*mult,1,1);continue;}
+   const star=Number(row.stars),rates=RATES[star];if(!rates||nums.length<star)return null;
+   const hits=nums.filter(n=>winning.has(n)).length,miss=nums.length-hits;
+   for(const [kString,amount] of Object.entries(rates)){
+    const k=Number(kString),units=combo(hits,k)*combo(miss,star-k);
+    award(star+'星中'+k,amount*mult,units,k);
+   }
+  }
+  const d=page.decoded||{},size=Array.isArray(d.sizeChoices)?d.sizeChoices:[],parity=Array.isArray(d.parityChoices)?d.parityChoices:[];
+  const sizeMult=Number(d.sizeMultiplier||1),parityMult=Number(d.parityMultiplier||1);
+  if(!Number.isInteger(sizeMult)||sizeMult<1||sizeMult>50||!Number.isInteger(parityMult)||parityMult<1||parityMult>50)return null;
+  const big=draw.numbers.filter(n=>n>=41).length,odd=draw.numbers.filter(n=>n%2===1).length;
+  for(const kind of size){if(kind==='big'&&big>=13||kind==='small'&&20-big>=13)award('猜'+(kind==='big'?'大':'小'),150*sizeMult,1,0);}
+  for(const kind of parity){if(kind==='odd'&&odd>=13||kind==='even'&&20-odd>=13)award('猜'+(kind==='odd'?'單':'雙'),150*parityMult,1,0);}
+  return {total,winCount,prizes};
+ }
+ window.AoerBingoJournal=Object.freeze({validDay,validTime,slots,lookup,score});
+})();
+</script>
+
 <script id="v14bu-auto-notebook-and-swipe">
 /* V14-BU: Local, opt-out-free QR creation journal. No record is uploaded. */
 (function(){'use strict';
@@ -9912,7 +10043,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
  function nextCutoffDate(now=taipeiNow()){return now.hour>=20?dayAfter(now.date):now.date;}
  function specifiedDate(item){const s=item?.snapshot;const v=String(s?.preorderDate||s?.pages?.[0]?.preorderDate||'');return /^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';}
  function dateCorrect(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||'')))return false;const d=new Date(iso+'T00:00:00Z');return !isNaN(d)&&d.toISOString().slice(0,10)===iso;}
- function resetCheck(item){item.status='pending';item.results=[];item.prizeTotal=0;item.lastChecked='';item.unreadWin=false;item.hasPreview=false;item.seenPrizeTotal=0;item.winSeenAt='';}
+ function resetCheck(item){item.status='pending';item.results=[];item.bingoWinCount=0;item.prizeTotal=0;item.lastChecked='';item.unreadWin=false;item.hasPreview=false;item.seenPrizeTotal=0;item.winSeenAt='';}
  // Confirmation defaults to the next draw after the 20:00 boundary. A user's
  // explicitly selected prepaid date is immutable; manually revised dates are kept.
  // These are draw periods, NOT proof of the date a ticket was purchased.
@@ -9947,7 +10078,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   return {text:`下次預計開獎日 ${roc(future[0])}　｜　還有 ${future.length} 期未開獎`,left:future.length,complete:false};
  }
  const logoMap={};document.querySelectorAll('#gameRail .game-btn[data-game] img').forEach(el=>logoMap[el.closest('[data-game]').dataset.game]=el.src);
- function read(){try{const list=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(list))return [];const valid=list.filter(x=>x&&x.id&&x.snapshot&&Array.isArray(x.snapshot.pages));const now=Date.now(),life=14*86400000;const kept=valid.filter(x=>x.paid||!Number.isFinite(Date.parse(x.createdAt))||now-Date.parse(x.createdAt)<life);if(kept.length!==valid.length)try{localStorage.setItem(KEY,JSON.stringify(kept))}catch(_){}return kept;}catch(e){return []}}
+ function read(){try{const list=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(list))return [];const valid=list.filter(x=>x&&x.id&&x.snapshot&&Array.isArray(x.snapshot.pages));const now=Date.now(),life=14*86400000;const kept=valid.filter(x=>x.paid||(x.gameId==='bingo'&&!!x.bingoStart?.date&&!!x.bingoStart?.time)||!Number.isFinite(Date.parse(x.createdAt))||now-Date.parse(x.createdAt)<life);if(kept.length!==valid.length)try{localStorage.setItem(KEY,JSON.stringify(kept))}catch(_){}return kept;}catch(e){return []}}
  function write(items){try{localStorage.setItem(KEY,JSON.stringify(items));return true}catch(e){console.warn('購買筆記儲存失敗',e);alert('購買筆記儲存失敗：瀏覽器空間不足或限制儲存。請先匯出備份或清理舊資料。');return false}}
  function betCount(snapshot){return (snapshot.pages||[]).reduce((n,p)=>n+(p.rows||[]).reduce((sum,row)=>sum+(p.gameId==='bingo'&&row?.mode==='super'?Math.max(1,row.nums?.length||1):1),0)+(p.decoded?.sizeChoices?.length||0)+(p.decoded?.parityChoices?.length||0),0);}
  function selectFirst(snapshot){const page=snapshot.pages?.[0],row=page?.rows?.[0],g=page?.gameId||snapshot.gameId;
@@ -9971,7 +10102,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   const snap=JSON.parse(JSON.stringify(snapshot));for(const p of snap.pages)delete p.dataUrl;
   const primary=snap.gameId||snap.pages[0].gameId||'539';const schedule={};for(const g of new Set(snap.pages.map(p=>p.gameId||primary)))schedule[g]=datesFor(snap,g);
   const total=Number(snap.overall?.total)||snap.pages.reduce((n,p)=>n+(Number(p.total)||0),0);
-  return {id:'qr-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9),createdAt:new Date().toISOString(),createdTaipeiDate:taipeiNow().date,qrGroupId:snap.qrGroupId||'',qrPageNumber:Number(snap.qrPageNumber)||1,qrPageTotal:Number(snap.qrPageTotal)||1,gameId:primary,first:selectFirst(snap),total,periodCount:Number(snap.periodCount)||1,schedule,snapshot:snap,paid:false,paidAt:'',purchaseDate:'',status:'pending',prizeTotal:0,results:[],lastChecked:'',unreadWin:false,winSeenAt:''};
+  return {id:'qr-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9),createdAt:new Date().toISOString(),createdTaipeiDate:taipeiNow().date,qrGroupId:snap.qrGroupId||'',qrPageNumber:Number(snap.qrPageNumber)||1,qrPageTotal:Number(snap.qrPageTotal)||1,gameId:primary,first:selectFirst(snap),total,periodCount:Number(snap.periodCount)||1,schedule,snapshot:snap,paid:false,paidAt:'',purchaseDate:'',status:'pending',prizeTotal:0,bingoWinCount:0,bingoStart:null,results:[],lastChecked:'',unreadWin:false,winSeenAt:''};
  }
  function matchCount(bet,draw){return bet.reduce((n,x)=>n+(draw.numbers.includes(x)?1:0),0)}
  function payout(draw,key){const entry=draw?.prizes?.[key],v=Number(entry?.perPrize);return Number.isFinite(v)&&v>0?v:null}
@@ -10034,6 +10165,33 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   return {total,prizes,unknown,units};
  }
  async function checkOne(item,refreshCycle=0){
+  if(item.gameId==='bingo'){
+   const core=window.AoerBingoJournal,start=item.bingoStart;
+   if(!start||!core?.validDay(start.date)||!core?.validTime(start.time)){
+    resetCheck(item);item.bingoWinCount=0;return item;
+   }
+   const n=Math.min(12,Math.max(1,Number(item.periodCount)||1));
+   const slots=core.slots(start.date,start.time,n);
+   const rows=await core.lookup(slots,!!refreshCycle);
+   const results=[];let estimatedTotal=0,winningUnits=0,missing=0;
+   for(const slot of slots){
+    const draw=rows.get(slot.date+'T'+slot.time);
+    if(!draw){missing++;results.push({game:'bingo',date:slot.date,time:slot.time,reason:'查無獎號',missing:true});continue;}
+    let offset=0;
+    for(const page of item.snapshot.pages||[]){
+     const prize=core.score(page,draw);
+     if(!prize){missing++;results.push({game:'bingo',date:slot.date,time:slot.time,period:draw.issue,reason:'查無可驗證的投注資料'});break;}
+     estimatedTotal+=prize.total;winningUnits+=prize.winCount;
+     results.push({game:'bingo',date:slot.date,time:slot.time,period:draw.issue,balls:draw.numbers,special:draw.super,total:prize.total,winCount:prize.winCount,prizes:prize.prizes,betIndex:offset});
+     offset+=(page.rows||[]).length;
+    }
+   }
+   item.results=results;item.bingoWinCount=winningUnits;
+   item.prizeTotal=estimatedTotal;item.lastChecked=new Date().toISOString();
+   item.status=missing?'pending':winningUnits?'won':'lost';item.hasPreview=false;
+   if(winningUnits>Number(item.seenBingoWinCount)||false)item.unreadWin=true;
+   return item;
+  }
   if(!item.paid){item.results=[];item.prizeTotal=0;item.hasPreview=false;item.status='pending';item.lastChecked='';return item;}
   const pages=item.snapshot?.pages||[];if(!pages.length)return item;
   const oldResults=[];let pending=false,unknown=false,allTotal=0,seen=0;
@@ -10074,7 +10232,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   const was=Number(item.prizeTotal)||0;item.results=oldResults;item.prizeTotal=allTotal;item.hasPreview=oldResults.some(x=>x.preview);item.lastChecked=new Date().toISOString();item.status=pending||unknown?'pending':allTotal>0?'won':'lost';if(allTotal>Math.max(was,Number(item.seenPrizeTotal)||0))item.unreadWin=true;return item;
  }
  let checking=false,recheckQueued=false,refreshCycleCounter=0;
- function revisionKey(item){return JSON.stringify({paid:!!item.paid,purchaseDate:item.purchaseDate||'',schedule:item.schedule||{}});}
+ function revisionKey(item){return JSON.stringify({paid:!!item.paid,purchaseDate:item.purchaseDate||'',schedule:item.schedule||{},bingoStart:item.bingoStart||null});}
  async function checkAll(force=false){
   if(checking){recheckQueued=true;return;}
   if(!window.AoerDrawBoard?.journalDraws)return;
@@ -10093,9 +10251,9 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
      const existing=current.find(x=>x.id===id);
      if(!existing||revisionKey(existing)!==rev){recheckQueued=true;continue;}
      const priorPrize=Number(existing.prizeTotal)||0;
-     for(const k of ['results','prizeTotal','hasPreview','lastChecked','status','schedule'])existing[k]=checked[k];
-     if(Number(checked.prizeTotal)>Math.max(priorPrize,Number(existing.seenPrizeTotal)||0))existing.unreadWin=true;
-     if(!screen.hidden&&existing.unreadWin){existing.unreadWin=false;existing.winSeenAt=new Date().toISOString();existing.seenPrizeTotal=Math.max(Number(existing.seenPrizeTotal)||0,Number(checked.prizeTotal)||0);}
+     for(const k of ['results','prizeTotal','hasPreview','lastChecked','status','schedule','bingoWinCount'])existing[k]=checked[k];
+     if(existing.gameId==='bingo'?Number(checked.bingoWinCount)>Math.max(Number(existing.seenBingoWinCount)||0,Number(existing.bingoWinCount)||0):Number(checked.prizeTotal)>Math.max(priorPrize,Number(existing.seenPrizeTotal)||0))existing.unreadWin=true;
+     if(!screen.hidden&&existing.unreadWin){existing.unreadWin=false;existing.winSeenAt=new Date().toISOString();existing.seenPrizeTotal=Math.max(Number(existing.seenPrizeTotal)||0,Number(checked.prizeTotal)||0);existing.seenBingoWinCount=Math.max(Number(existing.seenBingoWinCount)||0,Number(checked.bingoWinCount)||0);}
      dirty=true;
     }
     if(dirty){write(current);render();}
@@ -10106,12 +10264,12 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
    if(recheckQueued){recheckQueued=false;setTimeout(()=>checkAll(true),0);}
   }
  }
- const titleStatus=item=>!item.paid?'尚未確認購買':item.status==='pending'?(item.prizeTotal>0?'已中 '+priceFmt(item.prizeTotal)+' 元 · 待確認':item.hasPreview?'暫定對獎 · 待核對':'未對獎'):item.status==='won'?'中 '+priceFmt(item.prizeTotal)+' 元':'沒中獎';
+ const titleStatus=item=>item.gameId==='bingo'?( !item.bingoStart?.date?'尚未設定對獎時間':(item.results||[]).some(r=>r.reason==='查無獎號')?(Number(item.bingoWinCount)>0?'已中 '+item.bingoWinCount+' 注 · 部分查無獎號':'查無獎號'):item.status==='won'?'中獎 '+(Number(item.bingoWinCount)||0)+' 注':item.status==='lost'?'未中獎':'待對獎'):!item.paid?'尚未確認購買':item.status==='pending'?(item.prizeTotal>0?'已中 '+priceFmt(item.prizeTotal)+' 元 · 待確認':item.hasPreview?'暫定對獎 · 待核對':'未對獎'):item.status==='won'?'中 '+priceFmt(item.prizeTotal)+' 元':'沒中獎';
  const journalBtn=document.createElement('button');journalBtn.type='button';journalBtn.id='buJournalEntry';journalBtn.textContent='▤ 選號記錄';journalBtn.title='製作 QR 時自動保存選號，並核對台彩官方開獎資料';
  const favorites=document.getElementById('mobileFavoritesEntry');if(favorites){const row=document.createElement('div');row.id='buHomeRecords';favorites.parentNode.insertBefore(row,favorites);row.appendChild(favorites);row.appendChild(journalBtn);}
  const qrBtn=document.createElement('button');qrBtn.type='button';qrBtn.id='buQrJournalEntry';qrBtn.textContent='▤';qrBtn.setAttribute('aria-label','選號記錄');qrBtn.title='加入選號記錄';qrBtn.setAttribute('aria-pressed','true');qrBtn.textContent='☑ 記錄';document.getElementById('archiveToggleFav')?.before(qrBtn);let saveQr=true,fromNotebook=false,lastQrSnapshot=null,lastQrNoteIds=[];function syncQrSwitch(){qrBtn.setAttribute('aria-pressed',String(saveQr));qrBtn.textContent=(saveQr?'☑':'☐')+' 記錄';qrBtn.title=saveQr?'製作 QR 時加入選號記錄':'不加入選號記錄';}syncQrSwitch();
  const screen=document.createElement('section');screen.id='buJournalSheet';screen.hidden=true;screen.setAttribute('role','dialog');screen.setAttribute('aria-modal','true');screen.setAttribute('aria-label','選號記錄');
- screen.innerHTML=`<div class="bu-journal-panel"><header class="bu-journal-header"><div><h2>選號記錄</h2><small>製作 QR 可選擇是否存檔；未購買記錄保留14天</small></div><button type="button" id="buJournalClose" aria-label="關閉記錄">✕</button></header><div class="bu-journal-tools" id="bvJournalToolbar"><button id="bzJournalTopBack" type="button" aria-label="返回選號記錄" title="返回選號記錄" hidden>‹</button><span id="buJournalCount"></span><button id="buJournalRecheck" type="button">更新對獎</button><button id="buJournalExport" type="button">匯出備份</button><button id="bwJournalImport" type="button">匯入備份</button><input id="bwImportFile" type="file" accept="application/json,.json" hidden><button id="bvDeleteMode" type="button">刪除</button><button id="bvSelectAll" type="button" hidden>全選</button><button id="bvDeleteSelected" type="button" hidden disabled>刪除 (0)</button><button id="bvDeleteCancel" type="button" hidden>取消</button></div><div id="buJournalEntries"></div></div>`;
+ screen.innerHTML=`<div class="bu-journal-panel"><header class="bu-journal-header"><div><h2>選號記錄</h2><small>製作 QR 可選擇是否存檔；未購買記錄保留14天；BINGO已設定對獎時間者除外</small></div><button type="button" id="buJournalClose" aria-label="關閉記錄">✕</button></header><div class="bu-journal-tools" id="bvJournalToolbar"><button id="bzJournalTopBack" type="button" aria-label="返回選號記錄" title="返回選號記錄" hidden>‹</button><span id="buJournalCount"></span><button id="buJournalRecheck" type="button">更新對獎</button><button id="buJournalExport" type="button">匯出備份</button><button id="bwJournalImport" type="button">匯入備份</button><input id="bwImportFile" type="file" accept="application/json,.json" hidden><button id="bvDeleteMode" type="button">刪除</button><button id="bvSelectAll" type="button" hidden>全選</button><button id="bvDeleteSelected" type="button" hidden disabled>刪除 (0)</button><button id="bvDeleteCancel" type="button" hidden>取消</button></div><div id="buJournalEntries"></div></div>`;
  document.body.appendChild(screen);
  const redate=document.createElement('div');redate.id='bzRepreorderDialog';redate.hidden=true;redate.setAttribute('role','dialog');redate.setAttribute('aria-modal','true');redate.setAttribute('aria-label','重新指定預購日期');
  redate.innerHTML='<div class="bz-repreorder-card"><h3>重新指定預購日期</h3><p>請確認這張 QR 的新指定日期。確認後會重新編碼，並新增一筆選號記錄，舊記錄不變。</p><label for="bzRepreorderSelect">新的指定日期</label><select id="bzRepreorderSelect"></select><div class="bz-repreorder-buttons"><button type="button" id="bzRepreorderCancel">取消</button><button type="button" id="bzRepreorderConfirm">確認並製作 QR</button></div></div>';
@@ -10146,11 +10304,11 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
  });
  const entries=document.getElementById('buJournalEntries'),count=document.getElementById('buJournalCount');let selectedId='',deleteMode=false;const selectedIds=new Set();
  const tool=id=>screen.querySelector('#'+id);
- function updateUnreadDot(){const has=read().some(x=>x.paid&&x.unreadWin&&Number(x.prizeTotal)>0);journalBtn.classList.toggle('bv-has-new-win',has);qrBtn.classList.toggle('bv-has-new-win',has);for(const el of [journalBtn,qrBtn])el.setAttribute('aria-label',(el===journalBtn?'選號記錄':'選號記錄')+(has?'，有未查看的中獎結果':''));}
+ function updateUnreadDot(){const has=read().some(x=>x.unreadWin&&(x.gameId==='bingo'?Number(x.bingoWinCount)>0:x.paid&&Number(x.prizeTotal)>0));journalBtn.classList.toggle('bv-has-new-win',has);qrBtn.classList.toggle('bv-has-new-win',has);for(const el of [journalBtn,qrBtn])el.setAttribute('aria-label',(el===journalBtn?'選號記錄':'選號記錄')+(has?'，有未查看的中獎結果':''));}
  function gameLogo(item){const logo=logoMap[item.gameId];return logo?`<img class="bv-game-logo" src="${logo}" alt="${safe(gameNames[item.gameId]||'彩種')}"/>`:`<strong class="bv-game-text">${safe(gameNames[item.gameId]||'彩種')}</strong>`}
  function card(item){const units=betCount(item.snapshot),isSelected=selectedIds.has(item.id),first=item.first||selectFirst(item.snapshot);
   const date=item.createdTaipeiDate||String(item.createdAt).slice(0,10);
-  const dateLabel=item.paid?(item.paidAt?'購買於 '+rocTime(item.paidAt):'已購買'):'建立 '+roc(date);
+  const dateLabel=item.gameId==='bingo'&&item.bingoStart?.date?'首期 '+roc(item.bingoStart.date)+' '+item.bingoStart.time:item.paid?(item.paidAt?'購買於 '+rocTime(item.paidAt):'已購買'):'建立 '+roc(date);
   const primarySchedule=item.schedule?.[item.gameId];const predicted=primarySchedule?.dates?.[0];
   const isConfirmed=!!primarySchedule&&!primarySchedule.estimated;
   const firstLabel=predicted?(isConfirmed?'首期':'預計首期')+' '+roc(predicted):'首期待確認';
@@ -10162,7 +10320,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
       <span class="bv-card-middle"><span class="bu-journal-first">${safe(first)}</span><span class="bu-journal-status ${item.status}">${titleStatus(item)}</span></span>
       <span class="bv-card-bottom"><span>購買組數 <b>${units} 組</b>　購買期數 <b>${Number(item.periodCount)||1} 期</b></span><strong class="bv-card-amount">${priceFmt(item.total)} 元</strong></span>
     </button>
-    <div class="by-card-footer"><span class="by-card-drawdate" title="${isConfirmed?'已指定預購日期':'預計開獎日並非已購買彩券期別，請核對票面'}">${item.paid?safe(firstLabel):''}${splitLabel}</span><label class="by-paid-label" ${deleteMode?'aria-disabled="true"':''}><input type="checkbox" class="by-card-paid-input" data-paid-id="${safe(item.id)}" ${item.paid?'checked':''} ${deleteMode?'disabled':''} aria-label="標記這張 QR 已購買"><span>已購買</span></label></div>
+    <div class="by-card-footer"><span class="by-card-drawdate" title="${isConfirmed?'已指定預購日期':'預計開獎日並非已購買彩券期別，請核對票面'}">${item.gameId==='bingo'?(item.bingoStart?.date?'已設定首期對獎':'請在明細設定首期'):item.paid?safe(firstLabel):''}${splitLabel}</span><label class="by-paid-label" ${deleteMode||item.gameId==='bingo'?'aria-disabled="true"':''}><input type="checkbox" class="by-card-paid-input" data-paid-id="${safe(item.id)}" ${item.paid&&item.gameId!=='bingo'?'checked':''} ${deleteMode||item.gameId==='bingo'?'disabled':''} aria-label="${item.gameId==='bingo'?'BINGO請在投注明細設定對獎日期與時間':'標記這張 QR 已購買'}"><span>${item.gameId==='bingo'?'明細設定對獎':'已購買'}</span></label></div>
   </div>`;
  }
  function fmtBet(game,bet){const s=a=>(a||[]).map(num).join('、');if(game==='bingo')return `${bet.mode==='super'?'超級獎號':`${bet.stars}星`} ${s(bet.nums)}`;
@@ -10171,7 +10329,20 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   if(game==='39combo'||game==='49combo')return `${bet.play}合 ${s(bet.nums)}　×${bet.multiplier||1}`;
   return Array.isArray(bet)?s(bet):'複合投注';}
  function highlightDigits(nums,draw,asDigits=false){const winning=new Set(draw.balls||[]);return (nums||[]).map(v=>{const n=Number(v);return `<span class="${winning.has(n)?'bv-hit-number':''}">${safe(asDigits?String(v):num(v))}</span>`}).join('、');}
+ function bingoReport(item){
+  const start=item.bingoStart,core=window.AoerBingoJournal;
+  if(!start?.date||!start?.time)return '<p class="bv-no-win">請先選擇第一期對獎日期與時間。</p>';
+  const slots=core.slots(start.date,start.time,Math.min(12,Math.max(1,Number(item.periodCount)||1))),rows=item.results||[];
+  return slots.map((slot,i)=>{
+   const found=rows.filter(r=>r.date===slot.date&&r.time===slot.time),ready=found.find(r=>Array.isArray(r.balls)&&!r.reason);
+   const header='第 '+(i+1)+' 期｜'+roc(slot.date)+' '+slot.time;
+   if(!ready)return `<section class="bv-win-group ca-draw-check-group ca-check-pending"><h5>${safe(header)}</h5><p class="ca-check-wait">查無獎號</p></section>`;
+   const wins=found.flatMap(r=>r.prizes||[]).filter(p=>Number(p.units)>0),count=wins.reduce((n,p)=>n+Number(p.units||0),0),reference=wins.reduce((n,p)=>n+Number(p.amount||0),0);
+   return `<section class="bv-win-group ca-draw-check-group ca-check-done"><h5>${safe(header)} · ${safe(ready.period)} 期</h5><p class="ca-bingo-draw-balls">獎號：${ready.balls.map(num).join('、')} · 超級獎號 ${num(ready.special)}</p>${count?`<div class="ca-bingo-win-summary">中獎 ${count} 注｜一般獎金表參考 ${priceFmt(reference)} 元</div>${wins.map(p=>`<div class="bv-win-bet ca-winning-row"><span>${safe(p.award)}　${Number(p.units)} 注</span><strong>${priceFmt(p.amount)} 元（參考）</strong></div>`).join('')}`:'<p class="ca-check-lost">對獎結果：未中獎</p>'}</section>`;
+  }).join('');
+ }
  function drawResultReport(item){
+  if(item.gameId==='bingo')return bingoReport(item);
   const all=item.results||[],byGameDate=new Map();
   for(const page of item.snapshot.pages||[]){
    const game=page.gameId||item.gameId,dates=item.schedule?.[game]?.dates||[];
@@ -10222,15 +10393,20 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   const dateControl=item.paid?(bingoGame?`<span>依投注票面確認（BINGO 暫不支援逐期日期計算）</span>`:fixed?`<div class="ca-locked-date"><strong>${roc(first)}</strong><small>指定日期 · 固定不可修改</small></div>`:`<div class="ca-choose-date"><strong>${roc(first)}</strong><label class="ca-date-adjust"><span>調整日期</span><input id="bwPurchaseDate" type="date" value="${safe(first)}" aria-label="調整首期開獎日期"/></label></div>`):`<span>建立於 ${roc(item.createdTaipeiDate||String(item.createdAt).slice(0,10))}，尚未確認購買</span>`;
   const dateRange=item.paid?(bingoGame?`<span class="ca-date-range">共 ${n} 期</span>`:first?`<span class="ca-date-range">${n>1?`至 ${roc(last)} · 共 ${n} 期`:'共 1 期'}</span>`:''):'';
   const sourceNote=item.paid?`<small class="ca-period-note">${bingoGame?'BINGO 使用分鐘級的連續期號，尚無法由每日開獎日曆判定各期，請以實體彩券為準。':fixed?'指定預購日期已鎖定，可於開獎後自動對獎。':info?.dateSource==='user-adjusted'?'已手動調整首期。':'以確認購買時的 20:00 分界自動選定首期，請核對實體彩券。'}這裡的日期代表對獎期別，不是實際交易時間。</small>`:'';
-  entries.innerHTML=`<div class="bu-journal-detail"><div class="bv-detail-heading">${gameLogo(item)}<div class="bu-journal-detail-status ${item.status}">${titleStatus(item)}</div></div><div class="bv-detail-title-row"><h4>投注明細</h4><button type="button" id="bzJournalPaidButton" class="bz-purchase-toggle ${item.paid?'is-purchased':'is-unpurchased'}" aria-pressed="${item.paid?'true':'false'}">${item.paid?'✓ 已購買':'未購買'}</button></div>${item.paid?`<div class="bw-purchase-details"><div class="bz-purchased-time">購買於 ${safe(rocTime(item.paidAt))}</div><label class="ca-purchase-label">實際購買日期（對獎首期）${dateControl}${dateRange}</label>${sourceNote}</div><div class="bv-period-summary ca-next-draw"><b>${safe(progress.text)}</b>${progress.complete&&item.status==='pending'?'<span>已過預計開獎日，仍有結果等待台彩官方核對。</span>':''}</div>`:''}${group}${item.paid?`<h4>對獎明細</h4>${drawResultReport(item)}<div class="bv-total-prize"><span>${item.status==='pending'?'目前已確認中獎總金額':'中獎總金額'}</span><strong>${priceFmt(item.prizeTotal)} 元</strong></div>`:''}<div class="bx-detail-qr"><button type="button" id="bxRecreateQr">製作QR Code</button></div><p class="bu-journal-disclaimer">${item.paid?'已標記完成購買。':'尚未確認購買。'}日期與獎金為對獎參考；實際購買日、投注期別與派彩請以彩券及台彩官方公告為準。</p></div>`;
+  const bingoCore=window.AoerBingoJournal,bs=item.bingoStart,configured=!!(bs?.date&&bs?.time);
+  const today=taipeiNow().date,timeOptions=Array.from({length:203},(_,i)=>{const m=425+i*5,t=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');return `<option value="${t}" ${bs?.time===t?'selected':''}>${t}</option>`;}).join('');
+  const bingoControl=bingoGame?`<section class="ca-bingo-selection"><h4>設定第一期對獎日期與時間</h4><div class="ca-bingo-fields"><label>開獎日期<input id="caBingoDate" type="date" value="${safe(bs?.date||today)}"></label><label>開獎時間<select id="caBingoTime"><option value="">請選擇時間</option>${timeOptions}</select></label></div><button type="button" id="caBingoConfirm">${configured?'重新設定並對獎':'確認並開始對獎'}</button><small>以第一期為起點，自動依後續 ${n} 期排程對獎。設定後不再依未購買14天規則自動刪除。</small>${configured?`<div class="ca-bingo-slots">${bingoCore.slots(bs.date,bs.time,n).map((x,i)=>`<span>第${i+1}期　${roc(x.date)}　${x.time}</span>`).join('')}</div>`:''}</section>`:'';
+  const purchaseControl=bingoGame?'<span class="ca-bingo-set-only">於下方設定對獎時間</span>':`<button type="button" id="bzJournalPaidButton" class="bz-purchase-toggle ${item.paid?'is-purchased':'is-unpurchased'}" aria-pressed="${item.paid?'true':'false'}">${item.paid?'✓ 已購買':'未購買'}</button>`;
+  const drawSection=bingoGame?(configured?`<h4>對獎明細</h4>${drawResultReport(item)}${(item.results||[]).some(r=>Array.isArray(r.balls)&&!r.reason)?`<div class="ca-bingo-total"><b>${(item.results||[]).some(r=>r.reason==='查無獎號')?'已取得獎號期數中獎':'中獎'} ${Number(item.bingoWinCount)||0} 注</b><span>一般獎金表參考：${priceFmt(item.prizeTotal)} 元</span></div>`:''}<small class="ca-bingo-caution">獎金按一般固定獎金表估算，未包含加碼、單期總獎金上限分配或其他活動變動，正式金額請以台彩公告及彩券正本為準。</small>`:''):(item.paid?`<h4>對獎明細</h4>${drawResultReport(item)}<div class="bv-total-prize"><span>${item.status==='pending'?'目前已確認中獎總金額':'中獎總金額'}</span><strong>${priceFmt(item.prizeTotal)} 元</strong></div>`:'');
+  entries.innerHTML=`<div class="bu-journal-detail"><div class="bv-detail-heading">${gameLogo(item)}<div class="bu-journal-detail-status ${item.status}">${titleStatus(item)}</div></div><div class="bv-detail-title-row"><h4>投注明細</h4>${purchaseControl}</div>${item.paid&&!bingoGame?`<div class="bw-purchase-details"><div class="bz-purchased-time">購買於 ${safe(rocTime(item.paidAt))}</div><label class="ca-purchase-label">實際購買日期（對獎首期）${dateControl}${dateRange}</label>${sourceNote}</div><div class="bv-period-summary ca-next-draw"><b>${safe(progress.text)}</b>${progress.complete&&item.status==='pending'?'<span>已過預計開獎日，仍有結果等待台彩官方核對。</span>':''}</div>`:''}${bingoControl}${group}${drawSection}<div class="bx-detail-qr"><button type="button" id="bxRecreateQr">製作QR Code</button></div><p class="bu-journal-disclaimer">${bingoGame?'BINGO 對獎時間由使用者指定，請核對彩券票面。':item.paid?'已標記完成購買。':'尚未確認購買。'}日期與獎金為對獎參考；實際購買日、投注期別與派彩請以彩券及台彩官方公告為準。</p></div>`;
  }
  function updateDeleteTools(){tool('buJournalRecheck').hidden=deleteMode;tool('buJournalExport').hidden=deleteMode;tool('bwJournalImport').hidden=deleteMode;tool('bvDeleteMode').hidden=deleteMode;tool('bvDeleteMode').textContent=selectedId?'刪除這筆':'刪除';tool('bvSelectAll').hidden=!deleteMode;tool('bvDeleteSelected').hidden=!deleteMode;tool('bvDeleteCancel').hidden=!deleteMode;tool('bvDeleteSelected').disabled=selectedIds.size===0;tool('bvDeleteSelected').textContent=`刪除 (${selectedIds.size})`;tool('bvSelectAll').textContent=selectedIds.size===read().length&&selectedIds.size?'取消全選':'全選';screen.classList.toggle('bv-deleting',deleteMode);}
  function render(){if(screen.hidden){updateUnreadDot();return;}const list=read();count.textContent=deleteMode?`已選 ${selectedIds.size}／${list.length} 筆`:`${list.length}筆記錄`;count.hidden=!!selectedId&&!deleteMode;tool('bzJournalTopBack').hidden=!selectedId||deleteMode;updateDeleteTools();if(selectedId&&!deleteMode){const item=list.find(x=>x.id===selectedId);if(item){detail(item);updateUnreadDot();return;}selectedId='';}
   entries.innerHTML=list.length?list.map(card).join(''):'<p class="bu-journal-empty">還沒有選號記錄。製作 QR 後會自動儲存於此。</p>';updateUnreadDot();
  }
- function open(){screen.hidden=false;document.body.style.overflow='hidden';selectedId='';deleteMode=false;selectedIds.clear();const items=read();let seen=false;for(const item of items){if(item.unreadWin){item.unreadWin=false;item.winSeenAt=new Date().toISOString();item.seenPrizeTotal=Math.max(Number(item.seenPrizeTotal)||0,Number(item.prizeTotal)||0);seen=true;}}if(seen)write(items);render();entries.scrollTop=0;checkAll(true);}
+ function open(){screen.hidden=false;document.body.style.overflow='hidden';selectedId='';deleteMode=false;selectedIds.clear();const items=read();let seen=false;for(const item of items){if(item.unreadWin){item.unreadWin=false;item.winSeenAt=new Date().toISOString();item.seenPrizeTotal=Math.max(Number(item.seenPrizeTotal)||0,Number(item.prizeTotal)||0);item.seenBingoWinCount=Math.max(Number(item.seenBingoWinCount)||0,Number(item.bingoWinCount)||0);seen=true;}}if(seen)write(items);render();entries.scrollTop=0;checkAll(true);}
  function close(){screen.hidden=true;document.body.style.overflow='';selectedId='';deleteMode=false;selectedIds.clear();updateUnreadDot();}
- function markViewed(id){const list=read(),item=list.find(x=>x.id===id);if(item?.unreadWin){item.unreadWin=false;item.winSeenAt=new Date().toISOString();item.seenPrizeTotal=Math.max(Number(item.seenPrizeTotal)||0,Number(item.prizeTotal)||0);write(list);}updateUnreadDot();}
+ function markViewed(id){const list=read(),item=list.find(x=>x.id===id);if(item?.unreadWin){item.unreadWin=false;item.winSeenAt=new Date().toISOString();item.seenPrizeTotal=Math.max(Number(item.seenPrizeTotal)||0,Number(item.prizeTotal)||0);item.seenBingoWinCount=Math.max(Number(item.seenBingoWinCount)||0,Number(item.bingoWinCount)||0);write(list);}updateUnreadDot();}
  function paintSelection(){for(const card of entries.querySelectorAll('[data-note]')){const value=selectedIds.has(card.dataset.note);card.classList.toggle('bv-selected',value);card.querySelector('.by-card-open')?.setAttribute('aria-pressed',String(value));const h=card.querySelector('.bv-selection-handle');if(h)h.textContent=value?'✓':'';}count.textContent=`已選 ${selectedIds.size}／${read().length} 筆`;updateDeleteTools();}
  function switchSelection(id,force){if(!id)return;if(force===undefined){if(selectedIds.has(id))selectedIds.delete(id);else selectedIds.add(id);}else if(force)selectedIds.add(id);else selectedIds.delete(id);paintSelection();}
  document.addEventListener('click',e=>{if(e.target.closest('#machineQr,#comboMakeQr,#smartApply,#selfApply,#mainMealApply'))lastQrNoteIds=[];},true);
@@ -10262,7 +10438,16 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
  tool('bvDeleteCancel').addEventListener('click',()=>{deleteMode=false;selectedIds.clear();render();});
  tool('bvSelectAll').addEventListener('click',()=>{const ids=read().map(x=>x.id);if(selectedIds.size===ids.length)selectedIds.clear();else ids.forEach(id=>selectedIds.add(id));paintSelection();});
  tool('bvDeleteSelected').addEventListener('click',()=>{if(!selectedIds.size)return;const n=selectedIds.size;if(!confirm(`確定永久刪除 ${n} 筆選號記錄？此操作無法復原，建議先匯出備份。`))return;const list=read().filter(x=>!selectedIds.has(x.id));if(write(list)){selectedIds.clear();deleteMode=false;render();}});
- entries.addEventListener('click',e=>{if(e.target.closest('.by-paid-label'))return;if(deleteMode&&e.target.closest('.bv-selection-handle')){const row=e.target.closest('[data-note]');if(row)switchSelection(row.dataset.note);return;}if(e.target.closest('.bx-swipe-delete')){const row=e.target.closest('[data-note]');if(row&&confirm('確定刪除這筆選號記錄？')){const list=read().filter(x=>x.id!==row.dataset.note);if(write(list)){selectedIds.delete(row.dataset.note);render();}}return;}const row=e.target.closest('[data-note]');if(row){if(deleteMode){switchSelection(row.dataset.note);return;}selectedId=row.dataset.note;markViewed(selectedId);render();entries.scrollTop=0;return;}
+ entries.addEventListener('click',e=>{
+  if(e.target.closest('#caBingoConfirm')){
+   const date=entries.querySelector('#caBingoDate')?.value,time=entries.querySelector('#caBingoTime')?.value,core=window.AoerBingoJournal;
+   if(!core?.validDay(date)||!core?.validTime(time)){alert('請選擇 BINGO 有效的第一期開獎日期及時間。');return;}
+   const list=read(),item=list.find(x=>x.id===selectedId);if(!item||item.gameId!=='bingo')return;
+   item.bingoStart={date,time,confirmedAt:new Date().toISOString()};
+   resetCheck(item);item.seenBingoWinCount=0;
+   if(write(list)){render();entries.scrollTop=0;checkAll(true);}return;
+  }
+  if(e.target.closest('.by-paid-label'))return;if(deleteMode&&e.target.closest('.bv-selection-handle')){const row=e.target.closest('[data-note]');if(row)switchSelection(row.dataset.note);return;}if(e.target.closest('.bx-swipe-delete')){const row=e.target.closest('[data-note]');if(row&&confirm('確定刪除這筆選號記錄？')){const list=read().filter(x=>x.id!==row.dataset.note);if(write(list)){selectedIds.delete(row.dataset.note);render();}}return;}const row=e.target.closest('[data-note]');if(row){if(deleteMode){switchSelection(row.dataset.note);return;}selectedId=row.dataset.note;markViewed(selectedId);render();entries.scrollTop=0;return;}
   if(e.target.closest('#bxRecreateQr')){const item=read().find(x=>x.id===selectedId);if(!item)return;if(specifiedDate(item)){openRepreorder(item);return;}try{window.__lottoArchiveBridge?.open(item.snapshot);fromNotebook=true;document.querySelector('.page[data-page="qrresult"]')?.classList.add('bx-from-notebook');close();window.dispatchEvent(new Event('aoer:qr-opened'));}catch(err){alert('無法製作QR：'+String(err.message||err));}return;}
   if(e.target.closest('#buJournalBack')){selectedId='';render();entries.scrollTop=0;return;}
   if(e.target.closest('#bzJournalPaidButton')){const item=read().find(x=>x.id===selectedId);if(item)setPurchased(selectedId,!item.paid);return;}
@@ -10288,7 +10473,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
    if(write(list)){render();checkAll(true);}return;
   }
  });
- function setPurchased(id,checked){if(deleteMode)return;const list=read(),item=list.find(x=>x.id===id);if(!item)return;
+ function setPurchased(id,checked){if(deleteMode)return;const list=read(),item=list.find(x=>x.id===id);if(!item)return;if(item.gameId==='bingo'){render();return;}
   if(checked){
    // Every new confirmation is a new purchase event: never carry a previously adjusted date forward.
    if(supported.has(item.gameId)&&!assignDrawPeriod(item)){
@@ -10343,7 +10528,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
  window.addEventListener('pageshow',()=>setTimeout(()=>checkAll(true),900));
  setInterval(()=>{if(!document.hidden)checkAll()},15*60*1000);
  updateUnreadDot();
- window.AoerPurchaseNotebook=Object.freeze({list:read,refresh:checkAll,open,award,powerAward,calculateBet});
+ window.AoerPurchaseNotebook=Object.freeze({list:read,refresh:checkAll,open,award,powerAward,calculateBet,bingo:()=>window.AoerBingoJournal});
 })();
 
 /* V14-BU horizontal stage transition: animated only when stage changes; reduced-motion respected. */
