@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號｜V14-BY 自動對獎與滑動刪除修正</title>
+<title>奧爾樂透選號｜V14-BZ 選號記錄修正</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -6076,6 +6076,36 @@ window.__lottoArchiveBridge={
     for(const p of state.pages)delete p.dataUrl;
     return state;
   },
+  eligiblePreorderDates(snapshot){
+    const game=snapshot?.gameId||snapshot?.pages?.[0]?.gameId,cal=window.AoerDrawCalendar;
+    if(!game||!cal?.nextDates||!cal?.today)throw Error('無法取得預購日曆');
+    const tomorrow=new Date(Date.parse(cal.today()+'T00:00:00Z')+86400000).toISOString().slice(0,10);
+    const limit=GAME_CONFIGS[game]?.preorderCount||0;
+    if(!limit)throw Error('此彩種不支援指定日期');
+    return cal.nextDates(game,tomorrow,limit);
+  },
+  rebuildPreorder(snapshot,newDate){
+    if(!snapshot?.pages?.length)throw Error('原投注內容不完整');
+    const game=snapshot.gameId||snapshot.pages[0].gameId;
+    const cal=window.AoerDrawCalendar;
+    if(!cal?.nextDates||!cal?.today||!/^\d{4}-\d{2}-\d{2}$/.test(newDate))throw Error('指定開獎日期格式錯誤');
+    const tomorrow=new Date(Date.parse(cal.today()+'T00:00:00Z')+86400000).toISOString().slice(0,10);
+    const allowed=cal.nextDates(game,tomorrow,GAME_CONFIGS[game]?.preorderCount||0);
+    const offset=allowed.indexOf(newDate);
+    if(offset<0)throw Error('新日期不在目前可使用的指定預購日期範圍內');
+    for(const page of snapshot.pages){
+      const g=page.gameId||game;
+      if(!cal.isDrawDate(g,newDate))throw Error('新日期不是 '+g+' 的開獎日');
+      if(!Array.isArray(page.rows)||!page.rows.length)throw Error('原投注資料缺少可重新編碼的號碼');
+    }
+    const next=JSON.parse(JSON.stringify(snapshot));
+    next.pages=next.pages.map(page=>{
+      const rebuilt=buildQrPage(page.rows,Number(page.periodCount)||Number(next.periodCount)||1,offset,newDate,Number(page.offsetIndex)||0,page.gameId||game);
+      return {...page,...rebuilt};
+    });
+    next.current=0;next.startOffset=offset;next.preorderDate=newDate;
+    return next;
+  },
   open(snapshot){
     if(!snapshot?.pages?.length||snapshot.pages.some(p=>!p.payload))throw Error('收藏的 QR 資料不完整。');
     qrResultState=JSON.parse(JSON.stringify(snapshot));
@@ -7447,6 +7477,8 @@ header,nav{background:#FFFCF2;border-color:#EAD79E}
  document.getElementById('aeDesktopCartBtn')?.addEventListener('click',()=>showSheet('cart'));
  entry.addEventListener('click',()=>{if(!entry.disabled)showSheet('favorite')});
  document.addEventListener('click',e=>{if(e.target.closest('#machineQr,#qrResultPager,#archiveAddCart,#archiveToggleFav,#qrResultBack2,#qrBackBtn'))setTimeout(updateUI,90)},true);
+  window.addEventListener('aoer:qr-created',()=>setTimeout(updateUI,0));
+  window.addEventListener('aoer:qr-opened',()=>setTimeout(updateUI,0));
  window.addEventListener('pageshow',updateUI);
  updateUI();
 })();
@@ -9869,13 +9901,18 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
  const safe=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const num=n=>String(n).padStart(2,'0');
  function roc(iso){const x=/^(\d{4})-(\d\d)-(\d\d)$/.exec(String(iso||''));return x?`${Number(x[1])-1911}/${x[2]}/${x[3]}`:'—';}
+ function rocTime(stamp){
+  if(!stamp||!Number.isFinite(Date.parse(stamp)))return '—';
+  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(stamp)).map(p=>[p.type,p.value]));
+  return `${Number(parts.year)-1911}/${parts.month}/${parts.day} ${parts.hour}:${parts.minute}`;
+ }
  function taipeiNow(){let parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).map(x=>[x.type,x.value]));return {date:`${parts.year}-${parts.month}-${parts.day}`,hour:Number(parts.hour),minute:Number(parts.minute)};}
  function dayAfter(iso){const d=new Date(iso+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1);return d.toISOString().slice(0,10)}
  // User-facing lottery-day boundary: 20:00 Taiwan time, independent of device locale.
  function nextCutoffDate(now=taipeiNow()){return now.hour>=20?dayAfter(now.date):now.date;}
  function specifiedDate(item){const s=item?.snapshot;const v=String(s?.preorderDate||s?.pages?.[0]?.preorderDate||'');return /^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';}
  function dateCorrect(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||'')))return false;const d=new Date(iso+'T00:00:00Z');return !isNaN(d)&&d.toISOString().slice(0,10)===iso;}
- function resetCheck(item){item.status='pending';item.results=[];item.prizeTotal=0;item.lastChecked='';item.unreadWin=false;item.hasPreview=false;}
+ function resetCheck(item){item.status='pending';item.results=[];item.prizeTotal=0;item.lastChecked='';item.unreadWin=false;item.hasPreview=false;item.seenPrizeTotal=0;item.winSeenAt='';}
  // Confirmation defaults to the next draw after the 20:00 boundary. A user's
  // explicitly selected prepaid date is immutable; manually revised dates are kept.
  // These are draw periods, NOT proof of the date a ticket was purchased.
@@ -10034,7 +10071,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
     }
    }
   }
-  const was=Number(item.prizeTotal)||0;item.results=oldResults;item.prizeTotal=allTotal;item.hasPreview=oldResults.some(x=>x.preview);item.lastChecked=new Date().toISOString();item.status=pending||unknown?'pending':allTotal>0?'won':'lost';if(allTotal>was)item.unreadWin=true;return item;
+  const was=Number(item.prizeTotal)||0;item.results=oldResults;item.prizeTotal=allTotal;item.hasPreview=oldResults.some(x=>x.preview);item.lastChecked=new Date().toISOString();item.status=pending||unknown?'pending':allTotal>0?'won':'lost';if(allTotal>Math.max(was,Number(item.seenPrizeTotal)||0))item.unreadWin=true;return item;
  }
  let checking=false,recheckQueued=false,refreshCycleCounter=0;
  function revisionKey(item){return JSON.stringify({paid:!!item.paid,purchaseDate:item.purchaseDate||'',schedule:item.schedule||{}});}
@@ -10057,7 +10094,8 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
      if(!existing||revisionKey(existing)!==rev){recheckQueued=true;continue;}
      const priorPrize=Number(existing.prizeTotal)||0;
      for(const k of ['results','prizeTotal','hasPreview','lastChecked','status','schedule'])existing[k]=checked[k];
-     if(Number(checked.prizeTotal)>priorPrize)existing.unreadWin=true;
+     if(Number(checked.prizeTotal)>Math.max(priorPrize,Number(existing.seenPrizeTotal)||0))existing.unreadWin=true;
+     if(!screen.hidden&&existing.unreadWin){existing.unreadWin=false;existing.winSeenAt=new Date().toISOString();existing.seenPrizeTotal=Math.max(Number(existing.seenPrizeTotal)||0,Number(checked.prizeTotal)||0);}
      dirty=true;
     }
     if(dirty){write(current);render();}
@@ -10068,20 +10106,51 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
    if(recheckQueued){recheckQueued=false;setTimeout(()=>checkAll(true),0);}
   }
  }
- const titleStatus=item=>item.status==='pending'?(item.prizeTotal>0?'已中 '+priceFmt(item.prizeTotal)+' 元 · 待確認':item.hasPreview?'暫定對獎 · 待核對':'未對獎'):item.status==='won'?'中 '+priceFmt(item.prizeTotal)+' 元':'沒中獎';
+ const titleStatus=item=>!item.paid?'尚未確認購買':item.status==='pending'?(item.prizeTotal>0?'已中 '+priceFmt(item.prizeTotal)+' 元 · 待確認':item.hasPreview?'暫定對獎 · 待核對':'未對獎'):item.status==='won'?'中 '+priceFmt(item.prizeTotal)+' 元':'沒中獎';
  const journalBtn=document.createElement('button');journalBtn.type='button';journalBtn.id='buJournalEntry';journalBtn.textContent='▤ 選號記錄';journalBtn.title='製作 QR 時自動保存選號，並核對台彩官方開獎資料';
  const favorites=document.getElementById('mobileFavoritesEntry');if(favorites){const row=document.createElement('div');row.id='buHomeRecords';favorites.parentNode.insertBefore(row,favorites);row.appendChild(favorites);row.appendChild(journalBtn);}
  const qrBtn=document.createElement('button');qrBtn.type='button';qrBtn.id='buQrJournalEntry';qrBtn.textContent='▤';qrBtn.setAttribute('aria-label','選號記錄');qrBtn.title='加入選號記錄';qrBtn.setAttribute('aria-pressed','true');qrBtn.textContent='☑ 記錄';document.getElementById('archiveToggleFav')?.before(qrBtn);let saveQr=true,fromNotebook=false,lastQrSnapshot=null,lastQrNoteIds=[];function syncQrSwitch(){qrBtn.setAttribute('aria-pressed',String(saveQr));qrBtn.textContent=(saveQr?'☑':'☐')+' 記錄';qrBtn.title=saveQr?'製作 QR 時加入選號記錄':'不加入選號記錄';}syncQrSwitch();
  const screen=document.createElement('section');screen.id='buJournalSheet';screen.hidden=true;screen.setAttribute('role','dialog');screen.setAttribute('aria-modal','true');screen.setAttribute('aria-label','選號記錄');
- screen.innerHTML=`<div class="bu-journal-panel"><header class="bu-journal-header"><div><h2>選號記錄</h2><small>製作 QR 可選擇是否存檔；未購買記錄保留14天</small></div><button type="button" id="buJournalClose" aria-label="關閉記錄">✕</button></header><div class="bu-journal-tools" id="bvJournalToolbar"><span id="buJournalCount"></span><button id="buJournalRecheck" type="button">更新對獎</button><button id="buJournalExport" type="button">匯出備份</button><button id="bwJournalImport" type="button">匯入備份</button><input id="bwImportFile" type="file" accept="application/json,.json" hidden><button id="bvDeleteMode" type="button">刪除</button><button id="bvSelectAll" type="button" hidden>全選</button><button id="bvDeleteSelected" type="button" hidden disabled>刪除 (0)</button><button id="bvDeleteCancel" type="button" hidden>取消</button></div><div id="buJournalEntries"></div></div>`;
+ screen.innerHTML=`<div class="bu-journal-panel"><header class="bu-journal-header"><div><h2>選號記錄</h2><small>製作 QR 可選擇是否存檔；未購買記錄保留14天</small></div><button type="button" id="buJournalClose" aria-label="關閉記錄">✕</button></header><div class="bu-journal-tools" id="bvJournalToolbar"><button id="bzJournalTopBack" type="button" aria-label="返回選號記錄" title="返回選號記錄" hidden>‹</button><span id="buJournalCount"></span><button id="buJournalRecheck" type="button">更新對獎</button><button id="buJournalExport" type="button">匯出備份</button><button id="bwJournalImport" type="button">匯入備份</button><input id="bwImportFile" type="file" accept="application/json,.json" hidden><button id="bvDeleteMode" type="button">刪除</button><button id="bvSelectAll" type="button" hidden>全選</button><button id="bvDeleteSelected" type="button" hidden disabled>刪除 (0)</button><button id="bvDeleteCancel" type="button" hidden>取消</button></div><div id="buJournalEntries"></div></div>`;
  document.body.appendChild(screen);
+ const redate=document.createElement('div');redate.id='bzRepreorderDialog';redate.hidden=true;redate.setAttribute('role','dialog');redate.setAttribute('aria-modal','true');redate.setAttribute('aria-label','重新指定預購日期');
+ redate.innerHTML='<div class="bz-repreorder-card"><h3>重新指定預購日期</h3><p>請確認這張 QR 的新指定日期。確認後會重新編碼，並新增一筆選號記錄，舊記錄不變。</p><label for="bzRepreorderSelect">新的指定日期</label><select id="bzRepreorderSelect"></select><div class="bz-repreorder-buttons"><button type="button" id="bzRepreorderCancel">取消</button><button type="button" id="bzRepreorderConfirm">確認並製作 QR</button></div></div>';
+ document.body.appendChild(redate);
+ let redateNoteId='';
+ function openRepreorder(item){
+   const cal=window.AoerDrawCalendar,game=item.gameId;
+   if(!cal?.nextDates||!cal?.today){alert('目前無法取得新的指定開獎日期。');return;}
+   try{const dates=window.__lottoArchiveBridge?.eligiblePreorderDates?.(item.snapshot)||[],previous=specifiedDate(item);
+     const eligible=dates.filter(x=>x!==previous);
+     if(!eligible.length)throw Error('目前沒有可選的新日期。');
+     const sel=redate.querySelector('#bzRepreorderSelect');sel.innerHTML=eligible.map(x=>`<option value="${x}">${roc(x)}</option>`).join('');
+     redateNoteId=item.id;redate.hidden=false;sel.focus();
+   }catch(err){alert('指定日期無法取得：'+String(err.message||err));}
+ }
+ function closeRepreorder(){redate.hidden=true;redateNoteId='';}
+ redate.querySelector('#bzRepreorderCancel').addEventListener('click',closeRepreorder);
+ redate.addEventListener('click',e=>{if(e.target===redate)closeRepreorder();});
+ redate.querySelector('#bzRepreorderConfirm').addEventListener('click',()=>{
+   const item=read().find(x=>x.id===redateNoteId),date=redate.querySelector('#bzRepreorderSelect').value;
+   if(!item||!dateCorrect(date)){alert('無法辨識指定日期，請重新選取。');return;}
+   if(!confirm(`確定指定 ${roc(date)} 重新製作 QR？原有記錄保留，並新增一筆記錄。`))return;
+   try{
+     const bridge=window.__lottoArchiveBridge;
+     if(typeof bridge?.rebuildPreorder!=='function')throw Error('重新編碼功能不可用');
+     const snap=bridge.rebuildPreorder(item.snapshot,date);
+     lastQrSnapshot=null;lastQrNoteIds=[];saveQr=true;syncQrSwitch();fromNotebook=false;
+     bridge.open(snap);closeRepreorder();close();
+     window.dispatchEvent(new CustomEvent('aoer:qr-created',{detail:snap}));
+     window.dispatchEvent(new Event('aoer:qr-opened'));
+   }catch(err){alert('無法重新製作 QR：'+String(err.message||err));}
+ });
  const entries=document.getElementById('buJournalEntries'),count=document.getElementById('buJournalCount');let selectedId='',deleteMode=false;const selectedIds=new Set();
  const tool=id=>screen.querySelector('#'+id);
  function updateUnreadDot(){const has=read().some(x=>x.paid&&x.unreadWin&&Number(x.prizeTotal)>0);journalBtn.classList.toggle('bv-has-new-win',has);qrBtn.classList.toggle('bv-has-new-win',has);for(const el of [journalBtn,qrBtn])el.setAttribute('aria-label',(el===journalBtn?'選號記錄':'選號記錄')+(has?'，有未查看的中獎結果':''));}
  function gameLogo(item){const logo=logoMap[item.gameId];return logo?`<img class="bv-game-logo" src="${logo}" alt="${safe(gameNames[item.gameId]||'彩種')}"/>`:`<strong class="bv-game-text">${safe(gameNames[item.gameId]||'彩種')}</strong>`}
  function card(item){const units=betCount(item.snapshot),isSelected=selectedIds.has(item.id),first=item.first||selectFirst(item.snapshot);
-  const date=item.paid&&item.purchaseDate?item.purchaseDate:item.createdTaipeiDate||String(item.createdAt).slice(0,10);
-  const dateLabel=item.paid&&item.purchaseDate?'首期':'建立';
+  const date=item.createdTaipeiDate||String(item.createdAt).slice(0,10);
+  const dateLabel=item.paid?(item.paidAt?'購買於 '+rocTime(item.paidAt):'已購買'):'建立 '+roc(date);
   const primarySchedule=item.schedule?.[item.gameId];const predicted=primarySchedule?.dates?.[0];
   const isConfirmed=!!primarySchedule&&!primarySchedule.estimated;
   const firstLabel=predicted?(isConfirmed?'首期':'預計首期')+' '+roc(predicted):'首期待確認';
@@ -10089,11 +10158,11 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   return `<div class="bu-journal-card bv-note-card by-note-wrap ${isSelected?'bv-selected':''}" data-note="${safe(item.id)}" role="group" aria-label="${safe(gameNames[item.gameId]||'彩種')} 選號記錄">
     <button class="bx-swipe-delete" type="button">刪除</button><span class="bv-selection-handle" ${deleteMode?'':'hidden'} aria-hidden="true">${isSelected?'✓':''}</span>
     <button type="button" class="bv-card-body by-card-open" aria-label="查看選號記錄明細" aria-pressed="${deleteMode?isSelected:'false'}">
-      <span class="bv-card-top">${gameLogo(item)}<span class="bv-card-date" title="${dateLabel==='首期'?'預計首期開獎日，不代表實際購票日期':'選號建立日期，非購買憑證'}">${dateLabel} ${roc(date)}</span></span>
+      <span class="bv-card-top">${gameLogo(item)}<span class="bv-card-date" title="${item.paid?'勾選已購買的時間':'選號建立日期，非購買憑證'}">${safe(dateLabel)}</span></span>
       <span class="bv-card-middle"><span class="bu-journal-first">${safe(first)}</span><span class="bu-journal-status ${item.status}">${titleStatus(item)}</span></span>
       <span class="bv-card-bottom"><span>購買組數 <b>${units} 組</b>　購買期數 <b>${Number(item.periodCount)||1} 期</b></span><strong class="bv-card-amount">${priceFmt(item.total)} 元</strong></span>
     </button>
-    <div class="by-card-footer"><span class="by-card-drawdate" title="${isConfirmed?'已指定預購日期':'預計開獎日並非已購買彩券期別，請核對票面'}">${safe(firstLabel)} ${splitLabel}</span><label class="by-paid-label" ${deleteMode?'aria-disabled="true"':''}><input type="checkbox" class="by-card-paid-input" data-paid-id="${safe(item.id)}" ${item.paid?'checked':''} ${deleteMode?'disabled':''} aria-label="標記這張 QR 已購買"><span>已購買</span></label></div>
+    <div class="by-card-footer"><span class="by-card-drawdate" title="${isConfirmed?'已指定預購日期':'預計開獎日並非已購買彩券期別，請核對票面'}">${item.paid?safe(firstLabel):''}${splitLabel}</span><label class="by-paid-label" ${deleteMode?'aria-disabled="true"':''}><input type="checkbox" class="by-card-paid-input" data-paid-id="${safe(item.id)}" ${item.paid?'checked':''} ${deleteMode?'disabled':''} aria-label="標記這張 QR 已購買"><span>已購買</span></label></div>
   </div>`;
  }
  function fmtBet(game,bet){const s=a=>(a||[]).map(num).join('、');if(game==='bingo')return `${bet.mode==='super'?'超級獎號':`${bet.stars}星`} ${s(bet.nums)}`;
@@ -10153,20 +10222,20 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   const dateControl=item.paid?(bingoGame?`<span>依投注票面確認（BINGO 暫不支援逐期日期計算）</span>`:fixed?`<div class="ca-locked-date"><strong>${roc(first)}</strong><small>指定日期 · 固定不可修改</small></div>`:`<div class="ca-choose-date"><strong>${roc(first)}</strong><label class="ca-date-adjust"><span>調整日期</span><input id="bwPurchaseDate" type="date" value="${safe(first)}" aria-label="調整首期開獎日期"/></label></div>`):`<span>建立於 ${roc(item.createdTaipeiDate||String(item.createdAt).slice(0,10))}，尚未確認購買</span>`;
   const dateRange=item.paid?(bingoGame?`<span class="ca-date-range">共 ${n} 期</span>`:first?`<span class="ca-date-range">${n>1?`至 ${roc(last)} · 共 ${n} 期`:'共 1 期'}</span>`:''):'';
   const sourceNote=item.paid?`<small class="ca-period-note">${bingoGame?'BINGO 使用分鐘級的連續期號，尚無法由每日開獎日曆判定各期，請以實體彩券為準。':fixed?'指定預購日期已鎖定，可於開獎後自動對獎。':info?.dateSource==='user-adjusted'?'已手動調整首期。':'以確認購買時的 20:00 分界自動選定首期，請核對實體彩券。'}這裡的日期代表對獎期別，不是實際交易時間。</small>`:'';
-  entries.innerHTML=`<div class="bu-journal-detail"><button type="button" id="buJournalBack" class="bu-journal-back">‹ 返回選號記錄</button><div class="bv-detail-heading">${gameLogo(item)}<div class="bu-journal-detail-status ${item.status}">${titleStatus(item)}</div></div><div class="bv-detail-title-row"><h4>投注明細</h4><button type="button" id="bzJournalPaidButton" class="bz-purchase-toggle ${item.paid?'is-purchased':'is-unpurchased'}" aria-pressed="${item.paid?'true':'false'}">${item.paid?'✓ 已購買':'未購買'}</button></div><div class="bw-purchase-details"><label class="ca-purchase-label">實際購買日期（對獎首期）${dateControl}${dateRange}</label>${sourceNote}</div><div class="bv-period-summary ca-next-draw"><b>${safe(progress.text)}</b>${progress.complete&&item.status==='pending'?'<span>已過預計開獎日，仍有結果等待台彩官方核對。</span>':''}${!item.paid&&info?.estimated?'<span>尚未確認購買，首期為暫估日期。</span>':''}</div>${group}<h4>對獎明細</h4>${drawResultReport(item)}<div class="bv-total-prize"><span>${item.status==='pending'?'目前已確認中獎總金額':'中獎總金額'}</span><strong>${priceFmt(item.prizeTotal)} 元</strong></div><div class="bx-detail-qr"><button type="button" id="bxRecreateQr">製作QR Code</button></div><p class="bu-journal-disclaimer">${item.paid?'已標記完成購買。':'尚未確認購買。'}日期與獎金為對獎參考；實際購買日、投注期別與派彩請以彩券及台彩官方公告為準。</p></div>`;
+  entries.innerHTML=`<div class="bu-journal-detail"><div class="bv-detail-heading">${gameLogo(item)}<div class="bu-journal-detail-status ${item.status}">${titleStatus(item)}</div></div><div class="bv-detail-title-row"><h4>投注明細</h4><button type="button" id="bzJournalPaidButton" class="bz-purchase-toggle ${item.paid?'is-purchased':'is-unpurchased'}" aria-pressed="${item.paid?'true':'false'}">${item.paid?'✓ 已購買':'未購買'}</button></div>${item.paid?`<div class="bw-purchase-details"><div class="bz-purchased-time">購買於 ${safe(rocTime(item.paidAt))}</div><label class="ca-purchase-label">實際購買日期（對獎首期）${dateControl}${dateRange}</label>${sourceNote}</div><div class="bv-period-summary ca-next-draw"><b>${safe(progress.text)}</b>${progress.complete&&item.status==='pending'?'<span>已過預計開獎日，仍有結果等待台彩官方核對。</span>':''}</div>`:''}${group}${item.paid?`<h4>對獎明細</h4>${drawResultReport(item)}<div class="bv-total-prize"><span>${item.status==='pending'?'目前已確認中獎總金額':'中獎總金額'}</span><strong>${priceFmt(item.prizeTotal)} 元</strong></div>`:''}<div class="bx-detail-qr"><button type="button" id="bxRecreateQr">製作QR Code</button></div><p class="bu-journal-disclaimer">${item.paid?'已標記完成購買。':'尚未確認購買。'}日期與獎金為對獎參考；實際購買日、投注期別與派彩請以彩券及台彩官方公告為準。</p></div>`;
  }
  function updateDeleteTools(){tool('buJournalRecheck').hidden=deleteMode;tool('buJournalExport').hidden=deleteMode;tool('bwJournalImport').hidden=deleteMode;tool('bvDeleteMode').hidden=deleteMode;tool('bvDeleteMode').textContent=selectedId?'刪除這筆':'刪除';tool('bvSelectAll').hidden=!deleteMode;tool('bvDeleteSelected').hidden=!deleteMode;tool('bvDeleteCancel').hidden=!deleteMode;tool('bvDeleteSelected').disabled=selectedIds.size===0;tool('bvDeleteSelected').textContent=`刪除 (${selectedIds.size})`;tool('bvSelectAll').textContent=selectedIds.size===read().length&&selectedIds.size?'取消全選':'全選';screen.classList.toggle('bv-deleting',deleteMode);}
- function render(){if(screen.hidden){updateUnreadDot();return;}const list=read();count.textContent=deleteMode?`已選 ${selectedIds.size}／${list.length} 筆`:`${list.length}筆記錄`;updateDeleteTools();if(selectedId&&!deleteMode){const item=list.find(x=>x.id===selectedId);if(item){detail(item);updateUnreadDot();return;}selectedId='';}
+ function render(){if(screen.hidden){updateUnreadDot();return;}const list=read();count.textContent=deleteMode?`已選 ${selectedIds.size}／${list.length} 筆`:`${list.length}筆記錄`;count.hidden=!!selectedId&&!deleteMode;tool('bzJournalTopBack').hidden=!selectedId||deleteMode;updateDeleteTools();if(selectedId&&!deleteMode){const item=list.find(x=>x.id===selectedId);if(item){detail(item);updateUnreadDot();return;}selectedId='';}
   entries.innerHTML=list.length?list.map(card).join(''):'<p class="bu-journal-empty">還沒有選號記錄。製作 QR 後會自動儲存於此。</p>';updateUnreadDot();
  }
- function open(){screen.hidden=false;document.body.style.overflow='hidden';selectedId='';deleteMode=false;selectedIds.clear();render();checkAll(true);}
+ function open(){screen.hidden=false;document.body.style.overflow='hidden';selectedId='';deleteMode=false;selectedIds.clear();const items=read();let seen=false;for(const item of items){if(item.unreadWin){item.unreadWin=false;item.winSeenAt=new Date().toISOString();item.seenPrizeTotal=Math.max(Number(item.seenPrizeTotal)||0,Number(item.prizeTotal)||0);seen=true;}}if(seen)write(items);render();entries.scrollTop=0;checkAll(true);}
  function close(){screen.hidden=true;document.body.style.overflow='';selectedId='';deleteMode=false;selectedIds.clear();updateUnreadDot();}
- function markViewed(id){const list=read(),item=list.find(x=>x.id===id);if(item?.unreadWin){item.unreadWin=false;item.winSeenAt=new Date().toISOString();write(list);}updateUnreadDot();}
+ function markViewed(id){const list=read(),item=list.find(x=>x.id===id);if(item?.unreadWin){item.unreadWin=false;item.winSeenAt=new Date().toISOString();item.seenPrizeTotal=Math.max(Number(item.seenPrizeTotal)||0,Number(item.prizeTotal)||0);write(list);}updateUnreadDot();}
  function paintSelection(){for(const card of entries.querySelectorAll('[data-note]')){const value=selectedIds.has(card.dataset.note);card.classList.toggle('bv-selected',value);card.querySelector('.by-card-open')?.setAttribute('aria-pressed',String(value));const h=card.querySelector('.bv-selection-handle');if(h)h.textContent=value?'✓':'';}count.textContent=`已選 ${selectedIds.size}／${read().length} 筆`;updateDeleteTools();}
  function switchSelection(id,force){if(!id)return;if(force===undefined){if(selectedIds.has(id))selectedIds.delete(id);else selectedIds.add(id);}else if(force)selectedIds.add(id);else selectedIds.delete(id);paintSelection();}
  document.addEventListener('click',e=>{if(e.target.closest('#machineQr,#comboMakeQr,#smartApply,#selfApply,#mainMealApply'))lastQrNoteIds=[];},true);
  journalBtn.addEventListener('click',open);qrBtn.addEventListener('click',()=>{if(fromNotebook)return;saveQr=!saveQr;syncQrSwitch();if(!saveQr&&lastQrNoteIds.length){const removing=new Set(lastQrNoteIds);if(write(read().filter(x=>!removing.has(x.id)))){lastQrNoteIds=[];updateUnreadDot();}}else if(saveQr&&!lastQrNoteIds.length&&lastQrSnapshot){window.dispatchEvent(new CustomEvent('aoer:qr-created',{detail:lastQrSnapshot}));}});
- tool('buJournalClose').addEventListener('click',close);
+ tool('buJournalClose').addEventListener('click',close);tool('bzJournalTopBack').addEventListener('click',()=>{selectedId='';render();entries.scrollTop=0;});
  screen.addEventListener('click',e=>{if(e.target===screen)close()});
  tool('buJournalRecheck').addEventListener('click',()=>checkAll(true));
  tool('buJournalExport').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({format:'aoer-purchase-notebook-v1',exportedAt:new Date().toISOString(),records:read()},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`奧爾樂透選號記錄_${taipeiNow().date}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
@@ -10193,9 +10262,9 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
  tool('bvDeleteCancel').addEventListener('click',()=>{deleteMode=false;selectedIds.clear();render();});
  tool('bvSelectAll').addEventListener('click',()=>{const ids=read().map(x=>x.id);if(selectedIds.size===ids.length)selectedIds.clear();else ids.forEach(id=>selectedIds.add(id));paintSelection();});
  tool('bvDeleteSelected').addEventListener('click',()=>{if(!selectedIds.size)return;const n=selectedIds.size;if(!confirm(`確定永久刪除 ${n} 筆選號記錄？此操作無法復原，建議先匯出備份。`))return;const list=read().filter(x=>!selectedIds.has(x.id));if(write(list)){selectedIds.clear();deleteMode=false;render();}});
- entries.addEventListener('click',e=>{if(e.target.closest('.by-paid-label'))return;if(deleteMode&&e.target.closest('.bv-selection-handle')){const row=e.target.closest('[data-note]');if(row)switchSelection(row.dataset.note);return;}if(e.target.closest('.bx-swipe-delete')){const row=e.target.closest('[data-note]');if(row&&confirm('確定刪除這筆選號記錄？')){const list=read().filter(x=>x.id!==row.dataset.note);if(write(list)){selectedIds.delete(row.dataset.note);render();}}return;}const row=e.target.closest('[data-note]');if(row){if(deleteMode){switchSelection(row.dataset.note);return;}selectedId=row.dataset.note;markViewed(selectedId);render();return;}
-  if(e.target.closest('#bxRecreateQr')){const item=read().find(x=>x.id===selectedId);if(!item)return;try{window.__lottoArchiveBridge?.open(item.snapshot);fromNotebook=true;document.querySelector('.page[data-page="qrresult"]')?.classList.add('bx-from-notebook');close();}catch(err){alert('無法製作QR：'+String(err.message||err));}return;}
-  if(e.target.closest('#buJournalBack')){selectedId='';render();return;}
+ entries.addEventListener('click',e=>{if(e.target.closest('.by-paid-label'))return;if(deleteMode&&e.target.closest('.bv-selection-handle')){const row=e.target.closest('[data-note]');if(row)switchSelection(row.dataset.note);return;}if(e.target.closest('.bx-swipe-delete')){const row=e.target.closest('[data-note]');if(row&&confirm('確定刪除這筆選號記錄？')){const list=read().filter(x=>x.id!==row.dataset.note);if(write(list)){selectedIds.delete(row.dataset.note);render();}}return;}const row=e.target.closest('[data-note]');if(row){if(deleteMode){switchSelection(row.dataset.note);return;}selectedId=row.dataset.note;markViewed(selectedId);render();entries.scrollTop=0;return;}
+  if(e.target.closest('#bxRecreateQr')){const item=read().find(x=>x.id===selectedId);if(!item)return;if(specifiedDate(item)){openRepreorder(item);return;}try{window.__lottoArchiveBridge?.open(item.snapshot);fromNotebook=true;document.querySelector('.page[data-page="qrresult"]')?.classList.add('bx-from-notebook');close();window.dispatchEvent(new Event('aoer:qr-opened'));}catch(err){alert('無法製作QR：'+String(err.message||err));}return;}
+  if(e.target.closest('#buJournalBack')){selectedId='';render();entries.scrollTop=0;return;}
   if(e.target.closest('#bzJournalPaidButton')){const item=read().find(x=>x.id===selectedId);if(item)setPurchased(selectedId,!item.paid);return;}
   if(e.target.closest('#bvConfirmDrawDate')){
    const list=read(),item=list.find(x=>x.id===selectedId),cal=window.AoerDrawCalendar;
@@ -10221,14 +10290,16 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
  });
  function setPurchased(id,checked){if(deleteMode)return;const list=read(),item=list.find(x=>x.id===id);if(!item)return;
   if(checked){
-   const manuallySet=item.schedule?.[item.gameId]?.dateSource==='user-adjusted'?item.schedule[item.gameId].dates?.[0]:'';
-   if(supported.has(item.gameId)&&!assignDrawPeriod(item,manuallySet||'')){
+   // Every new confirmation is a new purchase event: never carry a previously adjusted date forward.
+   if(supported.has(item.gameId)&&!assignDrawPeriod(item)){
     alert('無法取得完整開獎日曆，暫時不能自動設定期別；請稍後再試。');render();return;
    }
+   item.paid=true;item.paidAt=new Date().toISOString();
+  }else{
+   item.paid=false;item.paidAt='';item.purchaseDate='';item.purchaseEndDate='';item.purchaseDateFixed=false;
+   item.schedule={};for(const game of new Set((item.snapshot.pages||[]).map(p=>p.gameId||item.gameId)))item.schedule[game]=datesFor(item.snapshot,game);
+   resetCheck(item);
   }
-  item.paid=!!checked;
-  item.paidAt=item.paid?(item.paidAt||new Date().toISOString()):'';
-  if(!item.paid)item.unreadWin=false;
   if(write(list)){render();updateUnreadDot();if(item.paid)checkAll(true);}
  }
  entries.addEventListener('change',e=>{
@@ -10376,5 +10447,80 @@ html[data-ui-theme="charcoal"] .bg-draw-cards .bs-bonus-card{background:#52636c!
 html[data-ui-theme="charcoal"] .bs-bonus-card .bx-bonus-card-head strong{color:#ffe0a5!important}
 html[data-ui-theme="charcoal"] .bs-bonus-card .meta{color:#e1e7ea!important}
 @media(max-width:600px){.bg-draw-cards .bs-bonus-card{padding:12px!important}.bs-bonus-card .bx-bonus-card-head{gap:8px}.bs-bonus-card .bx-bonus-card-head img{max-width:118px;height:31px}.bs-bonus-card .bx-bonus-card-head strong{font-size:14px}}
-</style></body>
+</style><style id="v14bz-final-style">
+/* Detail navigation takes the count slot; no count displayed while viewing one record. */
+#buJournalSheet .bz-purchased-time{font-size:12px;font-weight:800;color:#60788b;margin:0 0 8px}
+html[data-ui-theme="charcoal"] #buJournalSheet .bz-purchased-time{color:#d8e6ec}
+#buJournalSheet #bzJournalTopBack:not([hidden]){display:inline-flex!important;align-items:center;justify-content:center;flex:none;width:44px;min-width:44px;padding:3px!important;border-radius:10px;background:#f3f7fb;border:1.5px solid #c5d2dc;color:#28455c;font-size:31px;line-height:1;cursor:pointer}
+#buJournalSheet #buJournalCount[hidden]{display:none!important}
+#buJournalSheet .bv-card-date{white-space:normal!important;text-align:right;max-width:62%;line-height:1.45}
+#buJournalSheet .by-card-drawdate:empty{display:none!important}
+#buJournalSheet .by-card-footer{min-width:0}
+#bzRepreorderDialog[hidden]{display:none!important}
+#bzRepreorderDialog{position:fixed;inset:0;z-index:120100;display:flex;align-items:center;justify-content:center;background:#122030a8;padding:15px}
+#bzRepreorderDialog .bz-repreorder-card{width:min(440px,100%);border-radius:16px;background:#fffaf2;border:1px solid #deccb3;box-shadow:0 15px 50px #0004;padding:22px;color:#2b4154}
+#bzRepreorderDialog h3{font-size:20px;margin:0 0 10px}#bzRepreorderDialog p{font-size:13px;line-height:1.65;color:#586c7a}
+#bzRepreorderDialog select{margin:7px 0 16px;min-height:45px;background:#fff;color:#263e53}
+#bzRepreorderDialog .bz-repreorder-buttons{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+#bzRepreorderDialog button{border:1px solid #bccbd9;border-radius:10px;background:#fff;color:#2b4d68;padding:10px 14px;font-weight:850;min-height:43px}
+#bzRepreorderDialog #bzRepreorderConfirm{background:#2569c2;color:#fff;border-color:#17549d}
+html[data-ui-theme="charcoal"] #buJournalSheet #bzJournalTopBack{background:#52636d;color:#eff5fa;border-color:#8897a4}
+html[data-ui-theme="charcoal"] #bzRepreorderDialog .bz-repreorder-card{background:#394a55;color:#f0f5f7;border-color:#82919b}
+html[data-ui-theme="charcoal"] #bzRepreorderDialog p{color:#ccd9e1}
+/* Remembered play must be highlighted immediately on return, without changing the actual selected play. */
+@media(max-width:600px){
+ body[data-mobile-stage="plays"].bz-returning-plays #lottoMachine .side-actions-grid button.mode-btn.bz-visited-play:not(:disabled),
+ body.br-first-plays[data-mobile-stage="plays"].bz-returning-plays #lottoMachine .side-actions-grid button.mode-btn.bz-visited-play:not(:disabled){background:#d6eaff!important;background-image:linear-gradient(145deg,#e2f2ff,#92c3fc)!important;color:#174f91!important;-webkit-text-fill-color:#174f91!important;border:2px solid #2c7dda!important;box-shadow:0 0 0 3px #4297fb33,0 4px 16px #3885df65!important;opacity:1!important;filter:none!important}
+ body[data-mobile-stage="plays"].bz-returning-plays #mobileComboChoices button.bz-visited-play{border:2px solid #2c7dda!important;background:#d6eaff!important;box-shadow:0 0 0 3px #4297fb33,0 4px 15px #3885df55!important}
+ html[data-ui-theme="charcoal"] body[data-mobile-stage="plays"].bz-returning-plays #lottoMachine .side-actions-grid button.mode-btn.bz-visited-play:not(:disabled){background:#8dc9a5!important;background-image:linear-gradient(145deg,#c0efd0,#81c49e)!important;color:#153d2c!important;-webkit-text-fill-color:#153d2c!important;border:2px solid #62c28b!important;box-shadow:0 0 0 3px #80dfab4d,0 3px 17px #63b68d85!important}
+ html[data-ui-theme="charcoal"] body[data-mobile-stage="plays"].bz-returning-plays #mobileComboChoices button.bz-visited-play{background:#91ccac!important;color:#123727!important;border:2px solid #4aba77!important;box-shadow:0 0 0 3px #80dfab4d!important}
+}
+/* Self pick count: visible in charcoal; +/- targets centered and wide enough for fingers. */
+html[data-ui-theme="charcoal"] #lottoMachine .self-bet-count,
+html[data-ui-theme="charcoal"] #lottoMachine #quickModeExtras .self-bet-count{background:#344853!important;color:#edf5f8!important;border:1px solid #8ba1b1!important}
+html[data-ui-theme="charcoal"] #lottoMachine .self-bet-count-label{color:#eef4f7!important}
+#lottoMachine #quickModeExtras .self-countbox{grid-template-columns:38px 53px 38px!important;gap:0!important;overflow:visible!important}
+#lottoMachine #quickModeExtras .self-countbox button{display:flex!important;align-items:center!important;justify-content:center!important;font-size:22px!important;padding:0!important;text-align:center!important;line-height:1!important;border-radius:5px!important}
+#lottoMachine #quickModeExtras .self-countbox input{min-width:0!important;text-align:center!important;padding:0 2px!important}
+html[data-ui-theme="charcoal"] #lottoMachine .self-countbox{background:#354853!important;border-color:#6c8594!important}
+html[data-ui-theme="charcoal"] #lottoMachine .self-countbox button{background:#627784!important;color:#fff!important;border:1px solid #8da6b4!important}
+html[data-ui-theme="charcoal"] #lottoMachine .self-countbox input{background:#3c505d!important;color:#f3f7f8!important;-webkit-text-fill-color:#f3f7f8!important;border-color:#8da6b4!important}
+/* Override the older silver-on-charcoal rule for the ACTIVE self-pick quantity stepper. */
+html[data-ui-theme="charcoal"] #lottoMachine #quickModeExtras .self-countbox input:not(:disabled),
+html[data-ui-theme="charcoal"] #lottoMachine #selfInline .self-countbox input:not(:disabled){background:#334b59!important;color:#f3f7fa!important;-webkit-text-fill-color:#f3f7fa!important;border:1px solid #8da4b3!important}
+html[data-ui-theme="charcoal"] #lottoMachine #quickModeExtras .self-countbox button:not(:disabled),
+html[data-ui-theme="charcoal"] #lottoMachine #selfInline .self-countbox button:not(:disabled){display:flex!important;align-items:center!important;justify-content:center!important;background:#516a79!important;color:#f3f7fa!important;-webkit-text-fill-color:#f3f7fa!important;border:1px solid #8da4b3!important;padding:0!important}
+html[data-ui-theme="charcoal"] #lottoMachine #quickModeExtras #selfCountInput:not(:disabled),
+html[data-ui-theme="charcoal"] #lottoMachine #selfInline #selfCountInput:not(:disabled){background:#334b59!important;color:#f3f7fa!important;-webkit-text-fill-color:#f3f7fa!important;border:1px solid #8da4b3!important}
+/* Power lottery: both panels and their headings inherit charcoal instead of beige. */
+html[data-ui-theme="charcoal"] #lottoMachine #powerFirstZone.power-first-zone.open,
+html[data-ui-theme="charcoal"] #lottoMachine #powerSecondZone.power-second-zone.open{background:#465b67!important;background-image:linear-gradient(160deg,#425662,#30444f)!important;border:2px solid #78919e!important;color:#eff5f8!important}
+html[data-ui-theme="charcoal"] #lottoMachine #powerFirstZone .power-first-head,
+html[data-ui-theme="charcoal"] #lottoMachine #powerSecondZone .power-second-head{color:#f2f7f9!important}
+html[data-ui-theme="charcoal"] #lottoMachine #powerFirstZone .power-first-head .sub,
+html[data-ui-theme="charcoal"] #lottoMachine #powerSecondZone .power-second-head .sub{color:#d3e1e8!important}
+</style>
+<script id="v14bz-visited-plays">
+(function(){'use strict';
+ const app=document.getElementById('lottoMachine'),flow=window.__lottoMobileFlow;if(!app||!flow)return;
+ const lastByGame=new Map();let currentGame='';
+ function game(){return [...app.querySelectorAll('#gameRail [data-game]')].find(x=>x.classList.contains('active'))?.dataset.game||currentGame;}
+ function show(){const was=lastByGame.get(game());
+  document.querySelectorAll('#lottoMachine .side-actions-grid .mode-btn').forEach(b=>b.classList.toggle('bz-visited-play',!!was&&b.id===was));
+  document.querySelectorAll('#mobileComboChoices [data-mobile-combo]').forEach(b=>b.classList.toggle('bz-visited-play',!!was&&'combo:'+b.dataset.mobileCombo===was));
+ }
+ app.addEventListener('click',e=>{const g=e.target.closest('#gameRail [data-game]');if(g){currentGame=g.dataset.game;document.body.classList.remove('bz-returning-plays');return;}
+  const b=e.target.closest('.side-actions-grid .mode-btn,[data-mobile-combo]');if(!b||document.body.dataset.mobileStage!=='plays')return;
+  lastByGame.set(game(),b.hasAttribute('data-mobile-combo')?'combo:'+b.dataset.mobileCombo:b.id);
+  document.body.classList.remove('bz-returning-plays');show();
+ },true);
+ const old=flow.setStage.bind(flow);
+ flow.setStage=function(next){const before=document.body.dataset.mobileStage;const outcome=old(next);const now=document.body.dataset.mobileStage;
+  if(now==='plays'&&before==='numbers'){document.body.classList.remove('br-first-plays');document.body.classList.add('bz-returning-plays');show();}
+  else if(now!=='plays'||before==='games'){document.body.classList.remove('bz-returning-plays');}
+  return outcome;
+ };
+})();
+</script>
+</body>
 </html>
