@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號｜V14-BX 對獎與記錄介面修訂</title>
+<title>奧爾樂透選號｜V14-BY 自動對獎與滑動刪除修正</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -1994,6 +1994,39 @@ html[data-ui-theme="charcoal"] #archiveSheet .archive-sheet-card{background:#364
 html[data-ui-theme="charcoal"] #archiveSheet .archive-sheet-top{background:#34434d!important}
 html[data-ui-theme="charcoal"] #archiveSheet .archive-sheet-top h2,html[data-ui-theme="charcoal"] #archiveSheet .archive-sheet-count{color:#f0f4f5!important}
 html[data-ui-theme="charcoal"] #archiveSheet .archive-entry-button{background:linear-gradient(135deg,#c4cbd0,#adb9c0)!important;color:#243743!important}
+</style>
+<style id="v14by3-swipe-and-plays">
+/* A delete action is fully hidden until the gesture reveals it. */
+#buJournalSheet .bv-note-card{background:#fff!important;position:relative;overflow:hidden!important;}
+#buJournalSheet .bv-note-card>.bx-swipe-delete{display:none!important;visibility:hidden!important;pointer-events:none!important;left:0!important;right:auto!important;top:0!important;bottom:0!important;width:77px!important;background:#cf303b!important;color:#fff!important;z-index:3!important;border:0!important;border-radius:0!important;}
+#buJournalSheet .bv-note-card.bx-revealed:not(.bv-selected){padding-left:90px!important;}
+#buJournalSheet .bv-note-card.bx-revealed:not(.bv-selected)>.bx-swipe-delete{display:flex!important;visibility:visible!important;pointer-events:auto!important;align-items:center;justify-content:center;}
+#buJournalSheet.bv-deleting .bx-swipe-delete,#buJournalSheet .bv-selected .bx-swipe-delete{display:none!important;}
+html[data-ui-theme="charcoal"] #buJournalSheet .bv-note-card{background:#4b5c67!important;}
+/* Favorite: swipe RIGHT, red delete action on the LEFT (override prior left-swipe CSS). */
+#archiveSheet .archive-entry{background:transparent!important;overflow:hidden!important;}
+#archiveSheet .archive-entry>.archive-entry-delete{left:0!important;right:auto!important;width:75px!important;display:none!important;visibility:hidden!important;pointer-events:none!important;background:#cf303b!important;color:white!important;border-radius:12px 0 0 12px!important;z-index:2!important;}
+#archiveSheet .archive-entry.reveal>.archive-entry-delete{display:grid!important;visibility:visible!important;pointer-events:auto!important;place-items:center!important;}
+#archiveSheet .archive-entry.reveal>.archive-entry-button{transform:translateX(77px)!important;}
+#archiveSheet .archive-entry:not(.reveal)>.archive-entry-button{transform:translateX(0)!important;}
+/* Uniform neutral styles before a play is selected. Class "active" remains for internal logic only. */
+@media(max-width:600px){
+ body[data-mobile-stage="plays"] #lottoMachine .side-actions-grid .mode-btn:not(:disabled),
+ body.br-first-plays[data-mobile-stage="plays"] #lottoMachine .side-actions-grid .mode-btn:is(.active,.au-return-active):not(:disabled){
+  background:#eef2f6!important;background-image:linear-gradient(145deg,#f4f7fa,#e4eaf1)!important;
+  color:#24416a!important;-webkit-text-fill-color:#24416a!important;
+  border:1.5px solid #b9c7d4!important;
+  box-shadow:0 4px 12px rgba(36,58,95,.16),inset 0 1px 0 #fff!important;
+  filter:none!important;outline:none!important;opacity:1!important;
+ }
+ html[data-ui-theme="charcoal"] body[data-mobile-stage="plays"] #lottoMachine .side-actions-grid .mode-btn:not(:disabled),
+ html[data-ui-theme="charcoal"] body.br-first-plays[data-mobile-stage="plays"] #lottoMachine .side-actions-grid .mode-btn:is(.active,.au-return-active):not(:disabled){
+  background:#b7c2c9!important;background-image:linear-gradient(145deg,#cbd1d5,#aeb9c1)!important;
+  border:1.5px solid #52616c!important;color:#22313c!important;-webkit-text-fill-color:#22313c!important;
+  box-shadow:0 4px 12px #0004!important;filter:none!important;outline:none!important;
+ }
+ body[data-mobile-stage="plays"] #lottoMachine .side-actions-grid .mode-btn:disabled{opacity:.45!important;filter:grayscale(1)!important;}
+}
 </style>
 </head>
 <body>
@@ -9384,7 +9417,7 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   {id:'bingo',name:'BINGO',endpoint:'BingoResult',key:'bingoQueryResult',base:'bingo',kind:'bingo'}
  ];
  const byId=id=>games.find(g=>g.id===id);
- const responses=new Map(),inflight=new Map(),views=new Map();
+ const responses=new Map(),inflight=new Map(),views=new Map(),journalForceSeen=new Set();
  let page=null,selectedDate='',selectedStart='',renderToken=0,drawOrder='ascending';
  const pad=n=>String(n).padStart(2,'0');
  function roc(iso){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));return m?`${Number(m[1])-1911}/${m[2]}/${m[3]}`:'';}
@@ -9407,8 +9440,10 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  }
  const first=(obj,keys)=>{for(const k of keys)if(obj?.[k]!==undefined&&obj?.[k]!==null)return obj[k];return null};
  function normalize(g,r){
-  let raw=first(r,g.kind==='bingo'?['openShowOrder','bigShowOrder','drawNumberAppear']:['drawNumberAppear','drawNumber','winningNumbers','lotteryNo','numbers']);
+  let raw=first(r,g.kind==='bingo'?['openShowOrder','bigShowOrder','drawNumberAppear']:g.kind==='digits'?['drawNumberAppear','drawNumberSize','drawNumber','winningNumbers','lotteryNo','numbers']:['drawNumberSize','drawNumberAppear','drawNumber','winningNumbers','lotteryNo','numbers']);
   let numbers=numList(raw,g.kind);
+  if(!numbers.length&&Array.isArray(r?.drawNumberAppear))numbers=numList(r.drawNumberAppear,g.kind);
+  if(!numbers.length&&r?.drawNumberSize!=null)numbers=numList(r.drawNumberSize,g.kind);
   const fallOrderOriginal=numList(first(r,g.kind==='bingo'?['openShowOrder','drawNumberAppear','bigShowOrder']:['drawNumberAppear','drawNumber','winningNumbers','lotteryNo','numbers']),g.kind);
   let special=first(r,g.kind==='power'?['specialNumber','specialNum','secondAreaNumber','secondNumber','secondDrawNumber']:g.kind==='six'?['specialNumber','specialNum']:g.kind==='bingo'?['bullEyeTop','superNumber']:[]);
   // Official 6/38 and 6/49 drawNumberAppear carries six main balls followed by the second-zone/special ball.
@@ -9425,7 +9460,9 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
   if(g.kind==='digits'&&numbers.length!==Number(g.id[0])){
    raw=first(r,['drawNumberAppear','drawNumber','drawNumberSize','number','winningNumbers','lotteryNo']);numbers=numList(raw,'digits');
   }
-  const date=String(first(r,['lotteryDate','openDate','drawDate','date'])||'').slice(0,10);
+  const dateRaw=String(first(r,['lotteryDate','openDate','drawDate','date'])||'').trim();
+  const dateMatch=/^(\d{2,4})[\/-](\d{1,2})[\/-](\d{1,2})/.exec(dateRaw);
+  const date=dateMatch?`${String(Number(dateMatch[1])<1912?Number(dateMatch[1])+1911:Number(dateMatch[1])).padStart(4,'0')}-${String(Number(dateMatch[2])).padStart(2,'0')}-${String(Number(dateMatch[3])).padStart(2,'0')}`:dateRaw.slice(0,10);
   const fallOrder=(g.kind==='digits'?numbers:fallOrderOriginal).slice(0,numbers.length);
   const awardKeyMap=g.id==='539'?{jackpot:'d539JackpotAssign',second:'d539SecondAssign',third:'d539ThirdAssign',fourth:'d539FourthAssign'}:
   g.id==='lotto649'?{jackpot:'jackpotAssign',second:'secondAssign',third:'thirdAssign',fourth:'fourthAssign',fifth:'fifthAssign',sixth:'sixthAssign',seventh:'seventhAssign',normal:'normalAssign'}:
@@ -9631,15 +9668,21 @@ body.bb-smart4-active #lottoMachine #bbSmart4Btn{background:#165DFF!important;co
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!overlay.hidden&&!selectedDate)render(false)});
  window.AoerDrawBoard={open,refresh:()=>render(true),models:games.map(g=>g.id),normalizePowerSample:row=>normalize(byId('power'),row),
   journalPreview:async(gameId,date)=>{const g=byId(gameId);if(!g)return null;const rows=await earlyDraw(g,date,date);return rows[0]||null;},
-  journalDraws:async(gameId,dates)=>{
+  journalDraws:async(gameId,dates,refreshCycle=0)=>{
    const selected=byId(gameId);if(!selected||!['539','lotto649','power','3star','4star','39combo','49combo'].includes(gameId))return [];
    const g=gameId==='39combo'?{...selected,endpoint:'39M5Result',key:'m539Res',base:'journal39'}:
      gameId==='49combo'?{...selected,endpoint:'49M6Result',key:'m649Res',base:'journal49'}:selected;
    if(!Array.isArray(dates)||dates.length>40||dates.some(d=>!/^\d{4}-\d{2}-\d{2}$/.test(d)))throw Error('購買筆記期別格式錯誤');
    const months=[...new Set(dates.map(d=>d.slice(0,7)))];
-   const groups=await Promise.all(months.map(m=>requestMonth(g,m).catch(e=>{console.warn('官方開獎資料暫不可用',gameId,m,e);return []})));
+   const failures=[];
+   const groups=await Promise.all(months.map(m=>{
+    const refreshId=refreshCycle?`${refreshCycle}:${g.base}:${m}`:'';
+    const mustRefresh=!!refreshId&&!journalForceSeen.has(refreshId);
+    if(mustRefresh){journalForceSeen.add(refreshId);if(journalForceSeen.size>250)journalForceSeen.clear();}
+    return requestMonth(g,m,mustRefresh).catch(e=>{console.warn('官方開獎資料暫不可用',gameId,m,e);failures.push(`${m}: ${String(e?.message||e)}`);return []})}));
    const wanted=new Set(dates),map=new Map();
    for(const row of groups.flat())if(valid(g,row)&&wanted.has(row.date)&&row.period&&!map.has(row.date))map.set(row.date,row);
+   if(failures.length)console.warn('對獎查詢失敗的月份',gameId,failures);
    return [...map.values()].sort((a,b)=>a.date.localeCompare(b.date));
   }
  };
@@ -9953,13 +9996,18 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   }else return null;
   return {total,prizes,unknown,units};
  }
- async function checkOne(item){
+ async function checkOne(item,refreshCycle=0){
+  if(!item.paid){item.results=[];item.prizeTotal=0;item.hasPreview=false;item.status='pending';item.lastChecked='';return item;}
   const pages=item.snapshot?.pages||[];if(!pages.length)return item;
   const oldResults=[];let pending=false,unknown=false,allTotal=0,seen=0;
   const drawsCache=new Map();
   for(const [pageIndex,page] of pages.entries()){const pageBetOffset=pages.slice(0,pageIndex).reduce((n,p)=>n+(p.rows?.length||0),0);const game=page.gameId||item.gameId,info=item.schedule?.[game]||{dates:[]},dates=info.dates||[];
+   if(item.paid&&info.estimated&&dateCorrect(item.purchaseDate)&&window.AoerDrawCalendar?.isDrawDate?.(game,item.purchaseDate)){
+    const rebuilt=window.AoerDrawCalendar.nextDates(game,item.purchaseDate,Math.min(40,Math.max(1,Number(page.periodCount)||Number(item.periodCount)||1)));
+    if(rebuilt.length===(Number(page.periodCount)||Number(item.periodCount)||1)){dates.splice(0,dates.length,...rebuilt);info.estimated=false;info.dateSource='recovered-purchased-date';}
+   }
    if(!supported.has(game)||info.estimated||dates.length!==(Number(page.periodCount)||Number(item.periodCount)||1)){pending=true;oldResults.push({game,reason:!supported.has(game)?'此彩種尚未提供經驗證的自動派彩計算':info.estimated?'尚未記錄可驗證的預購起始日期，請對照實體彩券確認期別':'投注期別尚待確認'});continue;}
-   if(!drawsCache.has(game)){try{drawsCache.set(game,await window.AoerDrawBoard?.journalDraws?.(game,dates)||[])}catch(err){console.warn('官方資料暫無法查詢',game,err);drawsCache.set(game,[])}}
+   if(!drawsCache.has(game)){try{drawsCache.set(game,await window.AoerDrawBoard?.journalDraws?.(game,dates,refreshCycle)||[])}catch(err){console.warn('官方資料暫無法查詢',game,err);drawsCache.set(game,[])}}
    const drawMap=new Map(drawsCache.get(game).map(r=>[r.date,r]));
    for(const date of dates){const draw=drawMap.get(date);
     if(!draw){pending=true;
@@ -9988,18 +10036,18 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   }
   const was=Number(item.prizeTotal)||0;item.results=oldResults;item.prizeTotal=allTotal;item.hasPreview=oldResults.some(x=>x.preview);item.lastChecked=new Date().toISOString();item.status=pending||unknown?'pending':allTotal>0?'won':'lost';if(allTotal>was)item.unreadWin=true;return item;
  }
- let checking=false,recheckQueued=false;
+ let checking=false,recheckQueued=false,refreshCycleCounter=0;
  function revisionKey(item){return JSON.stringify({paid:!!item.paid,purchaseDate:item.purchaseDate||'',schedule:item.schedule||{}});}
  async function checkAll(force=false){
   if(checking){recheckQueued=true;return;}
   if(!window.AoerDrawBoard?.journalDraws)return;
   checking=true;
   try{
-   const candidates=read(),updated=[];
+   const candidates=read(),updated=[],refreshCycle=force?++refreshCycleCounter:0;
    for(const original of candidates){
     if(!force&&(original.status==='lost'||original.status==='won')&&!original.hasPreview)continue;
     const rev=revisionKey(original);
-    const checked=await checkOne(original);
+    const checked=await checkOne(original,refreshCycle);
     updated.push({id:original.id,rev,checked});
    }
    if(updated.length){
@@ -10008,7 +10056,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
      const existing=current.find(x=>x.id===id);
      if(!existing||revisionKey(existing)!==rev){recheckQueued=true;continue;}
      const priorPrize=Number(existing.prizeTotal)||0;
-     for(const k of ['results','prizeTotal','hasPreview','lastChecked','status'])existing[k]=checked[k];
+     for(const k of ['results','prizeTotal','hasPreview','lastChecked','status','schedule'])existing[k]=checked[k];
      if(Number(checked.prizeTotal)>priorPrize)existing.unreadWin=true;
      dirty=true;
     }
@@ -10074,8 +10122,10 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
    if(!complete){
     const prev=g.rows.filter(r=>r.preview);
     const provisional=prev.length?`<div class="bx-preview-win">${prev.reduce((n,r)=>n+(Number(r.previewWins)||0),0)>0?`暫定中獎 ${prev.reduce((n,r)=>n+(Number(r.previewWins)||0),0)} 注<br>`:'暫定獎號已取得，尚未判定中獎<br>'}<strong>尚未核對官方資訊</strong><br>暫定結果僅供參考，不計入正式獎金。</div>`:'';
+    const officialRows=g.rows.filter(r=>!r.preview&&Array.isArray(r.balls));
+    const officialBalls=officialRows.length?`<p class="ca-check-wait">官方獎號已取得：${safe(officialRows[0].balls.map(num).join('、'))}；部分派彩資訊仍待確認。</p>`:'';
     const insufficient=g.rows.find(r=>r.reason&&!r.preview)?.reason||'尚未取得完整的官方獎號與派彩資料';
-    return `<section class="bv-win-group ca-draw-check-group ca-check-pending" data-draw-date="${safe(g.date)}"><h5>${heading}　待對獎</h5><p class="ca-check-wait">${safe(insufficient)}</p>${provisional}</section>`;
+    return `<section class="bv-win-group ca-draw-check-group ca-check-pending" data-draw-date="${safe(g.date)}"><h5>${heading}　待對獎</h5><p class="ca-check-wait">${safe(insufficient)}</p>${officialBalls}${provisional}</section>`;
    }
    const wins=rows.filter(r=>Number(r.total)>0);
    const title=`${roc(g.date)} 的對獎已對完${period?'（第 '+safe(period)+' 期）':''}`;
@@ -10109,7 +10159,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
  function render(){if(screen.hidden){updateUnreadDot();return;}const list=read();count.textContent=deleteMode?`已選 ${selectedIds.size}／${list.length} 筆`:`${list.length}筆記錄`;updateDeleteTools();if(selectedId&&!deleteMode){const item=list.find(x=>x.id===selectedId);if(item){detail(item);updateUnreadDot();return;}selectedId='';}
   entries.innerHTML=list.length?list.map(card).join(''):'<p class="bu-journal-empty">還沒有選號記錄。製作 QR 後會自動儲存於此。</p>';updateUnreadDot();
  }
- function open(){screen.hidden=false;document.body.style.overflow='hidden';selectedId='';deleteMode=false;selectedIds.clear();render();checkAll();}
+ function open(){screen.hidden=false;document.body.style.overflow='hidden';selectedId='';deleteMode=false;selectedIds.clear();render();checkAll(true);}
  function close(){screen.hidden=true;document.body.style.overflow='';selectedId='';deleteMode=false;selectedIds.clear();updateUnreadDot();}
  function markViewed(id){const list=read(),item=list.find(x=>x.id===id);if(item?.unreadWin){item.unreadWin=false;item.winSeenAt=new Date().toISOString();write(list);}updateUnreadDot();}
  function paintSelection(){for(const card of entries.querySelectorAll('[data-note]')){const value=selectedIds.has(card.dataset.note);card.classList.toggle('bv-selected',value);card.querySelector('.by-card-open')?.setAttribute('aria-pressed',String(value));const h=card.querySelector('.bv-selection-handle');if(h)h.textContent=value?'✓':'';}count.textContent=`已選 ${selectedIds.size}／${read().length} 筆`;updateDeleteTools();}
@@ -10179,7 +10229,7 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   item.paid=!!checked;
   item.paidAt=item.paid?(item.paidAt||new Date().toISOString()):'';
   if(!item.paid)item.unreadWin=false;
-  if(write(list)){render();updateUnreadDot();if(item.paid)checkAll();}
+  if(write(list)){render();updateUnreadDot();if(item.paid)checkAll(true);}
  }
  entries.addEventListener('change',e=>{
   if(e.target.matches('.by-card-paid-input')){setPurchased(e.target.dataset.paidId,e.target.checked);return;}
