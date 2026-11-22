@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<title>奧爾樂透選號｜V14-CA BINGO 逐期對獎</title>
+<title>奧爾樂透選號｜V14-CB BINGO 深灰模式介面修正</title>
 <style>
 :root{--blue:#165DFF;--blue2:#0B3B9E;--yellow:#FFD54A;--red:#D93025;--bg:#F6F8FC;--card:#fff;--text:#172033;--muted:#667085;--line:#E3E8F0;--green:#1A7F37}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);padding-bottom:92px}
@@ -2052,6 +2052,106 @@ html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-total{background:#41545
 html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-total b{color:#99e2bc}
 html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-caution,html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-selection small{color:#e0e9ed}
 @media(max-width:360px){#buJournalSheet .ca-bingo-fields{grid-template-columns:1fr}#buJournalSheet .ca-bingo-slots{grid-template-columns:1fr}}
+</style>
+
+<style id="v14-cb-bingo-journal-contrast-and-layout">
+/* BINGO notebook: make native date/time controls fit iOS Safari without overlapping. */
+#buJournalSheet .ca-bingo-fields{
+  width:100%!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:12px!important;
+  row-gap:12px!important;
+  align-items:start!important;
+}
+#buJournalSheet .ca-bingo-fields label{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:7px!important;
+  min-width:0!important;
+  max-width:100%!important;
+  width:100%!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  overflow:visible;
+}
+#buJournalSheet .ca-bingo-fields input[type="date"],
+#buJournalSheet .ca-bingo-fields select{
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:48px!important;
+  min-height:48px!important;
+  padding:9px 12px!important;
+  margin:0!important;
+  border-radius:10px!important;
+  font-size:16px!important;
+  line-height:1.3!important;
+}
+#buJournalSheet .ca-bingo-fields input[type="date"]::-webkit-date-and-time-value{
+  text-align:left;
+  min-height:1em;
+}
+/* Readable drawing numbers in both themes.  Do not change numbers or scoring. */
+#buJournalSheet .ca-bingo-draw-balls{
+  display:block;
+  font-size:14px!important;
+  line-height:1.85!important;
+  font-weight:750!important;
+  letter-spacing:.01em;
+  margin:10px 0!important;
+  padding:8px 10px;
+  border-radius:9px;
+  color:#253d52!important;
+  background:#edf3f8;
+  overflow-wrap:anywhere;
+}
+/* Red is reserved for winning messages, not losing or missing-draw states. */
+#buJournalSheet .ca-bingo-win-summary,
+#buJournalSheet .ca-bingo-total b{
+  color:#c62831!important;
+  font-weight:900!important;
+}
+#buJournalSheet .ca-bingo-win-summary{
+  font-size:15px!important;
+  line-height:1.6!important;
+}
+#buJournalSheet .ca-bingo-total:has(b){border:1px solid #f1bdc1;}
+#buJournalSheet .ca-bingo-total{background:#fff3f3;}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-draw-balls{
+  color:#f5f9fc!important;
+  background:#34434d!important;
+  border:1px solid #72838e;
+}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-win-summary,
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-total b{
+  color:#ff8585!important;
+  -webkit-text-fill-color:#ff8585!important;
+}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-total{
+  background:#493e44!important;
+  border-color:#a86d78!important;
+  color:#f5f1f2!important;
+}
+html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-win-summary{
+  text-shadow:0 1px 0 rgba(0,0,0,.18);
+}
+/* The date's long localized value cannot fit safely next to time on 375-430 px phones. */
+@media(max-width:600px){
+  #buJournalSheet .ca-bingo-fields{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;
+  }
+  #buJournalSheet .ca-bingo-fields label{grid-column:1/-1!important;}
+  #buJournalSheet .ca-bingo-fields input[type="date"],
+  #buJournalSheet .ca-bingo-fields select{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
+}
 </style>
 </head>
 <body>
