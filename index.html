@@ -2153,32 +2153,30 @@ html[data-ui-theme="charcoal"] #buJournalSheet .ca-bingo-win-summary{
   }
 }
 </style>
-<style id="v14-cc-bingo-user-picks-report">
-/* Draw report highlights selected betting numbers (not all twenty drawn numbers). */
-#buJournalSheet .cc-bingo-legend{font-size:12px;font-weight:800;color:#475c70;margin:10px 0 7px;line-height:1.6}
-#buJournalSheet .cc-bingo-legend-hit{color:#bd293b}
-#buJournalSheet .cc-bingo-bet-list{display:grid;gap:8px;margin:9px 0 12px}
-#buJournalSheet .cc-bingo-page-label{font-size:12px;font-weight:850;color:#596d7e;margin:8px 0 0}
-#buJournalSheet .cc-bingo-bet{border:1px solid #d9e3ed;border-radius:11px;background:#f7faff;padding:10px 11px;min-width:0}
-#buJournalSheet .cc-bingo-bet-won{border-color:#e4a4a9;background:#fff6f6}
-#buJournalSheet .cc-bingo-bet-title{font-size:13px;color:#263e54;line-height:1.5}
-#buJournalSheet .cc-bingo-picks{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:7px 0 5px;min-width:0}
-#buJournalSheet .cc-bingo-number{display:inline-flex;align-items:center;justify-content:center;min-width:38px;min-height:38px;padding:4px 7px;border-radius:9px;border:1px solid #c8d5e4;background:#e6eef7;color:#203b55;font-size:16px;font-weight:850;font-variant-numeric:tabular-nums;line-height:1.3}
-#buJournalSheet .cc-bingo-number.cc-bingo-hit{background:#b42336!important;color:#fff!important;border-color:#b42336!important;box-shadow:0 0 0 2px rgba(180,35,54,.12);-webkit-text-fill-color:#fff!important}
-#buJournalSheet .cc-bingo-bet-outcome{font-size:12px;line-height:1.6;color:#536779;margin-top:6px;overflow-wrap:anywhere}
-#buJournalSheet .cc-bingo-win{color:#b42336!important;font-weight:900}
-#buJournalSheet .cc-bingo-check-note{color:#536779}
-#buJournalSheet .cc-bingo-addon{padding:9px 11px}
-html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-legend,html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-page-label{color:#e3ebf1}
-html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-legend-hit{color:#ff929b}
-html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-bet{background:#3c4e59;border-color:#8294a1}
-html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-bet-won{background:#4a3d45;border-color:#da8f9a}
-html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-bet-title{color:#fff!important}
-html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-number{background:#263640;border-color:#8598a7;color:#f2f6fa}
-html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-number.cc-bingo-hit{background:#d13848!important;border-color:#ff939e!important;color:#fff!important}
-html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-bet-outcome,html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-check-note{color:#dce5ec}
-html[data-ui-theme="charcoal"] #buJournalSheet .cc-bingo-win{color:#ff9fa8!important;-webkit-text-fill-color:#ff9fa8!important}
-@media(max-width:600px){#buJournalSheet .cc-bingo-number{min-width:37px;min-height:37px;padding:4px 6px;font-size:16px}#buJournalSheet .cc-bingo-picks{gap:5px}}
+<style id="v14-cd-bingo-compact-report">
+/* BINGO prize report: same inline number presentation as the other lottery games. */
+#buJournalSheet .cd-bingo-entries{margin-top:5px}
+#buJournalSheet .cd-bingo-line{padding:10px 0;border-top:1px solid #e2e6ec;line-height:1.6;min-width:0}
+#buJournalSheet .cd-bingo-bet-line{display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;font-size:14px;color:#344a60}
+#buJournalSheet .cd-bingo-bet-line strong{color:#3e5167;font-weight:900;flex:none}
+#buJournalSheet .cd-bingo-numbers{font-weight:850;color:#344a60;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;line-height:1.8}
+#buJournalSheet .cd-bingo-picked-num{white-space:nowrap;font-weight:850;color:inherit}
+#buJournalSheet .cd-bingo-bet-line .bv-hit-number{color:#d72c40!important;font-weight:950!important;-webkit-text-fill-color:#d72c40!important}
+#buJournalSheet .cd-bingo-award{margin-top:2px;font-size:13px;color:#687787;overflow-wrap:anywhere}
+#buJournalSheet .cd-bingo-award-winning{color:#4c5c69}
+#buJournalSheet .cd-bingo-award-winning strong{font-weight:900;color:#d14a42}
+#buJournalSheet .cd-bingo-other{margin-top:7px;border-top:1px solid #e2e6ec}
+#buJournalSheet .cd-bingo-other summary{padding:11px 3px;color:#315f9e;font-size:13px;font-weight:850;cursor:pointer;list-style:revert}
+#buJournalSheet .cd-bingo-other summary:focus-visible{outline:2px solid #4387e5;outline-offset:2px}
+#buJournalSheet .cd-bingo-other-list{padding:0 3px}
+#buJournalSheet .ca-bingo-win-summary{margin-top:9px}
+html[data-ui-theme="charcoal"] #buJournalSheet .cd-bingo-line,html[data-ui-theme="charcoal"] #buJournalSheet .cd-bingo-other{border-color:#7a8b96}
+html[data-ui-theme="charcoal"] #buJournalSheet .cd-bingo-bet-line,html[data-ui-theme="charcoal"] #buJournalSheet .cd-bingo-bet-line strong,html[data-ui-theme="charcoal"] #buJournalSheet .cd-bingo-numbers{color:#edf3f8!important}
+html[data-ui-theme="charcoal"] #buJournalSheet .cd-bingo-bet-line .bv-hit-number{color:#ff727b!important;-webkit-text-fill-color:#ff727b!important}
+html[data-ui-theme="charcoal"] #buJournalSheet .cd-bingo-award{color:#dae3eb}
+html[data-ui-theme="charcoal"] #buJournalSheet .cd-bingo-award-winning strong{color:#ffb588}
+html[data-ui-theme="charcoal"] #buJournalSheet .cd-bingo-other summary{color:#c1ddff}
+@media(max-width:600px){#buJournalSheet .cd-bingo-line{padding:8px 0}#buJournalSheet .cd-bingo-bet-line{font-size:14px;gap:4px}#buJournalSheet .cd-bingo-numbers{font-size:14px;line-height:1.8}}
 </style>
 </head>
 <body>
@@ -10461,61 +10459,64 @@ window.addEventListener('aoer:draw-calendar-updated',()=>{
   if(!start?.date||!start?.time)return '<p class="bv-no-win">請先選擇第一期對獎日期與時間。</p>';
   const slots=core.slots(start.date,start.time,Math.min(12,Math.max(1,Number(item.periodCount)||1))),results=item.results||[];
   const pages=(item.snapshot?.pages||[]).filter(p=>(p.gameId||item.gameId)==='bingo');
-  // As for the other lottery games, compare the user's own picks against each draw.
-  // The complete set of 20 drawn balls is deliberately not the main report.
-  function selectedBets(draw){
+  // Compact display like the other games: winning bets first, all other picks expandable.
+  // Preserve the original scoring engine; numbers remain the user's actual picks.
+  function betList(draw){
    let betNo=0;
-   const winning=new Set((draw?.numbers||[]).map(Number));
-   const superNum=Number(draw?.super);
-   const result=[];
-   const numberMarks=(values,superMode)=>Array.isArray(values)?values.map(v=>{
-    const n=Number(v),match=!!draw&&(superMode?n===superNum:winning.has(n));
-    const label=safe(num(n));
-    return `<span class="cc-bingo-number${match?' cc-bingo-hit':''}" title="${match?'本期命中':'投注號碼'}" aria-label="${label}${match?'，命中':''}">${label}</span>`;
-   }).join(''):'<span class="cc-bingo-check-note">投注號碼資料有誤</span>';
-   function resultText(prize,hits,count){
-    if(!draw)return '<span class="cc-bingo-check-note">尚無可對照的開獎號碼</span>';
-    if(!prize)return '<span class="cc-bingo-check-note">投注內容待核對</span>';
-    if(Number(prize.winCount)>0)return `<strong class="cc-bingo-win">命中 ${hits} 碼 · 中獎 ${Number(prize.winCount)} 注 · ${priceFmt(prize.total)} 元（參考）</strong>`;
-    return `<span class="cc-bingo-check-note">命中 ${hits} / ${count} 碼 · 未中獎</span>`;
-   }
-   pages.forEach((page,pageIndex)=>{
-    if(pages.length>1)result.push(`<div class="cc-bingo-page-label">第 ${pageIndex+1} 張 QR</div>`);
-    (page.rows||[]).forEach(row=>{
+   const drawn=new Set((draw?.numbers||[]).map(Number)),superNum=Number(draw?.super);
+   const winnerRows=[],otherRows=[];
+   const formatNumbers=(nums,isSuper)=>Array.isArray(nums)&&nums.length?nums.map(n=>{
+    const v=Number(n),hit=!!draw&&(isSuper?v===superNum:drawn.has(v));
+    return `<span class="cd-bingo-picked-num${hit?' bv-hit-number':''}"${hit?' title="本期命中"':''}>${safe(num(v))}</span>`;
+   }).join('<span class="cd-bingo-comma">、</span>'):'<span>投注號碼待核對</span>';
+   const showRow=(title,numberHtml,prize,hitCount,numberCount)=>{
+    const ok=Number(prize?.winCount)>0;
+    const label=ok?(prize.prizes||[]).map(p=>p.award).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join('、'):'';
+    const outcome=!draw?'尚無可對應的開獎獎號':!prize?'投注內容待核對':ok
+     ?`中 ${safe(label||'獎')}${Number(prize.winCount)>1?' · '+Number(prize.winCount)+' 注':''}，金額 <strong>${priceFmt(prize.total)} 元</strong>（參考）`
+     :`命中 ${hitCount}/${numberCount} 碼 · 未中獎`;
+    const markup=`<div class="cd-bingo-line${ok?' cd-bingo-line-winning':''}"><div class="cd-bingo-bet-line"><strong>${safe(title)}：</strong><span class="cd-bingo-numbers">${numberHtml}</span></div><div class="cd-bingo-award${ok?' cd-bingo-award-winning':''}">${outcome}</div></div>`;
+    (ok?winnerRows:otherRows).push(markup);
+   };
+   pages.forEach((page,index)=>{
+    const multi=pages.length>1?'（第'+(index+1)+'張 QR）':'';
+    for(const row of page.rows||[]){
      betNo++;
-     const isSuper=row?.mode==='super';
-     const nums=Array.isArray(row?.nums)?row.nums:[];
-     const hits=draw?nums.filter(n=>isSuper?Number(n)===superNum:winning.has(Number(n))).length:0;
+     const isSuper=row?.mode==='super',nums=Array.isArray(row?.nums)?row.nums:[];
+     const hitCount=draw?nums.filter(n=>isSuper?Number(n)===superNum:drawn.has(Number(n))).length:0;
      let prize=null;
-     if(draw)try{prize=core.score({rows:[row],decoded:{}},draw)}catch(err){console.warn('BINGO 單注顯示判獎失敗',err)}
-     const title=isSuper?'超級獎號':`${Number(row?.stars)||nums.length}星`;
-     const isWon=!!(prize&&Number(prize.winCount)>0);
-     result.push(`<div class="cc-bingo-bet${isWon?' cc-bingo-bet-won':''}"><div class="cc-bingo-bet-title"><b>第 ${betNo} 注 · ${safe(title)}</b></div><div class="cc-bingo-picks">${numberMarks(nums,isSuper)}</div><div class="cc-bingo-bet-outcome">${resultText(prize,hits,nums.length)}</div></div>`);
-    });
-    const opts=page.decoded||{};
-    const addons=[...(Array.isArray(opts.sizeChoices)?opts.sizeChoices:[]).map(kind=>({kind,type:'size',label:kind==='big'?'猜大':'猜小'})),...(Array.isArray(opts.parityChoices)?opts.parityChoices:[]).map(kind=>({kind,type:'parity',label:kind==='odd'?'猜單':'猜雙'}))];
-    addons.forEach(opt=>{
+     if(draw)try{prize=core.score({rows:[row],decoded:{}},draw)}catch(err){console.warn('BINGO 單注對獎顯示失敗',err)}
+     const label=`第 ${betNo} 注${multi} · ${isSuper?'超級獎號':(Number(row?.stars)||nums.length)+'星'}`;
+     showRow(label,formatNumbers(nums,isSuper),prize,hitCount,nums.length);
+    }
+    const options=page.decoded||{};
+    const addons=[...(Array.isArray(options.sizeChoices)?options.sizeChoices:[]).map(kind=>({kind,type:'size',label:kind==='big'?'猜大':'猜小'})),...(Array.isArray(options.parityChoices)?options.parityChoices:[]).map(kind=>({kind,type:'parity',label:kind==='odd'?'猜單':'猜雙'}))];
+    for(const extra of addons){
      let prize=null;
      if(draw){
-      const decoded=opt.type==='size'?{sizeChoices:[opt.kind],sizeMultiplier:Number(opts.sizeMultiplier)||1}:{parityChoices:[opt.kind],parityMultiplier:Number(opts.parityMultiplier)||1};
-      try{prize=core.score({rows:[],decoded},draw)}catch(err){console.warn('BINGO 附加玩法判獎顯示失敗',err)}
+      const decoded=extra.type==='size'?{sizeChoices:[extra.kind],sizeMultiplier:Number(options.sizeMultiplier)||1}:{parityChoices:[extra.kind],parityMultiplier:Number(options.parityMultiplier)||1};
+      try{prize=core.score({rows:[],decoded},draw)}catch(err){console.warn('BINGO 附加玩法顯示失敗',err)}
      }
-     const isWon=!!(prize&&Number(prize.winCount)>0);
-     result.push(`<div class="cc-bingo-bet cc-bingo-addon${isWon?' cc-bingo-bet-won':''}"><div class="cc-bingo-bet-title"><b>${safe(opt.label)}</b></div><div class="cc-bingo-bet-outcome">${!draw?'尚無可對照的開獎號碼':!prize?'投注內容待核對':isWon?`<strong class="cc-bingo-win">中獎 ${prize.winCount} 注 · ${priceFmt(prize.total)} 元（參考）</strong>`:'未中獎'}</div></div>`);
-    });
+     // Guess-size and guess-parity bets have no selected number string.
+     const yes=Number(prize?.winCount)>0;
+     const markup=`<div class="cd-bingo-line${yes?' cd-bingo-line-winning':''}"><div class="cd-bingo-bet-line"><strong>${safe(extra.label+multi)}</strong></div><div class="cd-bingo-award${yes?' cd-bingo-award-winning':''}">${!draw?'尚無可對應的開獎獎號':!prize?'投注內容待核對':yes?`中獎 ${Number(prize.winCount)} 注，金額 <strong>${priceFmt(prize.total)} 元</strong>（參考）`:'未中獎'}</div></div>`;
+     (yes?winnerRows:otherRows).push(markup);
+    }
    });
-   return result.length?`<div class="cc-bingo-bet-list">${result.join('')}</div>`:'<p class="cc-bingo-check-note">這筆記錄未包含可辨識的 BINGO 投注號碼。</p>';
+   if(!winnerRows.length&&!otherRows.length)return '<p class="cc-bingo-check-note">這筆記錄未包含可辨識的 BINGO 投注號碼。</p>';
+   const collapsed=otherRows.length?`<details class="cd-bingo-other"><summary>查看其他 ${otherRows.length} 注${draw?'（未中獎）':'（尚未對獎）'}</summary><div class="cd-bingo-other-list">${otherRows.join('')}</div></details>`:'';
+   return `<div class="cd-bingo-entries">${winnerRows.join('')}${collapsed}</div>`;
   }
   return slots.map((slot,i)=>{
    const found=results.filter(r=>r.date===slot.date&&r.time===slot.time);
    const ready=found.find(r=>Array.isArray(r.balls)&&!r.reason);
    const header='第 '+(i+1)+' 期｜'+roc(slot.date)+' '+slot.time;
-   if(!ready)return `<section class="bv-win-group ca-draw-check-group ca-check-pending"><h5>${safe(header)}</h5><p class="ca-check-wait">查無獎號</p>${selectedBets(null)}</section>`;
+   if(!ready)return `<section class="bv-win-group ca-draw-check-group ca-check-pending"><h5>${safe(header)}</h5><p class="ca-check-wait">查無獎號</p>${betList(null)}</section>`;
    const wins=found.flatMap(r=>r.prizes||[]).filter(p=>Number(p.units)>0);
    const count=wins.reduce((n,p)=>n+Number(p.units||0),0);
    const reference=wins.reduce((n,p)=>n+Number(p.amount||0),0);
    const draw={numbers:ready.balls,super:Number(ready.special)};
-   return `<section class="bv-win-group ca-draw-check-group ca-check-done"><h5>${safe(header)} · ${safe(ready.period)} 期</h5><div class="cc-bingo-legend">投注號碼｜<span class="cc-bingo-legend-hit">紅色為本期命中號碼</span></div>${selectedBets(draw)}${count?`<div class="ca-bingo-win-summary">本期中獎 ${count} 注｜一般獎金表參考 ${priceFmt(reference)} 元</div>`:'<p class="ca-check-lost">本期對獎結果：未中獎</p>'}</section>`;
+   return `<section class="bv-win-group ca-draw-check-group ca-check-done"><h5>${safe(header)} · ${safe(ready.period)} 期</h5>${!count?'<p class="ca-check-lost">本期未中獎</p>':''}${betList(draw)}${count?`<div class="ca-bingo-win-summary">本期中獎 ${count} 注｜一般獎金表參考 ${priceFmt(reference)} 元</div>`:''}</section>`;
   }).join('');
  }
  function drawResultReport(item){
